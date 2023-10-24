@@ -1,11 +1,4 @@
 ```{r}
-
-
-N <- 100
-ki  <-  3
-km  <-  1
-K  <- ki+km
-ntraits=list(a=c(
 etopo <- read.csv(textConnection(
 "altitudes,colours
 10000,#FBFBFB
@@ -26,20 +19,6 @@ etopo.colors <- function(n) {
   colorRampPalette(etopo$colours)(n)
   }
 
-
-z=4
-a=rep(0,3)
-adaptiveTraits=a
-age  <- vector()
-community  <- vector()
-population  <- cbind(age=age,community=community)
-
-community <- list(
-                  coordinates=cbind(x=vector(mode="numeric",length=K),y=vector(mode="numeric",length=K)),
-                  traits=cbind(a1=vector(mode="numeric",length=K),a2=vector(mode="numeric",length=K),a3=vector(mode="numeric",length=K)),
-                  size=vector(mode="numeric",length=K)
-
-                  )
 source("R/population.R")
 N=100
 z=4 #number of neutral traits
