@@ -1,0 +1,161 @@
+```{r}
+
+
+N <- 100
+ki  <-  3
+km  <-  1
+K  <- ki+km
+ntraits=list(a=c(
+etopo <- read.csv(textConnection(
+"altitudes,colours
+10000,#FBFBFB
+4000,#864747
+3900,#7E4B11
+2000,#9B8411
+1900,#BD8D15
+300,#F0CF9F
+0,#307424
+-1,#AFDCF4
+-12000,#090B6A
+"
+), stringsAsFactors=FALSE)
+etopo$altitudes01 <- scales::rescale(etopo$altitudes)
+
+
+etopo.colors <- function(n) {
+  colorRampPalette(etopo$colours)(n)
+  }
+
+
+z=4
+a=rep(0,3)
+adaptiveTraits=a
+age  <- vector()
+community  <- vector()
+population  <- cbind(age=age,community=community)
+
+community <- list(
+                  coordinates=cbind(x=vector(mode="numeric",length=K),y=vector(mode="numeric",length=K)),
+                  traits=cbind(a1=vector(mode="numeric",length=K),a2=vector(mode="numeric",length=K),a3=vector(mode="numeric",length=K)),
+                  size=vector(mode="numeric",length=K)
+
+                  )
+source("R/population.R")
+N=100
+z=4 #number of neutral traits
+ki <- 5
+km <- 2
+K  <-  ki+km
+m=.2 #proba marriage
+b=.1 #HG birth rate
+r=.2 #farmer scale param
+rho #marriage rule
+
+a=initAdaptiveTraits(ki=ki,km=km)
+neutraltraitsParam=initNeutralTraits(z = z)
+neutraltraitsParam$s=c(0,0,1,1)
+
+reproduction <- function(p1,p2,tp,i=NULL){
+    print(i)
+    stopifnot(p1$community==p2$community)
+    traits=ifelse(sample(c(0,1),length(tp$s),replace=T),p1$traits,p2$traits)
+    list(
+         id=i,
+         traits=traits,
+         age=0,
+         community=p1$community,
+         sex=sample(c("F","M"),1),
+         repro=FALSE,
+         partner=-1
+    )
+}
+
+
+population=lapply(1:N,function(i)
+                      list(
+                           id=i,
+                           traits=sample(c(0,1),size=z,replace=T),
+                           age=sample.int(80,1),
+                           community=sample.int(K,1),
+                           sex=sample(c("F","M"),1),
+                           repro=FALSE,
+                           partner=-1
+                      )
+)
+
+pos=random2Dgrid(K=K,Gx=100)
+initcomus=initialiseCommunities(traits=a,coordinates=pos)
+size=table(sapply(population,"[[","community"))
+initcomus$size=size
+plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+
+tstep=1000
+popsize=c()
+popsum=list()
+for(time in 1:tstep){
+    for(i in sample(1:length(population))){
+        if(!is.null(population[[i]])){
+            ind=population[[i]]$id
+            ##ageing
+            population[[ind]]$age=population[[ind]]$age+1
+
+            ##repro
+            partner=population[[ind]]$partner
+            repro=population[[ind]]$repro
+            if(partner>0 & !repro){
+                print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
+                population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
+                ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
+                lambda=b+r*sum(ad_tr)
+                nchild=rpois(1,lambda)
+                if(nchild>0){
+                    for(i in 1:nchild){
+                        print("newborn")
+                        population[[length(population)+1]]=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,length(population)+1)
+                    }
+                }
+            }
+            population[[ind]]$repro=FALSE
+
+            ##marriage
+            if(population[[ind]]$age>18 & population[[ind]]$partner <0){
+                print("hmmmaybe")
+                if(runif(1)<m){
+                    potential=sapply(population,function(i,s)if(i$age>18 & i$partner<0 & i$sex != s )return(i$id),s=population[[ind]]$sex)
+                    potential=unlist(potential)
+                    if(length(potential)>0){
+                        if(length(potential)==1)partner=potential
+                        else partner=sample(potential,1)
+                        population[[ind]]$partner=partner
+                        population[[partner]]$partner=ind
+                        newcom=ifelse(runif(1)<rho,population[[ind]]$community,population[[partner]]$community)
+                        population[[ind]]$community=population[[partner]]$community=newcom
+                        print(paste("marriage",ind,partner,"moving all to",newcom,":",population[[partner]]$community,population[[ind]]$community))
+                    }
+                }
+            }
+            #if(runif(1)<d)population[[ind]]=NULL
+        }
+
+
+        ##pm transmission
+
+        ##pm transmission
+        #quickly summarize
+        popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
+        size=table(sapply(population,"[[","community"))
+        initcomus$size=size
+        ##
+        plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+        popsize=c(popsize,length(population))
+    }
+}
+
+plot(popsize)
+
+sumcomu=sapply(popsum,"[[","community")
+plot(1,1,ylim=range(0,sumcomu),xlim=c(0,ncol(sumcomu)),type="n")
+lapply(1:K,function(k) lines(sumcomu[k,],col=mean(initcomus$adaptivetraits[k,])+1,lwd=2) )
+
+
+
