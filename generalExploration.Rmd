@@ -98,7 +98,7 @@ for(time in 1:tstep){
 
             ##marriage
             if(population[[ind]]$age>18 & population[[ind]]$partner <0){
-                print("hmmmaybe")
+                print("marriage attempt")
                 if(runif(1)<m){
                     potential=sapply(population,function(i,s)if(i$age>18 & i$partner<0 & i$sex != s )return(i$id),s=population[[ind]]$sex)
                     potential=unlist(potential)
