@@ -28,18 +28,20 @@ K  <-  ki+km
 m=.2 #proba marriage
 b=.1 #HG birth rate
 r=.2 #farmer scale param
-rho #marriage rule
+rho=.5 #marriage rule
+d=0.01
 
 a=initAdaptiveTraits(ki=ki,km=km)
 neutraltraitsParam=initNeutralTraits(z = z)
 neutraltraitsParam$s=c(0,0,1,1)
 
 reproduction <- function(p1,p2,tp,i=NULL){
-    print(i)
     stopifnot(p1$community==p2$community)
     traits=ifelse(sample(c(0,1),length(tp$s),replace=T),p1$traits,p2$traits)
+    if(!is.null(i))id=as.numeric(i)+1
+    print(id)
     list(
-         id=i,
+         id=as.character(id),
          traits=traits,
          age=0,
          community=p1$community,
@@ -49,10 +51,11 @@ reproduction <- function(p1,p2,tp,i=NULL){
     )
 }
 
-
-population=lapply(1:N,function(i)
+ip=1:N
+names(ip)=ip
+population=lapply(ip,function(i)
                       list(
-                           id=i,
+                           id=as.character(i),
                            traits=sample(c(0,1),size=z,replace=T),
                            age=sample.int(80,1),
                            community=sample.int(K,1),
@@ -73,13 +76,13 @@ popsize=c()
 popsum=list()
 for(time in 1:tstep){
     for(i in sample(1:length(population))){
-        if(!is.null(population[[i]])){
-            ind=population[[i]]$id
+        ind=tryCatch(population[[i]]$id,error=function(e)NULL)
+        if(!is.null(ind)){
             ##ageing
             population[[ind]]$age=population[[ind]]$age+1
 
             ##repro
-            partner=population[[ind]]$partner
+           partner=population[[ind]]$partner
             repro=population[[ind]]$repro
             if(partner>0 & !repro){
                 print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
@@ -90,7 +93,8 @@ for(time in 1:tstep){
                 if(nchild>0){
                     for(i in 1:nchild){
                         print("newborn")
-                        population[[length(population)+1]]=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,length(population)+1)
+                        newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
+                        population[[newborn$id]]=newborn
                     }
                 }
             }
@@ -102,6 +106,7 @@ for(time in 1:tstep){
                 if(runif(1)<m){
                     potential=sapply(population,function(i,s)if(i$age>18 & i$partner<0 & i$sex != s )return(i$id),s=population[[ind]]$sex)
                     potential=unlist(potential)
+                    print(potential)
                     if(length(potential)>0){
                         if(length(potential)==1)partner=potential
                         else partner=sample(potential,1)
@@ -113,7 +118,11 @@ for(time in 1:tstep){
                     }
                 }
             }
-            #if(runif(1)<d)population[[ind]]=NULL
+            if(runif(1)<d){
+                if(partner>0) population[[partner]]$partner=-1
+                population[i]=NULL
+                print(paste("dead ind",i))
+            }
         }
 
 
@@ -121,7 +130,7 @@ for(time in 1:tstep){
 
         ##pm transmission
         #quickly summarize
-        popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
+        popsum[[time]]=sapply(names(population[lengths(population)>1][1]),function(n)table(sapply(population,"[[",n)))
         size=table(sapply(population,"[[","community"))
         initcomus$size=size
         ##
