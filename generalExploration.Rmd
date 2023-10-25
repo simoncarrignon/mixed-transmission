@@ -77,7 +77,7 @@ popsum=list()
 for(time in 1:tstep){
     for(i in sample(1:length(population))){
         ind=tryCatch(population[[i]]$id,error=function(e)NULL)
-        if(!is.null(ind)){
+        if(!is.null(ind[[i]])){
             ##ageing
             population[[ind]]$age=population[[ind]]$age+1
 
@@ -118,6 +118,8 @@ for(time in 1:tstep){
                     }
                 }
             }
+
+            #Handle deaths
             if(runif(1)<d){
                 if(partner>0) population[[partner]]$partner=-1
                 population[i]=NULL
@@ -128,7 +130,6 @@ for(time in 1:tstep){
 
         ##pm transmission
 
-        ##pm transmission
         #quickly summarize
         popsum[[time]]=sapply(names(population[lengths(population)>1][1]),function(n)table(sapply(population,"[[",n)))
         size=table(sapply(population,"[[","community"))
