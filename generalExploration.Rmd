@@ -36,7 +36,6 @@ neutraltraitsParam=initNeutralTraits(z = z)
 neutraltraitsParam$s=c(0,0,1,1)
 
 reproduction <- function(p1,p2,tp,i=NULL){
-
     stopifnot(p1$community==p2$community)
     traits=ifelse(sample(c(0,1),length(tp$s),replace=T),p1$traits,p2$traits)
     if(!is.null(i))id=as.numeric(i)+1
@@ -76,14 +75,16 @@ tstep=1000
 popsize=c()
 popsum=list()
 for(time in 1:tstep){
+    print(paste("------",time,"------"))
     for(i in sample(1:length(population))){
         ind=tryCatch(population[[i]]$id,error=function(e)NULL)
         if(!is.null(ind)){
             ##ageing
+
             population[[ind]]$age=population[[ind]]$age+1
 
             ##repro
-           partner=population[[ind]]$partner
+            partner=population[[ind]]$partner
             canrepro=population[[ind]]$repro
             if(partner>0 & !canrepro){
                 #print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
@@ -122,8 +123,8 @@ for(time in 1:tstep){
             #Handle deaths
             if(runif(1)<d){
                 if(partner>0) population[[partner]]$partner=-1
-                population[i]=NULL
-                print(paste("dead ind",i))
+                population[[ind]]=NULL
+                print(paste("dead ind",ind))
             }
         }
 
