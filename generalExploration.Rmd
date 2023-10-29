@@ -84,7 +84,7 @@ initcomus=initialiseCommunities(traits=a,coordinates=pos)
 size=table(sapply(population,"[[","community"))
 initcomus$size=size
 plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
-
+logging="time"
 tstep=1000
 popsize=c()
 popsum=list()
@@ -171,12 +171,6 @@ for(time in 1:tstep){
 
         ##pm transmission
 
-
-        #quickly summarize
-        popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
-        ##
-        plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
-        popsize=c(popsize,length(population))
     }
 
     ## Fission
@@ -187,6 +181,14 @@ for(time in 1:tstep){
         #        for(split in which(overloaded))
 
     }
+
+
+    #quick summary of population at time 
+    popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
+
+    ##
+    plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+    popsize=c(popsize,length(population))
 
     stopifnot(any(initcomus$size==table(sapply(population,"[[","community"))))
 }
