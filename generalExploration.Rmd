@@ -103,8 +103,11 @@ for(time in 1:tstep){
             if(partner>0 & !canrepro){
                 if(logging=="verbose")print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
                 population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
+
                 ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
-                lambda=b+r*sum(ad_tr)
+
+                lambda=b+r*sum(ad_tr) #birth rate wrt to community adaptive traits
+
                 nchild=rpois(1,lambda)
                 if(nchild>0){
                     for(i in 1:nchild){
@@ -176,11 +179,11 @@ for(time in 1:tstep){
     ## Fission
     overloaded=initcomus$size>Th
     if(sum(overloaded)>0){
-        listcomu=sapply(population,"[[","community")
+        listcomu=sapply(population,"[[","community") ##keep list of agent in each commu to avoid that 
         for(split in which(overloaded)){
             print(paste("community",split,"with size",initcomus$size[split]))
             tosplit= (listcomu == split)
-            initcomus
+            #initcomus
             moving=sample(names(population)[tosplit],initcomus$size[split]/2)
         }
 
