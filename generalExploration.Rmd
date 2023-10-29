@@ -89,7 +89,7 @@ tstep=1000
 popsize=c()
 popsum=list()
 for(time in 1:tstep){
-    print(paste("------",time,"------"))
+    if(logging=="time")print(paste("------",time,"------"))
     for(i in sample(1:length(population))){
         ind=tryCatch(population[[i]]$id,error=function(e)NULL)
         if(!is.null(ind)){
@@ -101,15 +101,15 @@ for(time in 1:tstep){
             partner=population[[ind]]$partner
             canrepro=population[[ind]]$repro
             if(partner>0 & !canrepro){
-                #print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
+                if(logging=="verbose")print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
                 population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
                 ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
                 lambda=b+r*sum(ad_tr)
                 nchild=rpois(1,lambda)
                 if(nchild>0){
                     for(i in 1:nchild){
-                        print("newborn")
                         newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
+                        if(logging=="demo")print(paste("newborn in ",newborn$community))
                         population[[newborn$id]]=newborn
                         initcomus$size[newborn$community]=initcomus$size[newborn$community]+1
                     }
@@ -154,7 +154,7 @@ for(time in 1:tstep){
                         initcomus$size[lc]=initcomus$size[lc]-1
                         population[[ind]]$community=population[[partner]]$community=jc
 
-                        print(paste("marriage",ind,partner,"moving all to",jc," and leaving",lc, ",new:" ,population[[partner]]$community,population[[ind]]$community))
+                        if(logging=="pairing")print(paste("marriage",ind,partner,"moving all to",jc," and leaving",lc, ",new:" ,population[[partner]]$community,population[[ind]]$community))
                     }
                 }
             }
@@ -163,8 +163,8 @@ for(time in 1:tstep){
             if(runif(1)<d){
                 if(partner>0) population[[partner]]$partner=-1
                 initcomus$size[population[[ind]]$community]=initcomus$size[population[[ind]]$community]-1
+                if(logging=="demo") print(paste("dead ind",ind,"in",population[[ind]]$community))
                 population[[ind]]=NULL
-                print(paste("dead ind",ind))
             }
         }
 
@@ -178,6 +178,7 @@ for(time in 1:tstep){
         plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
         popsize=c(popsize,length(population))
     }
+
     ## Fission
     overloaded=initcomus$size>Th
     if(sum(overloaded)>0){
