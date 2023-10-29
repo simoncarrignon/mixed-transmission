@@ -176,9 +176,13 @@ for(time in 1:tstep){
     ## Fission
     overloaded=initcomus$size>Th
     if(sum(overloaded)>0){
-        for(split in which(overloaded))
+        listcomu=sapply(population,"[[","community")
+        for(split in which(overloaded)){
             print(paste("community",split,"with size",initcomus$size[split]))
-        #        for(split in which(overloaded))
+            tosplit= (listcomu == split)
+            initcomus
+            moving=sample(names(population)[tosplit],initcomus$size[split]/2)
+        }
 
     }
 
