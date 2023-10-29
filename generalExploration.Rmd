@@ -1,3 +1,17 @@
+
+
+pre marital:
+    Oblique : age dependant (older 
+    Horizontal :  age band 
+post marital:
+    Oblique : just mother/father in law =>  need 
+    Horizontal :  age band 
+
+
+
+Fission, when reach T we remove the agent that fission.
+
+
 ```{r}
 etopo <- read.csv(textConnection(
 "altitudes,colours
@@ -21,6 +35,7 @@ etopo.colors <- function(n) {
 
 source("R/population.R")
 N=100
+Th=400
 z=4 #number of neutral traits
 ki <- 5
 km <- 2
@@ -39,7 +54,6 @@ reproduction <- function(p1,p2,tp,i=NULL){
     stopifnot(p1$community==p2$community)
     traits=ifelse(sample(c(0,1),length(tp$s),replace=T),p1$traits,p2$traits)
     if(!is.null(i))id=as.numeric(i)+1
-    print(id)
     list(
          id=as.character(id),
          traits=traits,
@@ -97,6 +111,7 @@ for(time in 1:tstep){
                         print("newborn")
                         newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
                         population[[newborn$id]]=newborn
+                        initcomus$size[newborn$community]=initcomus$size[newborn$community]+1
                     }
                 }
             }
@@ -113,9 +128,33 @@ for(time in 1:tstep){
                         else partner=sample(potential,1)
                         population[[ind]]$partner=partner
                         population[[partner]]$partner=ind
-                        newcom=ifelse(runif(1)<rho,population[[ind]]$community,population[[partner]]$community)
-                        population[[ind]]$community=population[[partner]]$community=newcom
-                        print(paste("marriage",ind,partner,"moving all to",newcom,":",population[[partner]]$community,population[[ind]]$community))
+
+                        if( population[[ind]]$sex == "F"){
+                            fc=population[[ind]]$community
+                            mc=population[[partner]]$community
+                            stopifnot(population[[partner]]$sex=="M") #temp test
+                        }
+                        else{
+                            mc=population[[ind]]$community
+                            fc=population[[partner]]$community
+                            stopifnot(population[[partner]]$sex=="F")
+
+                        }
+                        ## choice of new community  // ugly ; could do a function(rho,fc,mc) return(lc,jc) & ifelse
+                        if(runif(1)<rho){
+                            lc=fc #leaving the father's community
+                            jc=mc #joining the mother's community
+                        }
+                        else{
+                            jc=fc #joining the father's community
+                            lc=mc #leaving the mother's community
+                        }
+
+                        initcomus$size[jc]=initcomus$size[jc]+1
+                        initcomus$size[lc]=initcomus$size[lc]-1
+                        population[[ind]]$community=population[[partner]]$community=jc
+
+                        print(paste("marriage",ind,partner,"moving all to",jc," and leaving",lc, ",new:" ,population[[partner]]$community,population[[ind]]$community))
                     }
                 }
             }
@@ -123,6 +162,7 @@ for(time in 1:tstep){
             #Handle deaths
             if(runif(1)<d){
                 if(partner>0) population[[partner]]$partner=-1
+                initcomus$size[population[[ind]]$community]=initcomus$size[population[[ind]]$community]-1
                 population[[ind]]=NULL
                 print(paste("dead ind",ind))
             }
@@ -131,17 +171,27 @@ for(time in 1:tstep){
 
         ##pm transmission
 
+
         #quickly summarize
         popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
-        size=table(sapply(population,"[[","community"))
-        initcomus$size=size
         ##
         plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
         popsize=c(popsize,length(population))
     }
+    ## Fission
+    overloaded=initcomus$size>Th
+    if(sum(overloaded)>0){
+        for(split in which(overloaded))
+            print(paste("community",split,"with size",initcomus$size[split]))
+        #        for(split in which(overloaded))
+
+    }
+
+    stopifnot(any(initcomus$size==table(sapply(population,"[[","community"))))
 }
 
 plot(popsize)
+
 
 sumcomu=sapply(popsum,"[[","community")
 plot(1,1,ylim=range(0,sumcomu),xlim=c(0,ncol(sumcomu)),type="n")
