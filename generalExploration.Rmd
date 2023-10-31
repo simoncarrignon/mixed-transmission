@@ -181,10 +181,36 @@ for(time in 1:tstep){
     if(sum(overloaded)>0){
         listcomu=sapply(population,"[[","community") ##keep list of agent in each commu to avoid that 
         for(split in which(overloaded)){
+            newcomunity=length(initcomus$size)+1
             print(paste("community",split,"with size",initcomus$size[split]))
             tosplit= (listcomu == split)
             #initcomus
             moving=sample(names(population)[tosplit],initcomus$size[split]/2)
+
+            #resize communities
+            initcomus$size[split]=initcomus$size[split]-length(moving)
+            initcomus$size=c(initcomus$size,length(moving))
+            
+            #resize copy adaptive traits
+            initcomus$adaptivetraits=rbind(initcomus$adaptivetraits,initcomus$adaptivetraits[split,])
+
+            #position new community
+            initcomus$adaptivetraits=rbind(initcomus$adaptivetraits,initcomus$adaptivetraits[split,])
+            initcomus$coordinates=rbind(initcomus$coordinates,random2Dgrid(1,100))
+
+            #move each agent and partner
+            for( mov in moving){
+                population[[mov]]$community = newcomunity
+                part=population[[mov]]$partner 
+                if(part>-1){
+                    initcomus$size[population[[part]]$community]  =  initcomus$size[population[[part]]$community] - 1
+                    population[[part]]$community = newcomunity
+                    initcomus$size[newcomunity]=initcomus$size[newcomunity]+1
+                }
+            }
+            print(paste("oldcoumnity",split,"is now",initcomus$size[split],"newcomunity",newcomunity,"of new size",initcomus$size[newcomunity]))
+            #population[moving]=lapply(population[moving],function(m,nc){m$community=newcomunity;m})
+            #could use that and then shoose randomly between parents
         }
 
     }
@@ -205,7 +231,18 @@ plot(popsize)
 
 sumcomu=sapply(popsum,"[[","community")
 plot(1,1,ylim=range(0,sumcomu),xlim=c(0,ncol(sumcomu)),type="n")
-lapply(1:K,function(k) lines(sumcomu[k,],col=mean(initcomus$adaptivetraits[k,])+1,lwd=2) )
+lapply(1:K,function(k) lines(sumcomu[[k]],col=mean(initcomus$adaptivetraits[k,])+1,lwd=2) )
 
 
+moveA <- function(listmove,pop,newcom){
+            for( m in listmove){
+                pop[[m]]$community = newcom
+            }
+}
 
+moveB <- function(listmove,pop,newcom){
+    pop[moving]=lapply(pop[moving],function(m,nc){m$commnunity=nc;m},nc=newcom)
+}
+
+library(microbenchmark)
+microbenchmark(moveA(moving,population,2),moveB(moving,population,2))
