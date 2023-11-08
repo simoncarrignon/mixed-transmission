@@ -11,7 +11,7 @@
 #' @export
 #'
 #' @examples
-#' initAdaptiveTraits(1, 5)
+#' initNeutralTraits(1, 5)
 initNeutralTraits <- function(z=9,t_pre=c('v','h','o'),t_post=c('h','o')){
     pre = array(0,dim=c(z,length(t_pre)))
     colnames(pre)=t_pre
@@ -28,20 +28,23 @@ initNeutralTraits <- function(z=9,t_pre=c('v','h','o'),t_post=c('h','o')){
 #'
 #' @param km integer, the number of migrants communities
 #' @param ki integer, the number of incumbents communities
-#' @param a named numeric vector with initial values for "m" (migrants) and "i" (incumbents), traits default c("i" = 0, "m" = 1).
-#' @param n integer, the number of traits each individual has, default is 3.
+#' @param aval named numeric vector with initial values for "m" (migrants) and "i" (incumbents) traits default c("i" = 0, "m" = 1).
+#' @param n integer, the number of adaptive traits  default is 3.
 #'
 #' @return A matrix where each column represents an individual and each row represents a trait, with migrants and incumbents.
 #' @export
 #'
 #' @examples
 #' initAdaptiveTraits(1, 5)
-initAdaptiveTraits <- function(km,ki,a=c("i"=0,"m"=1),n=3){
-        migrant=replicate(km,rep(a["m"],n))
-        incubant=replicate(ki,rep(a["i"],n))
-        traits=t(cbind(migrant,incubant))
-        colnames(traits)=paste0("a",1:n)
-        return(traits)
+initAdaptiveTraits <- function(km,ki,aval=c("i"=0,"m"=1),n=3){
+
+    # Create a vector with ki time aval["i"] for incubant and km time aval["m"] for migrant
+    vectraits <- c(rep(aval["i"], ki * n), rep(aval["m"], km * n))
+
+    #  convert vector into a matrix with n rows and (ki+km) columns, unsure cases with zeros
+    traits <- matrix(vectraits, ncol = n, byrow = TRUE)
+    colnames(traits)=paste0("a",1:n)
+    return(traits)
 }
 
 #' Generate Random 2D Grid Coordinates
