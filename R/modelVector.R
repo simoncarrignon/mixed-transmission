@@ -7,9 +7,10 @@ canrepro=rep(0,N)
 community=rep(1,N) 
 cid=rep(-1,N) 
 fid=rep(0,N) 
+sex=sample(c(0,1),N,replace=T) 
 id=1:N
 
-population=cbind(id,age,partner,community,canrepro,cid)
+population=cbind(id,age,partner,community,canrepro,cid,sex)
 
 modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,neutraltraitsParam,population,initcomus,logging="time",tstep,ma=1){
     popsize=nrow(population)
@@ -18,9 +19,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         population[,"age"]=population[,"age"]+1
         couple=which(population[,"partner"]>-1)
 
-        for(i in sample(1:length(population))){
-            if(!is.null(ind)){
                 ##repro
+        families=unique(population[,"cid"])
+        families=families[families>=0]
+        families=sapply(families,function(cid,population)if(all(population[population[,"cid"]==cid,"age"]<endrepro))cid,population=population)
+
+        ###FINISH REPRO
                 partner=population[[ind]]$partner
                 canrepro=population[[ind]]$repro  #to check that partner did not already reproduce
                 if(partner>0 & !canrepro ){
@@ -31,7 +35,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                         ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
 
                         lbd=lambda(b,r,ad_tr)
-                       lbd=lbd/ma #adjust rate for life time?
+                        lbd=lbd/ma #adjust rate for life time?
 
                         if(runif(1)<lbd){
                             newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
@@ -42,14 +46,31 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                     }
                 }
                 population[[ind]]$repro=FALSE
+        ###FINISH REPRO
 
                 ##marriage
                 potential=population[,"age"]>=maturity & population[,"partner"]<0
-                weds=sum(runif(sum(potential))<m)/2
+                single_male  =which(potential & population[,"sex"]==0)
+                single_female=which(potential & population[,"sex"]==1)
+                weds=sum(runif(min(length(single_male),length(single_female)))<m)
+                # if m is 1, every people who could get married will do 
+                # if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
+                if(weds>0){
+                    single_male  =sample(single_male)
+                    single_female=sample(single_female)
+                    maxcid=max(population[,"cid"])
+                    for(i in 1:weds){
+                        maxcid=maxcid+1
+                        c1=single_male[i]
+                        c2=single_female[i]
+                        population[c(c1,c2),"cid"]=maxcid
+                        population[c1,"partner"]=population[c2,"id"]
+                        population[c2,"partner"]=population[c1,"id"]
+                    }
+                }
 
-                candidate=population[potential,"id"]
-                potential=sapply(candidate,function(i,s)if(i$age>maturity & i$partner<0 & i$sex != s & i$age < endrepro)return(i$id),s=population[[ind]]$sex)
-                        potential=unlist(potential)
+
+        ###FINISH MIGRATION POST MARRIAGE
                         if(length(potential)>0){
                             if(length(potential)==1)partner=potential
                             else partner=sample(potential,1)
@@ -77,13 +98,11 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                                 lc=mc #leaving the mother's community
                             }
 
-                            initcomus$size[jc]=initcomus$size[jc]+1
                             initcomus$size[lc]=initcomus$size[lc]-1
                             population[[ind]]$community=population[[partner]]$community=jc
 
                             if("pairing"%in% logging)print(paste("marriage",ind,partner,"moving all to",jc," and leaving",lc, ",new:" ,population[[partner]]$community,population[[ind]]$community))
                         }
-                    }
                 }
 
                 #handle deaths
