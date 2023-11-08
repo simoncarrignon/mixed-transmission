@@ -1,8 +1,8 @@
 
-modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,neutraltraitsParam,population,initcomus,logging="time",tstep){
-    popsize=c()
-    popsum=list()
-    for(time in 1:tstep){
+modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,neutraltraitsParam,population,initcomus,logging="time",tstep,ma=1){
+    popsize=length(population)
+    popsum[[1]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
+    for(time in 2:tstep){
         if("time"%in%logging)print(paste("------",time,"------"))
         for(i in sample(1:length(population))){
             ind=tryCatch(population[[i]]$id,error=function(e)NULL)
@@ -22,8 +22,7 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho, d, maturity, endrep
                         ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
 
                         lbd=lambda(b,r,ad_tr)
-                       lbd=lbd/mature_time #adjust rate for life time?
-
+                       lbd=lbd/ma #adjust rate for life time?
 
                         if(runif(1)<lbd){
                             newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
@@ -133,14 +132,14 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho, d, maturity, endrep
 
         }
 
-            #quick summary of population at time 
-            popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
+        #quick summary of population at time 
+        popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
 
-            ##
-            if("visu"%in% logging)plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
-            popsize=c(popsize,length(population))
+        ##
+        if("visu"%in% logging)plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+        popsize=c(popsize,length(population))
 
-            #stopifnot(any(initcomus$size==table(sapply(population,"[[","community"))))
-        }
+        #stopifnot(any(initcomus$size==table(sapply(population,"[[","community"))))
+    }
     return(list(popsize=popsize,popsum=popsum))
 }
