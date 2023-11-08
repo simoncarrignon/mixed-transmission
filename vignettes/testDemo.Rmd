@@ -1,8 +1,9 @@
 ```{r}
+devtools::load_all(".")
 
 N=300
 Th=400 #fission threshold
-ki <- 0
+ki <- 2
 km <- 1
 K  <-  ki+km
 m=1 #proba marriage
@@ -29,39 +30,78 @@ initcomus$size=size
 plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
 
 
-dur=10
 tstep=200
 
-quick=modelOOstyle( N=N, Th=Th, K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time","demo"))
-
-quick=modelOOstyle( N=N, Th=Th, K =K, m=m, b=.4, r=.1, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time","demo"))
-
-tentries=replicate(10,modelOOstyle( N=N, Th=Th, K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, logging="time", population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam))
-
-plot(1:tstep,ylim=c(100,600),type="n",log="y")
-popsums=apply(tentries,2,function(res){
-                   popsum=res$popsum
-                   sumcomu=sapply(popsum,"[[","community")
-                   lapply(1:K,function(k) lines(sumcomu[k,],col=mean(initcomus$adaptivetraits[k,])+1,lwd=2) )
-})
+quick=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=endrepro-maturity)
 
 
-## Demographic model only
-for(i in 1:100){
-    hg=vector("numeric",dur)
-    fa=vector("numeric",dur)
-    fa[1]=initcomus$size[1]
-    hg[1]=initcomus$size[2]
+plot(quick$popsize)
 
-    for(i in 2:dur){
-        hg[i]=hg[i-1]+sum(rpois(hg[i-1],b+r*sum(c(0,0,0))))-hg[i-1]*d
-        fa[i]=fa[i-1]+sum(rpois(fa[i-1],b+r*sum(c(1,1,1))))-fa[i-1]*d
+tstep=50
+maturity=18
+endrepro=60
+m=.2
+quick=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=1)
+plot(quick$popsize)
+sumcomu=sapply(quick$popsum,"[[","community")
+plot(1:tstep,ylim=range(sumcomu),type="n",ylab="pop size",,xlab="time")
+lapply(1:K,function(k) lines(sumcomu[k,],col=mean(initcomus$adaptivetraits[k,])+1,lwd=3) )
+```
+
+Having only one community with only one kind of traits (all 0 or all 1), maturity and compare to
+$$ N_t=N_{t-1}+\Sigma(poiss(b+r \times a,N_{t-1}))-N_{(t-1)} \times d $$ with a=0 for I, 1 for M
+
+```{r}
+library(parallel)
+m=1
+b=0.2
+r=0.05
+tstep=300
+d=0.001
+N=200
+ip=1:N
+names(ip)=ip
+z=4 #number of neutral traits
+neutraltraitsParam=initNeutralTraits(z = z)
+neutraltraitsParam$s=c(0,0,1,1)
+population=lapply(ip,function(i) list( id=as.character(i), traits=sample(c(0,1),size=z,replace=T), age=sample.int(65,1), community=1, sex=sample(c("F","M"),1), repro=FALSE, partner=-1))
+
+pos=random2Dgrid(K=1,Gx=100)
+
+tstep=30
+for(mature_adjust in c(1,60)){
+
+    cl=makeCluster(10,"FORK")
+    tentriesOnlyF=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=population, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=0,km=1),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+
+    tentriesOnlyHG=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=population, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=1,km=0),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+
+    stopCluster(cl)
+
+    xyr=range(sapply(tentriesOnlyF,"[[","popsize"), sapply(tentriesOnlyHG,"[[","popsize"))
+    plot(1:tstep,ylim=xyr,type="n",log="y",ylab="pop size",,xlab="time")
+    lapply(tentriesOnlyF,function(res) lines(res$popsize,col=2,lwd=3) )
+    lapply(tentriesOnlyHG,function(res) lines(res$popsize,col=1,lwd=3) )
+
+
+
+    ## Demographic model only
+    for(i in 1:100){
+        hg=vector("numeric",tstep/mature_adjust)
+        fa=vector("numeric",tstep/mature_adjust)
+        fa[1]=N
+        hg[1]=N
+
+        for(i in 2:max(3,tstep/mature_adjust)){
+            hg[i]=hg[i-1]+sum(rpois(hg[i-1],b+r*sum(c(0,0,0))))-hg[i-1]*d
+            fa[i]=fa[i-1]+sum(rpois(fa[i-1],b+r*sum(c(1,1,1))))-fa[i-1]*d
+        }
+        #plot(1,1,type="n",ylim=range(hg,fa),xlim=c(0,dur))
+        lines(c(1,2:(length(fa))*(mature_adjust)),fa,col=2,lty=2,lwd=1)
+        lines(c(1,2:(length(hg))*(mature_adjust)),hg,col=1,lty=2,lwd=1)
     }
-    #plot(1,1,type="n",ylim=range(hg,fa),xlim=c(0,dur))
-    lines(c(1,1:(length(fa)-1)*(endrepro-maturity)),fa,col="red",lty=2,lwd=2)
-    lines(c(1,1:(length(hg)-1)*(endrepro-maturity)),hg,col="black",lty=2,lwd=2)
+    legend("bottomright",legend=c(expression(N[t]==N[t-1]+Sigma(poiss(b,N[t-1]))-N[t-1]*d),expression(N[t]==N[t-1]+Sigma(poiss(b+r,N[t-1]))-N[t-1]*d),"model 1 community HG","model 1 communit F"),lty=c(2,2,1,1),col=c(1,2,1,2),cex=.8)
 }
-    legend("bottomright",legend=c(expression(N[t]==N[t-1]+Sigma(poiss(b,N[t-1]))-N[t-1]*d),expression(N[t]==N[t-1]+Sigma(poiss(b+r,N[t-1]))-N[t-1]*d),"model HG","model F"),lty=c(2,2,1,1),col=c(1,2,1,2),cex=.8)
 
 
 ```
