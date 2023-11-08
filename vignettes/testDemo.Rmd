@@ -1,0 +1,62 @@
+```{r}
+
+N=200
+Th=400 #fission threshold
+ki <- 1
+km <- 1
+K  <-  ki+km
+m=1 #proba marriage
+b=.2 #HG birth rate
+r=.05 #farmer scale param
+rho=.5 #marriage rule
+d=0.001
+maturity=0
+endrepro=20
+
+a=initAdaptiveTraits(ki=ki,km=km)
+z=4 #number of neutral traits
+neutraltraitsParam=initNeutralTraits(z = z)
+neutraltraitsParam$s=c(0,0,1,1)
+
+ip=1:N
+names(ip)=ip
+population=lapply(ip,function(i) list( id=as.character(i), traits=sample(c(0,1),size=z,replace=T), age=sample.int(80,1), community=sample.int(K,1), sex=sample(c("F","M"),1), repro=FALSE, partner=-1))
+
+pos=random2Dgrid(K=K,Gx=100)
+initcomus=initialiseCommunities(traits=a,coordinates=pos)
+size=table(sapply(population,"[[","community"))
+initcomus$size=size
+plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+
+
+dur=10
+tstep=200
+
+tentries=replicate(10,modelOOstyle( N=N, Th=Th, K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, logging="time", population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam))
+
+plot(1:tstep,ylim=c(0,600),type="n")
+popsums=apply(tentries,2,function(res){
+                   popsum=res$popsum
+                   sumcomu=sapply(popsum,"[[","community")
+                   lapply(1:K,function(k) lines(sumcomu[k,],col=mean(initcomus$adaptivetraits[k,])+1,lwd=2) )
+})
+
+
+## Demographic model only
+for(i in 1:100){
+    hg=vector("numeric",dur)
+    fa=vector("numeric",dur)
+    fa[1]=initcomus$size[1]
+    hg[1]=initcomus$size[2]
+
+    for(i in 2:dur){
+        hg[i]=hg[i-1]+sum(rpois(hg[i-1],b+r*sum(c(0,0,0))))-hg[i-1]*d
+        fa[i]=fa[i-1]+sum(rpois(fa[i-1],b+r*sum(c(1,1,1))))-fa[i-1]*d
+    }
+    #plot(1,1,type="n",ylim=range(hg,fa),xlim=c(0,dur))
+    lines(c(1,1:(length(fa)-1)*(endrepro-maturity)),fa,col="red",lty=2,lwd=2)
+    lines(c(1,1:(length(hg)-1)*(endrepro-maturity)),hg,col="black",lty=2,lwd=2)
+}
+
+
+```
