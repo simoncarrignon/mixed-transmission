@@ -14,7 +14,7 @@ modelOOstyle <- function(N, Th, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,ne
                 ##repro
                 partner=population[[ind]]$partner
                 canrepro=population[[ind]]$repro
-                if(partner>0 & !canrepro){
+                if(partner>0 & !canrepro & (population[[ind]]$age < endrepro) & (population[[partner]]$age < endrepro)){
                     if(logging=="verbose")print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
                     population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
 
@@ -32,10 +32,10 @@ modelOOstyle <- function(N, Th, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,ne
                 population[[ind]]$repro=FALSE
 
                 ##marriage
-                if(population[[ind]]$age>maturity & population[[ind]]$partner <0 & population[[ind]]$age < endrepro){
+                if(population[[ind]]$age>maturity & population[[ind]]$partner <0){
                     #print("marriage attempt")
                     if(runif(1)<m){
-                        potential=sapply(population,function(i,s)if(i$age>maturity & i$partner<0 & i$sex != s & i$age < endrepro)return(i$id),s=population[[ind]]$sex)
+                        potential=sapply(population,function(i,s)if( i$partner<0 & i$sex != s & i$age < endrepro)return(i$id),s=population[[ind]]$sex)
                         potential=unlist(potential)
                         if(length(potential)>0){
                             if(length(potential)==1)partner=potential
