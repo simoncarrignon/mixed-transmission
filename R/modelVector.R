@@ -46,6 +46,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                 ##marriage
                 potential=population[,"age"]>=maturity & population[,"partner"]<0
                 weds=sum(runif(sum(potential))<m)/2
+
                 candidate=population[potential,"id"]
                 potential=sapply(candidate,function(i,s)if(i$age>maturity & i$partner<0 & i$sex != s & i$age < endrepro)return(i$id),s=population[[ind]]$sex)
                         potential=unlist(potential)
