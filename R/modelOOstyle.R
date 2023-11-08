@@ -3,7 +3,7 @@ modelOOstyle <- function(N, Th, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,ne
     popsize=c()
     popsum=list()
     for(time in 1:tstep){
-        if(logging=="time")print(paste("------",time,"------"))
+        if("time"%in%logging)print(paste("------",time,"------"))
         for(i in sample(1:length(population))){
             ind=tryCatch(population[[i]]$id,error=function(e)NULL)
             if(!is.null(ind)){
@@ -13,20 +13,22 @@ modelOOstyle <- function(N, Th, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,ne
 
                 ##repro
                 partner=population[[ind]]$partner
-                canrepro=population[[ind]]$repro
-                if(partner>0 & !canrepro & (population[[ind]]$age < endrepro) & (population[[partner]]$age < endrepro)){
-                    if(logging=="verbose")print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
-                    population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
+                canrepro=population[[ind]]$repro  #to check that partner did not already reproduce
+                if(partner>0 & !canrepro ){
+                    if((population[[ind]]$age < endrepro) & (population[[partner]]$age < endrepro)){
+                        if("verbose"%in%logging)print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
+                        population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
 
-                    ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
+                        ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
 
-                    lbd=lambda(b,r,ad_tr)/(endrepro-maturity) #birth rate wrt to community adaptive traits
+                        lbd=lambda(b,r,ad_tr)/(endrepro-maturity) #birth rate wrt to community adaptive traits
 
-                    if(runif(1)<lbd){
-                        newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
-                        if(logging=="demo")print(paste("newborn in ",newborn$community))
-                        population[[newborn$id]]=newborn
-                        initcomus$size[newborn$community]=initcomus$size[newborn$community]+1
+                        if(runif(1)<lbd){
+                            newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
+                            if("demo"%in%logging)print(paste("newborn in ",newborn$community))
+                            population[[newborn$id]]=newborn
+                            initcomus$size[newborn$community]=initcomus$size[newborn$community]+1
+                        }
                     }
                 }
                 population[[ind]]$repro=FALSE
@@ -35,7 +37,7 @@ modelOOstyle <- function(N, Th, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,ne
                 if(population[[ind]]$age>maturity & population[[ind]]$partner <0){
                     #print("marriage attempt")
                     if(runif(1)<m){
-                        potential=sapply(population,function(i,s)if( i$partner<0 & i$sex != s & i$age < endrepro)return(i$id),s=population[[ind]]$sex)
+                        potential=sapply(population,function(i,s)if(i$age>maturity & i$partner<0 & i$sex != s & i$age < endrepro)return(i$id),s=population[[ind]]$sex)
                         potential=unlist(potential)
                         if(length(potential)>0){
                             if(length(potential)==1)partner=potential
@@ -68,7 +70,7 @@ modelOOstyle <- function(N, Th, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,ne
                             initcomus$size[lc]=initcomus$size[lc]-1
                             population[[ind]]$community=population[[partner]]$community=jc
 
-                            if(logging=="pairing")print(paste("marriage",ind,partner,"moving all to",jc," and leaving",lc, ",new:" ,population[[partner]]$community,population[[ind]]$community))
+                            if("pairing"%in% logging)print(paste("marriage",ind,partner,"moving all to",jc," and leaving",lc, ",new:" ,population[[partner]]$community,population[[ind]]$community))
                         }
                     }
                 }
@@ -77,7 +79,7 @@ modelOOstyle <- function(N, Th, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,ne
                 if(runif(1)<d){
                     if(partner>0) population[[partner]]$partner=-1
                     initcomus$size[population[[ind]]$community]=initcomus$size[population[[ind]]$community]-1
-                    if(logging=="demo") print(paste("dead ind",ind,"in",population[[ind]]$community))
+                    if("demo"%in%logging ) print(paste("dead ind",ind,"in",population[[ind]]$community))
                     population[[ind]]=NULL
                 }
             }
@@ -131,7 +133,7 @@ modelOOstyle <- function(N, Th, ki,km,K,m, b, r, rho, d, maturity, endrepro,a,ne
         popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
 
         ##
-        if(logging=="visu")plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+        if("visu"%in% logging)plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
         popsize=c(popsize,length(population))
 
         #stopifnot(any(initcomus$size==table(sapply(population,"[[","community"))))
