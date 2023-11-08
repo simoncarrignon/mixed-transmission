@@ -66,43 +66,39 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                         population[c(c1,c2),"cid"]=maxcid
                         population[c1,"partner"]=population[c2,"id"]
                         population[c2,"partner"]=population[c1,"id"]
+
+                        if( population[c1,"sex"] == 1){
+                            fc=population[c1,"community"]
+                            mc=population[c2,"community"]
+                            stopifnot(population[c2,"sex"]==0) #temp test
+                        }
+                        else{
+                            fc=population[c2,"community"]
+                            mc=population[c1,"community"]
+                            stopifnot(population[c1,"sex"]==0) #temp test
+
+                        }
+                        ## choice of new community  // ugly ; could do a function(rho,fc,mc) return(lc,jc) & ifelse
+
+                        if(runif(1)<rho){
+                            lc=fc #leaving the father's community
+                            jc=mc #joining the mother's community
+                        }
+                        else{
+                            jc=fc #joining the father's community
+                            lc=mc #leaving the mother's community
+                        }
+
+                        initcomus$size[jc]=initcomus$size[jc]+1
+                        initcomus$size[lc]=initcomus$size[lc]-1
+                        population[c2,"community"]= population[c1,"community"]=jc
+
+                        if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
+                        }
                     }
                 }
 
 
-        ###FINISH MIGRATION POST MARRIAGE
-                        if(length(potential)>0){
-                            if(length(potential)==1)partner=potential
-                            else partner=sample(potential,1)
-                            population[[ind]]$partner=partner
-                            population[[partner]]$partner=ind
-
-                            if( population[[ind]]$sex == "F"){
-                                fc=population[[ind]]$community
-                                mc=population[[partner]]$community
-                                stopifnot(population[[partner]]$sex=="M") #temp test
-                            }
-                            else{
-                                mc=population[[ind]]$community
-                                fc=population[[partner]]$community
-                                stopifnot(population[[partner]]$sex=="F")
-
-                            }
-                            ## choice of new community  // ugly ; could do a function(rho,fc,mc) return(lc,jc) & ifelse
-                            if(runif(1)<rho){
-                                lc=fc #leaving the father's community
-                                jc=mc #joining the mother's community
-                            }
-                            else{
-                                jc=fc #joining the father's community
-                                lc=mc #leaving the mother's community
-                            }
-
-                            initcomus$size[lc]=initcomus$size[lc]-1
-                            population[[ind]]$community=population[[partner]]$community=jc
-
-                            if("pairing"%in% logging)print(paste("marriage",ind,partner,"moving all to",jc," and leaving",lc, ",new:" ,population[[partner]]$community,population[[ind]]$community))
-                        }
                 }
 
                 #handle deaths
