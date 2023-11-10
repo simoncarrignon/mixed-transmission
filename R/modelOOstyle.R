@@ -1,6 +1,7 @@
 
 modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,neutraltraitsParam,population,initcomus,logging="time",tstep,ma=1){
     popsize=length(population)
+    popsum=list()
     popsum[[1]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
     for(time in 2:tstep){
         if("time"%in%logging)print(paste("------",time,"------"))
@@ -11,28 +12,6 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, end
 
                 population[[ind]]$age=population[[ind]]$age+1
 
-                ##repro
-                partner=population[[ind]]$partner
-                canrepro=population[[ind]]$repro  #to check that partner did not already reproduce
-                if(partner>0 & !canrepro ){
-                    if((population[[ind]]$age < endrepro) & (population[[partner]]$age < endrepro)){
-                        if("verbose"%in%logging)print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
-                        population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
-
-                        ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
-
-                        lbd=lambda(b,r,ad_tr)
-                       lbd=lbd/ma #adjust rate for life time?
-
-                        if(runif(1)<lbd){
-                            newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
-                            if("demo"%in%logging)print(paste("newborn in ",newborn$community))
-                            population[[newborn$id]]=newborn
-                            initcomus$size[newborn$community]=initcomus$size[newborn$community]+1
-                        }
-                    }
-                }
-                population[[ind]]$repro=FALSE
 
                 ##marriage
                 if(population[[ind]]$age>maturity & population[[ind]]$partner <0){
@@ -75,6 +54,28 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, end
                         }
                     }
                 }
+                ##repro
+                partner=population[[ind]]$partner
+                canrepro=population[[ind]]$repro  #to check that partner did not already reproduce
+                if(partner>0 & !canrepro ){
+                    if((population[[ind]]$age < endrepro) & (population[[partner]]$age < endrepro)){
+                        if("verbose"%in%logging)print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
+                        population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
+
+                        ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
+
+                        lbd=lambda(b,r,ad_tr)
+                        lbd=lbd/ma #adjust rate for life time?
+
+                        if(runif(1)<lbd){
+                            newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
+                            if("demo"%in%logging)print(paste("newborn in ",newborn$community))
+                            population[[newborn$id]]=newborn
+                            initcomus$size[newborn$community]=initcomus$size[newborn$community]+1
+                        }
+                    }
+                }
+                population[[ind]]$repro=FALSE
 
                 #handle deaths
                 if(runif(1)<d){
