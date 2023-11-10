@@ -1,0 +1,211 @@
+
+```{r}
+devtools::load_all(".")
+
+N=300
+Th=400 #fission threshold
+ki <- 2
+km <- 1
+K  <-  ki+km
+m=1 #proba marriage
+b=.2 #HG birth rate
+r=.05 #farmer scale param
+rho=.5 #marriage rule
+d=0.001
+maturity=0
+endrepro=20
+
+a=initAdaptiveTraits(ki=ki,km=km)
+z=4 #number of neutral traits
+neutraltraitsParam=initNeutralTraits(z = z)
+neutraltraitsParam$s=c(0,0,1,1)
+
+ip=1:N
+names(ip)=ip
+populationOO=lapply(ip,function(i) list( id=as.character(i), traits=sample(c(0,1),size=z,replace=T), age=sample.int(endrepro-5,1), community=sample.int(K,1), sex=sample(c("F","M"),1), repro=FALSE, partner=-1))
+
+pos=random2Dgrid(K=K,Gx=100)
+initcomus=initialiseCommunities(traits=a,coordinates=pos)
+size=table(sapply(populationOO,"[[","community"))
+initcomus$size=size
+plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+
+populationVec=listToVec(populationOO)
+
+tstep=10
+
+multires=replicate(10,{
+                       quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationVec, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
+                       quickO=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationOO, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
+                       return(list(quickO=quickO,quickV=quickV))
+})
+
+
+plot(1:(tstep+1),ylim=c(0,1000),type="n",ylab="pop size",,xlab="time")
+apply(multires,2,function(res){
+    quickO=res$quickO
+    quickV=res$quickV
+    lines(quickO$popsize)
+    lines(quickV$popsize[2:10],lty=2)
+})
+
+plot(1:(tstep+1),ylim=c(0,1000),type="n",ylab="pop size",,xlab="time")
+apply(multires,2,function(res){
+    quickO=res$quickO
+    quickV=res$quickV
+    sumcomu=sapply(quickO$popsum,"[[","community")
+    sumcomuV=sapply(quickV$popsum,"[[","community")
+    sapply(1:K,function(k) lines(sumcomu[k,],col=mean(initcomus$adaptivetraits[k,])+1,lwd=3) )
+
+    sapply(1:K,function(k) lines(sumcomuV[k,],col=mean(initcomus$adaptivetraits[k,])+1,lwd=3,lty=2) )
+})
+```
+
+aving only one community with only one kind of traits (all 0 or all 1), maturity and compare to
+$$ N_t=N_{t-1}+\Sigma(poiss(b+r \times a,N_{t-1}))-N_{(t-1)} \times d $$ with a=0 for I, 1 for M
+
+```{r}
+m=1
+b=0.2
+r=0.05
+tstep=300
+d=0.001
+N=200
+ip=1:N
+names(ip)=ip
+z=4 #number of neutral traits
+neutraltraitsParam=initNeutralTraits(z = z)
+neutraltraitsParam$s=c(0,0,1,1)
+populationOO=lapply(ip,function(i) list( id=as.character(i), traits=sample(c(0,1),size=z,replace=T), age=sample.int(65,1), community=1, sex=sample(c("F","M"),1), repro=FALSE, partner=-1))
+
+pos=random2Dgrid(K=1,Gx=100)
+K=1
+initcomus=initialiseCommunities(traits=a,coordinates=pos)
+size=table(sapply(populationOO,"[[","community"))
+initcomus$size=size
+plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+
+
+
+populationVec=matrix(0)
+age=vector("numeric",N)
+age=unname(sapply(populationOO,"[[","age"))
+partner=rep(-1,N) 
+canrepro=rep(0,N) 
+community=unname(sapply(populationOO,"[[","community"))
+cid=rep(-1,N) 
+fid=rep(0,N) 
+sex=abs(as.numeric(as.factor(unname(sapply(populationOO,"[[","sex"))))-2)
+id=1:N
+
+populationVec=cbind(id,age,partner,community,canrepro,cid,fid,sex)
+#traits=t(replicate(N,sample(c(0,1),size=z,replace=T)))
+traits=t(unname(sapply(populationOO,"[[","traits")))
+
+
+traitsid=paste0("t",1:z)
+colnames(traits)=traitsid
+populationVec=cbind(populationVec,traits)
+
+multires=replicate(5,{
+quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, populationOO=populationVec, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
+plot(quickV$popsize)
+
+quickO=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, populationOO=populationOO, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
+return(list(quickO=quickO,quickV=quickV))
+})
+
+
+ plot(1:(tstep+1),ylim=c(0,5000),type="n",ylab="pop size",,xlab="time")
+apply(multires,2,function(res){
+    quickO=res$quickO
+    quickV=res$quickV
+    lines(quickO$popsize)
+    lines(quickV$popsize,lty=2)
+})
+
+plot(1:(tstep+1),ylim=c(0,2000),type="n",ylab="pop size",,xlab="time")
+apply(multires,2,function(res){
+    quickO=res$quickO
+    quickV=res$quickV
+    sumcomu=sapply(quickO$popsum,"[[","community")
+    sumcomuV=sapply(quickV$popsum,"[[","community")
+    lines(sumcomu,col=mean(initcomus$adaptivetraits)+1,lwd=3) 
+    lines(sumcomuV,col=mean(initcomus$adaptivetraits)+1,lwd=3,lty=2) 
+})
+
+
+```
+
+
+
+```{r}
+
+tstep=30
+for(mature_adjust in c(1,60)){
+
+    cl=makeCluster(10,"FORK")
+    tentriesOnlyF=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", populationOO=populationOO, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=0,km=1),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+
+    tentriesOnlyHG=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", populationOO=populationOO, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=1,km=0),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+
+    stopCluster(cl)
+
+    xyr=range(sapply(tentriesOnlyF,"[[","popsize"), sapply(tentriesOnlyHG,"[[","popsize"))
+    plot(1:tstep,ylim=xyr,type="n",log="y",ylab="pop size",,xlab="time")
+    lapply(tentriesOnlyF,function(res) lines(res$popsize,col=2,lwd=3) )
+    lapply(tentriesOnlyHG,function(res) lines(res$popsize,col=1,lwd=3) )
+
+
+
+    ## Demographic model only
+    for(i in 1:100){
+        hg=vector("numeric",tstep/mature_adjust)
+        fa=vector("numeric",tstep/mature_adjust)
+        fa[1]=N
+        hg[1]=N
+
+        for(i in 2:max(3,tstep/mature_adjust)){
+            hg[i]=hg[i-1]+sum(rpois(hg[i-1],b+r*sum(c(0,0,0))))-hg[i-1]*d
+            fa[i]=fa[i-1]+sum(rpois(fa[i-1],b+r*sum(c(1,1,1))))-fa[i-1]*d
+        }
+        #plot(1,1,type="n",ylim=range(hg,fa),xlim=c(0,dur))
+        lines(c(1,2:(length(fa))*(mature_adjust)),fa,col=2,lty=2,lwd=1)
+        lines(c(1,2:(length(hg))*(mature_adjust)),hg,col=1,lty=2,lwd=1)
+    }
+    legend("bottomright",legend=c(expression(N[t]==N[t-1]+Sigma(poiss(b,N[t-1]))-N[t-1]*d),expression(N[t]==N[t-1]+Sigma(poiss(b+r,N[t-1]))-N[t-1]*d),"model 1 community HG","model 1 communit F"),lty=c(2,2,1,1),col=c(1,2,1,2),cex=.8)
+}
+
+
+```
+
+
+Same but with the vector version of the model
+
+```{r}
+N=300
+populationOO=matrix(0)
+age=vector("numeric",N)
+age=sample.int(65,N,replace=T) 
+partner=rep(-1,N) 
+canrepro=rep(0,N) 
+community=sample(1:K,size=N,replace=T) 
+cid=rep(-1,N) 
+fid=rep(0,N) 
+sex=sample(c(0,1),N,replace=T) 
+id=1:N
+z=4
+
+
+populationOO=cbind(id,age,partner,community,canrepro,cid,fid,sex)
+traits=t(replicate(N,sample(c(0,1),size=z,replace=T)))
+
+traitsid=paste0("t",1:z)
+colnames(traits)=traitsid
+populationOO=cbind(populationOO,traits)
+
+```
+
+```
+
+
