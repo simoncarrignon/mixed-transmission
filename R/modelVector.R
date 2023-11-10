@@ -1,42 +1,13 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,neutraltraitsParam,population,initcomus,logging="time",tstep,ma=1){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,neutraltraitsParam,population,initcomus,logging="time",tstep,ma=1,traitsid){
     popsize=nrow(population)
+    popsum=list()
     popsum[[1]]=apply(population,2,table)
     for(time in 2:tstep){
         if("time"%in%logging)print(paste("------",time,"------"))
         population[,"age"]=population[,"age"]+1
         couple=which(population[,"partner"]>-1)
 
-        ##repro
-        families=population[,"cid"]
-        families=families[families>=0]
-        fcount=table(families)
-        stopifnot(table(families)[fcount>1] == 2)
-        stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
-        repro=population[,"age"]>maturity & population[,"age"] < endrepro & population[,"cid"] >= 0
-        if(sum(repro)>0){
-            #ad_trinitcomus$adaptivetraits[population[repro,"community"],]
-            reprofam=table(population[repro,"community"])
-            fam=population[repro,c("community","cid"),drop=F]
-            fcount=table(fam[,"cid"])
-            fam=fam[fcount>1,,drop=F]
-            stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
-            fam=unique(fam)
-            stopifnot(table(families) == 2)
-            ad_tr=initcomus$adaptivetraits[fam[,"community"],,drop=F]
-            lbd=apply(ad_tr,1,lambda,base_rate=b,bonus_rate=r)
-            lbd=lbd/ma
-            newborns=runif(nrow(fam))<lbd
-            if(sum(newborns)>0){
-                givbirth=fam[newborns,2]
-                newparents=sapply(givbirth,function(cid)which(population[,"cid"]==cid))
-                newparents=apply(newparents,2,function(i)population[i,],simplify=F)
-                offsprings=t(sapply(newparents,reproductionVec,tp=neutraltraitsParam,tid=traitsid))
-                mid=max(population[,"id"])
-                offsprings[,"id"]=(mid+1):(mid+nrow(offsprings))
-                population=rbind(population,offsprings[,colnames(population)])
-            }
-        }
 
         ##marriage
         potential=population[,"age"]>=maturity & population[,"partner"]<0
@@ -94,6 +65,36 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
             stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
         }
 
+        ##repro
+        families=population[,"cid"]
+        families=families[families>=0]
+        fcount=table(families)
+        stopifnot(table(families)[fcount>1] == 2)
+        stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
+        repro=population[,"age"]>=maturity & population[,"age"] < endrepro & population[,"partner"] > 0
+        if(sum(repro)>0){
+            #ad_trinitcomus$adaptivetraits[population[repro,"community"],]
+            reprofam=table(population[repro,"community"])
+            fam=population[repro,c("community","cid"),drop=F]
+            fcount=table(fam[,"cid"])
+            fam=fam[fcount>1,,drop=F]
+            stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
+            fam=unique(fam)
+            stopifnot(table(families) == 2)
+            ad_tr=initcomus$adaptivetraits[fam[,"community"],,drop=F]
+            lbd=apply(ad_tr,1,lambda,base_rate=b,bonus_rate=r)
+            lbd=lbd/ma
+            newborns=runif(nrow(fam))<lbd
+            if(sum(newborns)>0){
+                givbirth=fam[newborns,2]
+                newparents=sapply(givbirth,function(cid)which(population[,"cid"]==cid))
+                newparents=apply(newparents,2,function(i)population[i,],simplify=F)
+                offsprings=t(sapply(newparents,reproductionVec,tp=neutraltraitsParam,tid=traitsid))
+                mid=max(population[,"id"])
+                offsprings[,"id"]=(mid+1):(mid+nrow(offsprings))
+                population=rbind(population,offsprings[,colnames(population)])
+            }
+        }
 
 
         #handle deaths
