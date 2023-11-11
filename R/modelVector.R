@@ -80,7 +80,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
             fam=fam[fcount>1,,drop=F]
             stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
             fam=unique(fam)
-            stopifnot(table(families) == 2)
+            stopifnot(table(families) == 2) #families should be made of 2 individual
             ad_tr=initcomus$adaptivetraits[fam[,"community"],,drop=F]
             lbd=apply(ad_tr,1,lambda,base_rate=b,bonus_rate=r)
             lbd=lbd/ma
@@ -90,6 +90,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                 newparents=sapply(givbirth,function(cid)which(population[,"cid"]==cid))
                 newparents=apply(newparents,2,function(i)population[i,],simplify=F)
                 offsprings=t(sapply(newparents,reproductionVec,tp=neutraltraitsParam,tid=traitsid))
+                ## in the aboce reproduction lot is done in reproductionVec; I think this could be splitted in two : the sexual reproduction that only deal with transmission of traits; then generation of vectors (id ; sex ; etc...); This should make it a bit faster too
                 mid=max(population[,"id"])
                 offsprings[,"id"]=(mid+1):(mid+nrow(offsprings))
                 population=rbind(population,offsprings[,colnames(population)])
