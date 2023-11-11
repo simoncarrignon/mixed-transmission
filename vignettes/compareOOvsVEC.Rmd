@@ -31,10 +31,11 @@ initcomus$size=size
 plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
 
 populationVec=listToVec(populationOO)
+traitsid=colnames(populationVec)[(ncol(populationVec)-z+1):ncol(populationVec)]
 
 tstep=10
 
-multires=replicate(10,{
+multires=replicate(20,{
                        quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationVec, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
                        quickO=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationOO, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
                        return(list(quickO=quickO,quickV=quickV))
@@ -46,7 +47,7 @@ apply(multires,2,function(res){
     quickO=res$quickO
     quickV=res$quickV
     lines(quickO$popsize)
-    lines(quickV$popsize[2:10],lty=2)
+    lines(quickV$popsize,lty=2)
 })
 
 plot(1:(tstep+1),ylim=c(0,1000),type="n",ylab="pop size",,xlab="time")

@@ -42,7 +42,7 @@ reproductionVec <- function(p1,p2=NULL,tp,tid,i=NULL,id=NULL){
     )
 }
 ##microbenchmark
-microbenchmark::microbenchmark(sample.int(2)-1, sample(c(0,1),1),times=1000000)
+##microbenchmark::microbenchmark(sample.int(2)-1, sample(c(0,1),1),times=1000000)
 
 
 #' Sex-biased copying
