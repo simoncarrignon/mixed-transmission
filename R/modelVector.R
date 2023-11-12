@@ -88,14 +88,22 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
             nchilds=sum(newborns)
             if(nchilds>0){
                 givbirth=fam[newborns,2]
+                ##get all parents who gave birth
                 newparents=sapply(givbirth,function(cid)which(population[,"cid"]==cid))
+                ##group parents together
                 newparents=apply(newparents,2,function(i)population[i,],simplify=F)
+
+                ##get families ids and communities
                 famids=t(sapply(newparents,function(i)unique(i[,c("community","fid")])))
+                offcom=famids[,1] ##offsprings community id
+                offfid=famids[,2]  ##offfspsrings family id
                 offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
                 ##Vertical Transmission
                 if(sum(tp$pre[,"v"])>0)
                     offtraits[,tp$pre[,"v"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
-                offsprings=cbind(newpop(nchilds,minid=max(population[,"id"])),offtraits)
+
+
+                offsprings=cbind(newpop(nchilds,minid=max(population[,"id"]),community=offcom,fid=offfid),offtraits)
 
                 ##### When do horizontal and oblique take place? who are the model? how to make it modular?
                 #   ##Pre-Marital Horizontal Transmission
