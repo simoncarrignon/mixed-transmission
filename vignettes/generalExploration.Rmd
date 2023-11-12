@@ -50,7 +50,7 @@ tstep=20*10
 
 a=initAdaptiveTraits(ki=ki,km=km)
 z=4 #number of neutral traits
-neutraltraitsParam=initNeutralTraits(z = z)
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
 neutraltraitsParam$s=c(0,0,1,1)
 
 ip=1:N
