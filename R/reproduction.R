@@ -1,3 +1,29 @@
+newpop <- function(n,age="random",minid=0){
+
+    if(age=="random")
+            age=sample(0:85,n,replace=T)
+        else
+            age=rep(0,n)
+    cbind(
+          id=(1:n)+minid,
+          age=age,
+          partner=rep(-1,n),
+          community=rep(2,n),
+          "canrepro"=rep(0,n),
+          "cid"=rep(-1,n),
+          "fid"=rep(-1,n),
+          sex=sample(c(0,1),n,replace=T)
+    )
+}
+## Evaluatiting different sampling strategies:
+#n=1000
+#microbenchmark::microbenchmark(sample(c(0,1),n,replace=T),replicate(n,sample(c(0,1),1)),times=100)
+##microbenchmark
+##microbenchmark::microbenchmark(sample.int(2)-1, sample(c(0,1),1),times=1000000)
+
+
+
+
 reproduction <- function(p1,p2,tp,i=NULL){
     stopifnot(p1$community==p2$community)
     traits=ifelse(sample(c(0,1),length(tp$s),replace=T),p1$traits,p2$traits)
@@ -15,6 +41,8 @@ reproduction <- function(p1,p2,tp,i=NULL){
 }
 
 
+
+### Deprecated
 reproductionVec <- function(p1,p2=NULL,tp,tid,i=NULL,id=NULL){
     id=-1
     if(!is.null(dim(p1))){
@@ -41,51 +69,34 @@ reproductionVec <- function(p1,p2=NULL,tp,tid,i=NULL,id=NULL){
       traits
     )
 }
-##microbenchmark
-##microbenchmark::microbenchmark(sample.int(2)-1, sample(c(0,1),1),times=1000000)
 
 
-#' Sex-biased copying
-#'
-#' This function performs sex-biased copying based on bias proba
-#'
-#' @param ta A vector of values selected with proba 1-sb
-#' @param tb A vector of values selected with proba sb
-#' @param sb A numeric vector of probabilities (between 0 and 1) indicating the bias  for each traits
-#' @return A vector of values selected from `ta` or `tb` based on the bias condition.
-#' @examples
-#' sexbiascopy(c(t1=0,t2=0,t3=1), c(1,1,0), c(0.1,0.9,0.5))
-#' barplot(apply(replicate(100,sexbiascopy(c(t1=0,t2=0,t3=1),c(1,1,0),c(.1,.9,.5))),1,table),legend=T)
-#' @export
-sexbiascopy <- function(ta,tb,sb){
+firstop=function(){
+    c(
+      id=-1,
+      age=0,
+      partner=-1,
+      community=2,
+      "canrepro"=0,
+      "cid"=-1,
+      "fid"=2,
+      sex=sample(c(0,1),1)
+    )
 
-    stopifnot(length(ta)==length(tb),length(tb)==length(sb))
-    sexbias=runif(length(sb))<sb #if bias is only 0 1 runif useless, maye save some time not doing it?
-    ifelse(sexbias,tb,ta)
 }
 
-#' Vertical transmission with sex bias
-#'
-#' This function applies the `sexbiascopy` function vertically to a set of traits determined by a vertical preference vector `tp$pre[,"v"]`.
-#' It returns a vector of traits where each trait has been subject to sex-biased copying based on the bias specified in `tp$s`.
-#'
-#' @param ta A vector of traits selected with proba 1-tp$s
-#' @param tb A vector of traits selected with proba tp$s
-#' @param tp A list containing a matrix `pre` which indicates vertical preferences, and a vector `s` indicating the sex-bias probabilities.
-#' @param nametraits An optional string to be used as the prefix for naming the traits.
-#'
-#' @return A named vector of traits after applying sex-biased copying.
-#' @examples
-#' # Assuming 'tp' is a predefined list with appropriate structure
-#' vertical(c(t1=0,t2=0,t3=1), c(1,1,0), tp, nametraits="trait")
-#' @export
-#' @note The function assumes that the `tp` list is structured with at least the `pre` matrix and `s` vector as components.
-
-vertical <- function(ta,tb,tp,nametraits="t"){
-    traits=rep(NA,length(tp$s))
-    if(!is.null(nametraits))names(traits)=paste0(nametraits,1:length(tp$s))
-    vert=as.logical(tp$pre[,"v"])
-    traits[vert]=sexbiascopy(ta[vert],tb[vert],tp$s[vert])   
-    return(traits)
+secondop=function(n=10){
+    cbind(
+    id=rep(-1,n),
+      age=rep(0,n),
+      partner=rep(-1,n),
+      community=rep(2,n),
+      "canrepro"=rep(0,n),
+      "cid"=rep(-1,n),
+      "fid"=rep(2,n),
+      sex=sample(c(0,1),n,replace=T)
+    )
 }
+
+##microbenchmark::microbenchmark(t(replicate(20,firstop())),secondop(20),times=50000)
 
