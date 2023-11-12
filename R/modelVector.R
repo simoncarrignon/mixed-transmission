@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,neutraltraitsParam,population,initcomus,logging="time",tstep,ma=1,traitsid){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,initcomus,logging="time",tstep,ma=1,traitsid){
     popsize=nrow(population)
     popsum=list()
     popsum[[1]]=apply(population,2,table)
@@ -85,14 +85,27 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
             lbd=apply(ad_tr,1,lambda,base_rate=b,bonus_rate=r)
             lbd=lbd/ma
             newborns=runif(nrow(fam))<lbd
-            if(sum(newborns)>0){
+            nchilds=sum(newborns)
+            if(nchilds>0){
                 givbirth=fam[newborns,2]
                 newparents=sapply(givbirth,function(cid)which(population[,"cid"]==cid))
                 newparents=apply(newparents,2,function(i)population[i,],simplify=F)
-                offsprings=t(sapply(newparents,reproductionVec,tp=neutraltraitsParam,tid=traitsid))
-                ## in the aboce reproduction lot is done in reproductionVec; I think this could be splitted in two : the sexual reproduction that only deal with transmission of traits; then generation of vectors (id ; sex ; etc...); This should make it a bit faster too
-                mid=max(population[,"id"])
-                offsprings[,"id"]=(mid+1):(mid+nrow(offsprings))
+                famids=t(sapply(newparents,function(i)unique(i[,c("community","fid")])))
+                offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
+                ##Vertical Transmission
+                if(sum(tp$pre[,"v"])>0)
+                    offtraits[,tp$pre[,"v"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
+                offsprings=cbind(newpop(nchilds,minid=max(population[,"id"])),offtraits)
+
+                ##### When do horizontal and oblique take place? who are the model? how to make it modular?
+                #   ##Pre-Marital Horizontal Transmission
+                #   if(sum(tp$pre[,"h"])>0)
+                #       offtraits[,tp$pre[,"h"]==1]=population[,traitsid[tp$pre[,"h"]==1]]
+                #   ##Pre-Marital Oblique Transmission
+                #   if(sum(tp$pre[,"o"])>0)
+                #       offtraits[,tp$pre[,"o"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
+
+
                 population=rbind(population,offsprings[,colnames(population)])
             }
         }
