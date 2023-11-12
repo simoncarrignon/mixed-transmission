@@ -2,7 +2,7 @@ listToVec <- function(listpop){
     vecpop=matrix(0)
     age=unname(sapply(listpop,"[[","age"))
     partner=unname(sapply(listpop,"[[","partner"))
-    canrepro=unname(sapply(listpop,"[[","repro"))
+    canrepro=as.numeric(unname(sapply(listpop,"[[","repro")))
     community=unname(sapply(listpop,"[[","community"))
     cid=rep(-1,N) 
     fid=rep(0,N) 
