@@ -8,6 +8,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         population[,"age"]=population[,"age"]+1
         couple=which(population[,"partner"]>-1)
 
+        coms=table(population[,"community"])
+        stopifnot(coms == comus$size[as.numeric(names(coms))])
+
 
         ##marriage
         potential=population[,"age"]>=maturity & population[,"partner"]<0
@@ -56,13 +59,15 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                     lc=mc #leaving the mother's community
                 }
 
-                initcomus$size[jc]=initcomus$size[jc]+1
-                initcomus$size[lc]=initcomus$size[lc]-1
+                comus$size[jc]=comus$size[jc]+1
+                comus$size[lc]=comus$size[lc]-1
                 population[c2,"community"]= population[c1,"community"]=jc
 
                 if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
             }
             stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
+            coms=table(population[,"community"])
+            stopifnot(coms == comus$size[as.numeric(names(coms))])
         }
 
         ##repro
@@ -81,11 +86,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
             stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
             fam=unique(fam)
             stopifnot(table(families) == 2) #families should be made of 2 individual
-            ad_tr=initcomus$adaptivetraits[fam[,"community"],,drop=F]
+            ad_tr=comus$adaptivetraits[fam[,"community"],,drop=F]
             lbd=apply(ad_tr,1,lambda,base_rate=b,bonus_rate=r)
             lbd=lbd/ma
             newborns=runif(nrow(fam))<lbd
             nchilds=sum(newborns)
+            if("demo"%in%logging )print(paste(nchilds,"new childs"))
             if(nchilds>0){
                 givbirth=fam[newborns,2]
                 ##get all parents who gave birth
@@ -104,6 +110,11 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 
                 offsprings=cbind(newpop(nchilds,minid=max(population[,"id"]),community=offcom,fid=offfid),offtraits)
+                birthpercom=table(factor(offsprings[,"community"],levels=1:length(comus$size)))
+                for(i in seq_along(birthpercom)){
+                   comus$size[i]=comus$size[i]+birthpercom[i]
+                }
+
 
                 ##### When do horizontal and oblique take place? who are the model? how to make it modular?
                 #   ##Pre-Marital Horizontal Transmission
@@ -115,6 +126,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 
                 population=rbind(population,offsprings[,colnames(population)])
+                coms=table(population[,"community"])
+                stopifnot(coms == comus$size[as.numeric(names(coms))])
             }
         }
 
@@ -124,12 +137,22 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
         if(sum(dead)>0){
             singled=population[dead,"partner"]
-            if("demo"%in%logging )
-                paste("Death of:",paste0("ind ",apply(population[1:4,c("id","partner","cid")],1,paste0,collapse=" "),collapse=";"))
+            com=factor(population[dead,"community"],levels=1:length(comus$size))
+            deathpercom=table(com)
+            if("demo"%in%logging ){
+                print(paste(sum(dead),"deaths"))
+                #print(paste("Death of:",paste0("ind ",apply(population[1:4,c("id","partner","cid")],1,paste0,collapse=" "),collapse=";")))
+            }
             if(sum(singled>0)>0){
                 population[population[,"id"] %in%  singled[singled>0],c("partner","cid")]=-1
             }
-            population=population[!dead,]
+            for(i in seq_along(deathpercom)){
+                comus$size[i]=comus$size[i]-deathpercom[i]
+            }
+            population=population[!dead,,drop=F]
+
+            coms=table(population[,"community"])
+            stopifnot(coms == comus$size[as.numeric(names(coms))])
         }
 
 
@@ -137,41 +160,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
         ## Fission
         if(!is.null(F_Th)){
-            overloaded=initcomus$size>F_Th
+            overloaded=comus$size>F_Th
             if(sum(overloaded)>0){
-                listcomu=sapply(population,"[[","community") ##keep list of agent in each commu to avoid that 
-                for(split in which(overloaded)){
-                    newcomunity=length(initcomus$size)+1
-                    print(paste("community",split,"with size",initcomus$size[split]))
-                    tosplit= (listcomu == split)
-                    #initcomus
-                    moving=sample(names(population)[tosplit],initcomus$size[split]/2)
-
-                    #resize communities
-                    initcomus$size[split]=initcomus$size[split]-length(moving)
-                    initcomus$size=c(initcomus$size,length(moving))
-
-                    #resize copy adaptive traits
-                    initcomus$adaptivetraits=rbind(initcomus$adaptivetraits,initcomus$adaptivetraits[split,])
-
-                    #position new community
-                    initcomus$adaptivetraits=rbind(initcomus$adaptivetraits,initcomus$adaptivetraits[split,])
-                    initcomus$coordinates=rbind(initcomus$coordinates,random2Dgrid(1,100))
-
-                    #move each agent and partner
-                    for( mov in moving){
-                        population[[mov]]$community = newcomunity
-                        part=population[[mov]]$partner 
-                        if(part>-1){
-                            initcomus$size[population[[part]]$community]  =  initcomus$size[population[[part]]$community] - 1
-                            population[[part]]$community = newcomunity
-                            initcomus$size[newcomunity]=initcomus$size[newcomunity]+1
-                        }
-                    }
-                    print(paste("oldcoumnity",split,"is now",initcomus$size[split],"newcomunity",newcomunity,"of new size",initcomus$size[newcomunity]))
-                    #population[moving]=lapply(population[moving],function(m,nc){m$community=newcomunity;m})
-                    #could use that and then shoose randomly between parents
-                }
 
             }
 
@@ -181,10 +171,11 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         popsum[[time]]=apply(population,2,table)
 
         ##
-        if("visu"%in% logging)plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+        if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+1,cex=log(comus$size))
         popsize=c(popsize,nrow(population))
 
-        #stopifnot(any(initcomus$size==table(sapply(population,"[[","community"))))
+        coms=table(population[,"community"])
+        stopifnot(coms == comus$size[as.numeric(names(coms))])
     }
     return(list(popsize=popsize,popsum=popsum))
 }
