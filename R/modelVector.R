@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,initcomus,logging="time",tstep,ma=1,traitsid){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,comus,logging="time",tstep,ma=1,traitsid){
     popsize=nrow(population)
     popsum=list()
     popsum[[1]]=apply(population,2,table)
@@ -73,7 +73,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
         repro=population[,"age"]>=maturity & population[,"age"] < endrepro & population[,"partner"] > 0
         if(sum(repro)>0){
-            #ad_trinitcomus$adaptivetraits[population[repro,"community"],]
+            #ad_trcomus$adaptivetraits[population[repro,"community"],]
             reprofam=table(population[repro,"community"])
             fam=population[repro,c("community","cid"),drop=F]
             fcount=table(fam[,"cid"])

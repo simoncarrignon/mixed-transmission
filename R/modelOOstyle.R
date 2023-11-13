@@ -1,5 +1,5 @@
 
-modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,neutraltraitsParam,population,initcomus,logging="time",tstep,ma=1){
+modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,comus,logging="time",tstep,ma=1){
     popsize=length(population)
     popsum=list()
     popsum[[1]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
@@ -46,8 +46,8 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, end
                                 lc=mc #leaving the mother's community
                             }
 
-                            initcomus$size[jc]=initcomus$size[jc]+1
-                            initcomus$size[lc]=initcomus$size[lc]-1
+                            comus$size[jc]=comus$size[jc]+1
+                            comus$size[lc]=comus$size[lc]-1
                             population[[ind]]$community=population[[partner]]$community=jc
 
                             if("pairing"%in% logging)print(paste("marriage",ind,partner,"moving all to",jc," and leaving",lc, ",new:" ,population[[partner]]$community,population[[ind]]$community))
@@ -62,16 +62,16 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, end
                         if("verbose"%in%logging)print(paste("childtest",ind,partner,population[[ind]]$community,population[[partner]]$community))
                         population[[partner]]$repro=TRUE #make sure proba of reproduction is unique for all pair 
 
-                        ad_tr=initcomus$adaptivetraits[population[[ind]]$community,]
+                        ad_tr=comus$adaptivetraits[population[[ind]]$community,]
 
                         lbd=lambda(b,r,ad_tr)
                         lbd=lbd/ma #adjust rate for life time?
 
                         if(runif(1)<lbd){
-                            newborn=reproduction(population[[ind]],population[[partner]],neutraltraitsParam,population[[length(population)]]$id)
+                            newborn=reproduction(population[[ind]],population[[partner]],tp,population[[length(population)]]$id)
                             if("demo"%in%logging)print(paste("newborn in ",newborn$community))
                             population[[newborn$id]]=newborn
-                            initcomus$size[newborn$community]=initcomus$size[newborn$community]+1
+                            comus$size[newborn$community]=comus$size[newborn$community]+1
                         }
                     }
                 }
@@ -80,7 +80,7 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, end
                 #handle deaths
                 if(runif(1)<d){
                     if(partner>0) population[[partner]]$partner=-1
-                    initcomus$size[population[[ind]]$community]=initcomus$size[population[[ind]]$community]-1
+                    comus$size[population[[ind]]$community]=comus$size[population[[ind]]$community]-1
                     if("demo"%in%logging ) print(paste("dead ind",ind,"in",population[[ind]]$community))
                     population[[ind]]=NULL
                 }
@@ -93,38 +93,38 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, end
 
         ## Fission
         if(!is.null(F_Th)){
-            overloaded=initcomus$size>F_Th
+            overloaded=comus$size>F_Th
             if(sum(overloaded)>0){
                 listcomu=sapply(population,"[[","community") ##keep list of agent in each commu to avoid that 
                 for(split in which(overloaded)){
-                    newcomunity=length(initcomus$size)+1
-                    print(paste("community",split,"with size",initcomus$size[split]))
+                    newcomunity=length(comus$size)+1
+                    print(paste("community",split,"with size",comus$size[split]))
                     tosplit= (listcomu == split)
-                    #initcomus
-                    moving=sample(names(population)[tosplit],initcomus$size[split]/2)
+                    #comus
+                    moving=sample(names(population)[tosplit],comus$size[split]/2)
 
                     #resize communities
-                    initcomus$size[split]=initcomus$size[split]-length(moving)
-                    initcomus$size=c(initcomus$size,length(moving))
+                    comus$size[split]=comus$size[split]-length(moving)
+                    comus$size=c(comus$size,length(moving))
 
                     #resize copy adaptive traits
-                    initcomus$adaptivetraits=rbind(initcomus$adaptivetraits,initcomus$adaptivetraits[split,])
+                    comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[split,])
 
                     #position new community
-                    initcomus$adaptivetraits=rbind(initcomus$adaptivetraits,initcomus$adaptivetraits[split,])
-                    initcomus$coordinates=rbind(initcomus$coordinates,random2Dgrid(1,100))
+                    comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[split,])
+                    comus$coordinates=rbind(comus$coordinates,random2Dgrid(1,100))
 
                     #move each agent and partner
                     for( mov in moving){
                         population[[mov]]$community = newcomunity
                         part=population[[mov]]$partner 
                         if(part>-1){
-                            initcomus$size[population[[part]]$community]  =  initcomus$size[population[[part]]$community] - 1
+                            comus$size[population[[part]]$community]  =  comus$size[population[[part]]$community] - 1
                             population[[part]]$community = newcomunity
-                            initcomus$size[newcomunity]=initcomus$size[newcomunity]+1
+                            comus$size[newcomunity]=comus$size[newcomunity]+1
                         }
                     }
-                    print(paste("oldcoumnity",split,"is now",initcomus$size[split],"newcomunity",newcomunity,"of new size",initcomus$size[newcomunity]))
+                    print(paste("oldcoumnity",split,"is now",comus$size[split],"newcomunity",newcomunity,"of new size",comus$size[newcomunity]))
                     #population[moving]=lapply(population[moving],function(m,nc){m$community=newcomunity;m})
                     #could use that and then shoose randomly between parents
                 }
@@ -137,10 +137,10 @@ modelOOstyle <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, end
         popsum[[time]]=sapply(names(population[[1]]),function(n)table(sapply(population,"[[",n)))
 
         ##
-        if("visu"%in% logging)plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+        if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+1,cex=log(comus$size))
         popsize=c(popsize,length(population))
 
-        #stopifnot(any(initcomus$size==table(sapply(population,"[[","community"))))
+        #stopifnot(any(comus$size==table(sapply(population,"[[","community"))))
     }
     return(list(popsize=popsize,popsum=popsum))
 }
