@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,comus,logging="time",tstep,ma=1,traitsid){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2)){
     popsize=nrow(population)
     popsum=list()
     popsum[[1]]=apply(population,2,table)
@@ -162,9 +162,18 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         if(!is.null(F_Th)){
             overloaded=comus$size>F_Th
             if(sum(overloaded)>0){
+				for(ol in which(overloaded)){
+					if("fission"%in%logging)print(paste("community",ol,"to be splitten"))
+					newcoord=comus$coordinates[ol,]+runif(2,-1,1)
+					while(!(all(newcoord>=worldlimit[,1] , newcoord<=worldlimit[,2])))
+						newcoord=comus$coordinates[ol,]+runif(2,-1,1)
+					comus$coordinates=rbind(comus$coordinates,newcoord)
+					comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
+					population=reassignFamiliesToNewCommunity(ol,population,F_Th/2,nrow(comus$adaptivetraits))
+					comus$size=table(population[,"community"])
+				}
 
             }
-
         }
 
         #quick summary of population at time 
