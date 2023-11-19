@@ -66,3 +66,85 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
     list(coordinates=coordinates,adaptivetraits=traits,size=size)
 }
 
+
+
+#' Split Communities by Families
+#'
+#' This function selects families from a specified community within a population dataset
+#' until the total population size of the selected families reaches or exceeds a specified limit.
+#' It then assigns a new community ID to these families.
+#'
+#' @param comid The ID of the community to be partitioned.
+#' @param population A dataframe containing population data,
+#'                   which includes columns for community IDs and family IDs.
+#' @param newsize The target population size for the selected families.
+#'                The function selects families until this size is reached or exceeded.
+#' @param newid The new community ID to be assigned to the selected families.
+#'
+#' @return The population dataframe with updated community IDs for the selected families.
+#' @examples
+#' # Assuming `population_data` is a dataframe with 'community' and 'fid' columns
+#' splitCommunitiesByFamilies(1, population_data, 800, 2)
+#'
+splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
+    # Initialize an empty vector to store selected family IDs
+    fmig = c()
+
+    # Randomly sample unique family IDs from the specified community
+    fids = sample(unique(population[population[, "community"] == comid, "fid"]))
+
+    # Start with selecting one family
+    lim = 1
+    fmig = fids[1:lim]
+
+    # Continue adding families until the sum of individuals in selected families
+    # is at least the specified new size
+    while (sum(population[, "fid"] %in% fmig) < newsize) {
+        lim = lim + 1
+        fmig = fids[1:lim]
+    }
+
+    # Assign the new community ID to the selected families
+    population[population[, "fid"] %in% fmig, "community"] = newid
+
+    # Return the modified population data frame
+    return(population)
+}
+
+
+#' Reassign Families to New Community
+#'
+#' This function reassigns families from a specified community to a new community ID
+#' once the cumulative size of these families reaches a specified limit.
+#'
+#' @param comid The ID of the community to be processed.
+#' @param population A dataframe containing population data, 
+#'                   including community IDs and family IDs.
+#' @param newsize The cumulative size limit for the family selection.
+#' @param newid The new community ID to assign.
+#'
+#' @return A modified population dataframe with updated community IDs for the selected families.
+#' @examples
+#' # Assuming `population_data` is a dataframe with 'community' and 'fid' columns
+#' reassignFamiliesToNewCommunity(1, population_data, 800, 2)
+#'
+reassignFamiliesToNewCommunity <- function(comid, population, newsize, newid) {
+    # Validate input parameters
+    if (!is.numeric(newsize) || newsize <= 0) {
+        stop("newsize must be a positive number")
+    }
+
+
+    # Select community family IDs
+    fids <- population[population[, "community"] == comid, "fid"]
+
+    # Determine families to be reassigned
+    cumulative_size <- cumsum(table(fids)[as.character(sample(unique(fids)))])
+    selected_families <- names(cumulative_size[cumulative_size <= newsize])
+
+    # Reassign the new community ID
+    population[population[, "fid"] %in% selected_families, "community"] <- newid
+
+    return(population)
+}
+
