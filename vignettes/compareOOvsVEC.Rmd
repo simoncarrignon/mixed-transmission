@@ -36,13 +36,13 @@ traitsid=colnames(populationVec)[(ncol(populationVec)-z+1):ncol(populationVec)]
 tstep=20
 
 multires=replicate(5,{
-                       quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationVec, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
-                       quickO=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationOO, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
+                       quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationVec,comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time"),ma=1)
+                       quickO=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationOO,comus=initcomus, tstep=tstep,tp=neutraltraitsParam, logging=c("time"),ma=1)
                        return(list(quickO=quickO,quickV=quickV))
 })
 
-microbenchmark::microbenchmark(asvector=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationVec, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=1),
-aslist=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationOO, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=1),times=10)
+microbenchmark::microbenchmark(asvector=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationVec,comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("na"),ma=1),
+aslist=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationOO,comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("na"),ma=1),times=10)
 
 
 png("test.png",width=1000,height=800)
@@ -118,10 +118,10 @@ colnames(traits)=traitsid
 populationVec=cbind(populationVec,traits)
 
 multires=replicate(20,{
-                       quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationVec, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
+                       quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationVec,comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time"),ma=1)
                        plot(quickV$popsize)
 
-                       quickO=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationOO, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("time"),ma=1)
+                       quickO=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=populationOO,comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time"),ma=1)
                        return(list(quickO=quickO,quickV=quickV))
 })
 
@@ -163,9 +163,9 @@ tstep=30
 for(mature_adjust in c(1,60)){
 
     cl=makeCluster(10,"FORK")
-    tentriesOnlyF=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", populationOO=populationOO, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=0,km=1),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+    tentriesOnlyF=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", populationOO=populationOO,comus=initialiseCommunities(traits=initAdaptiveTraits(ki=0,km=1),coordinates=pos) , tstep=tstep, tp=neutraltraitsParam,ma=mature_adjust)})
 
-    tentriesOnlyHG=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", populationOO=populationOO, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=1,km=0),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+    tentriesOnlyHG=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", populationOO=populationOO,comus=initialiseCommunities(traits=initAdaptiveTraits(ki=1,km=0),coordinates=pos) , tstep=tstep, tp=neutraltraitsParam,ma=mature_adjust)})
 
     stopCluster(cl)
 
