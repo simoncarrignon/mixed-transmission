@@ -1,0 +1,91 @@
+```{r}
+devtools::load_all(".")
+N=400
+Th=400 #fission threshold
+ki <- 1
+km <- 2
+K  <-  ki+km
+m=1 #proba marriage
+b=.2 #HG birth rate
+r=.05 #farmer scale param
+rho=.5 #marriage rule
+d=0.001
+maturity=0
+endrepro=20
+tstep=20
+z=5
+
+
+
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$s=c(0,0,1,1)
+neutraltraitsParam$pre[,"v"]=c(1,1,1,0,0)
+
+
+
+pos=random2Dgrid(K=K,Gx=100)
+a=initAdaptiveTraits(ki=ki,km=km)
+initcomus=initialiseCommunities(traits=a,coordinates=pos)
+initcomus$size=rep(round(N/K),K)
+if(sum(initcomus$size) != N){
+    ndiff=N-sum(initcomus$size)
+    if(ndiff>0){
+        ss=sample(1:K,ndiff,replace=TRUE)
+        for(i in ss) initcomus$size[i]=initcomus$size[i]+1
+    }
+    if(ndiff<0){
+        ss=sample(1:K,-ndiff,replace=TRUE)
+        for(i in ss) initcomus$size[i]=initcomus$size[i]-1
+    }
+}
+
+
+plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+
+communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+
+quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=800)
+hist(quickV$population[,"age"])
+hist(table(quickV$population[,"fid"]))
+testpop=quickV$population
+tapply(testpop[,c("fid")],testpop[,"community"],table)
+
+# using forloop
+fmig=c()
+fids=sample(unique(testpop[testpop[,"community"] ==3,"fid"]))
+lim=1
+fmig=fids[1:lim]
+while(sum(testpop[,"fid"]%in% fmig)<800){
+          lim=lim+1
+          fmig=fids[1:lim]
+}
+
+# using cumsum
+compop <- testpop[testpop[, "community"] == 3, ]
+fids <- compop[, "fid"]
+cumulative_size <- cumsum(table(fids)[as.character(sample(unique(fids)))])
+selected_families <- names(cumulative_size[cumulative_size < 800])
+
+##comparison
+microbenchmark::microbenchmark(reassignFamiliesToNewCommunity(2,testpop,F_Th,length(initcomus$size)+1),splitCommunitiesByFamilies(2,testpop,F_Th,length(initcomus$size)+1))
+
+a=splitCommunitiesByFamilies(2,testpop,F_Th,length(initcomus$size)+1)
+table(a[,"community"])
+a=reassignFamiliesToNewCommunity(2,testpop,F_Th,length(initcomus$size)+1)
+unique(a[a[,"community"]==length(initcomus$size)+1,"fid"])
+
+alltFL=replicate(100,table(splitCommunitiesByFamilies(2,testpop,F_Th,length(initcomus$size)+1)[,"community"]))
+alltCS=replicate(100,table(reassignFamiliesToNewCommunity(2,testpop,F_Th,length(initcomus$size)+1)[,"community"]))
+alltFL[2,] >= alltFL[4,]
+alltCS[2,] >= alltCS[4,]
+
+##cumsum is 6/7 time faster 
+
+
+quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time","visu","fission"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=800)
+
+
+```
+
+
