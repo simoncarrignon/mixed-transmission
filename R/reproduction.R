@@ -1,17 +1,23 @@
-newpop <- function(n,age="random",minid=0){
+newpop <- function(n,age=NULL,minid=0,cid=NULL,fid=NULL,community=NULL){
 
-    if(age=="random")
-            age=sample(0:85,n,replace=T)
-        else
-            age=rep(0,n)
+    if(is.null(age)){
+        age=rep(0,n)
+    }
+    else{
+        if(age=="random") age=sample(0:85,n,replace=T)
+    }
+    if(is.null(cid))cid=rep(-1,n)
+    if(is.null(community))community=rep(1,n)
+    if(is.null(fid))fid=rep(-1,n)
+    stopifnot(length(age)==n, length(fid)==n, length(community)==n)
     cbind(
           id=(1:n)+minid,
           age=age,
           partner=rep(-1,n),
-          community=rep(2,n),
+          community=community,
           "canrepro"=rep(0,n),
-          "cid"=rep(-1,n),
-          "fid"=rep(-1,n),
+          "cid"=cid,
+          "fid"=fid,
           sex=sample(c(0,1),n,replace=T)
     )
 }
