@@ -186,5 +186,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         coms=table(population[,"community"])
         stopifnot(coms == comus$size[as.numeric(names(coms))])
     }
-    return(list(popsize=popsize,popsum=popsum))
+    finalres=list(popsize=popsize,popsum=popsum)
+    if(getfinalpop){finalres[["population"]]=population}
+    return(finalres)
 }
