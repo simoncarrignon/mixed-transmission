@@ -17,23 +17,8 @@ sexbiascopy <- function(ta,tb,sb){
     ifelse(sexbias,tb,ta)
 }
 
-#' Vertical transmission with sex bias
-#'
-#' This function applies the `sexbiascopy` function vertically to a set of traits determined by a vertical preference vector `tp$pre[,"v"]`.
-#' It returns a vector of traits where each trait has been subject to sex-biased copying based on the bias specified in `tp$s`.
-#'
-#' @param ta A vector of traits selected with proba 1-tp$s
-#' @param tb A vector of traits selected with proba tp$s
-#' @param tp A list containing a matrix `pre` which indicates vertical preferences, and a vector `s` indicating the sex-bias probabilities.
-#' @param nametraits An optional string to be used as the prefix for naming the traits.
-#'
-#' @return A named vector of traits after applying sex-biased copying.
-#' @examples
-#' # Assuming 'tp' is a predefined list with appropriate structure
-#' vertical(c(t1=0,t2=0,t3=1), c(1,1,0), tp, nametraits="trait")
-#' @export
-#' @note The function assumes that the `tp` list is structured with at least the `pre` matrix and `s` vector as components.
 
+### stil very messy, need to write all that down probably
 vertical <- function(p1,p2=NULL,tp,tid){
     if(!is.null(dim(p1))){
         p2=p1[2,]
@@ -91,9 +76,9 @@ initAdaptiveTraits <- function(km,ki,aval=c("i"=0,"m"=1),n=3){
 }
 
 initNeutralTraits <- function(N,z=9,traitnames="t",nastart=NULL){
-    if(is.null(nastart))initval=sample(c(0,1),z,replace=T)
+    if(is.null(nastart))initval=c(0,1)
     else initval=rep(NA,z)
-    traits= t(replicate(N,initval))
+    traits= t(replicate(N,sample(initval,z,replace=T)))
     colnames(traits)=paste0(traitnames,1:z)
     return(traits)
 }
