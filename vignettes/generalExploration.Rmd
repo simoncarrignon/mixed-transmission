@@ -74,7 +74,7 @@ initcomus$size=size
 plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
 
 
-tentries=replicate(10,modelOOstyle( N=N, Th=Th, K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, logging="time", population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam))
+tentries=replicate(10,modelOOstyle( N=N, Th=Th, K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, logging="time", population=population,comus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam))
 
 plot(1:200,ylim=c(0,600),type="n")
 popsums=apply(tentries,2,function(res){
