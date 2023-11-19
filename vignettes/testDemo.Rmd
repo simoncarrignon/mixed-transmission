@@ -32,7 +32,7 @@ plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,ce
 
 tstep=200
 
-quick=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=endrepro-maturity)
+quick=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population, comus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=endrepro-maturity)
 
 
 plot(quick$popsize)
@@ -41,7 +41,7 @@ tstep=50
 maturity=18
 endrepro=60
 m=.2
-quick=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population, initcomus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=1)
+quick=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population,comus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=1)
 plot(quick$popsize)
 sumcomu=sapply(quick$popsum,"[[","community")
 plot(1:tstep,ylim=range(sumcomu),type="n",ylab="pop size",,xlab="time")
@@ -72,9 +72,9 @@ tstep=30
 for(mature_adjust in c(1,60)){
 
     cl=makeCluster(10,"FORK")
-    tentriesOnlyF=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=population, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=0,km=1),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+    tentriesOnlyF=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=population, comus=initialiseCommunities(traits=initAdaptiveTraits(ki=0,km=1),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
 
-    tentriesOnlyHG=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=population, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=1,km=0),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+    tentriesOnlyHG=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelOOstyle(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=population, comus=initialiseCommunities(traits=initAdaptiveTraits(ki=1,km=0),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
 
     stopCluster(cl)
 
@@ -108,9 +108,9 @@ popvec=listToVec(population)
 for(mature_adjust in c(1,60)){
 
     cl=makeCluster(10,"FORK")
-    tentriesOnlyF=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelVector(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=popvec, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=0,km=1),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+    tentriesOnlyF=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelVector(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=popvec,comus=initialiseCommunities(traits=initAdaptiveTraits(ki=0,km=1),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
 
-    tentriesOnlyHG=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelVector(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=popvec, initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=1,km=0),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
+    tentriesOnlyHG=parLapply(cl,1:10,function(i){set.seed(as.numeric(Sys.time())+i);modelVector(m=m, b=b, r=r,  d=d, maturity=0, endrepro=10000, logging="time", population=popveccomus=initialiseCommunities(traits=initAdaptiveTraits(ki=1,km=0),coordinates=pos) , tstep=tstep, neutraltraitsParam=neutraltraitsParam,ma=mature_adjust)})
 
     stopCluster(cl)
 
