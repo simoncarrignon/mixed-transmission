@@ -1,8 +1,11 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2)){
-    popsize=nrow(population)
-    popsum=list()
-    popsum[[1]]=apply(population,2,table)
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary")){
+	if("popsize"%in%out) popsize=nrow(population)
+	if("weddings"%in%out) weddings=0
+    if("popsumary"%in%out){
+		popsum=list()
+		popsum[[1]]=apply(population,2,table)
+	}
     for(time in 2:tstep){
         if("time"%in%logging)print(paste("------",time,"------"))
         population[,"age"]=population[,"age"]+1
@@ -21,7 +24,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         weds=sum(runif(min(length(single_male),length(single_female)))<m)
         # if m is 1, every people who could get married will do 
         # if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
+		if("weddings"%in%out) weddings=c(weddings,weds)
         if(weds>0){
+			if("marriage"%in% logging)print(paste("cellebrating",weds,"weddings"))
             if(weds>1){
                 single_male  =sample(single_male)
                 single_female=sample(single_female)
@@ -177,16 +182,19 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         }
 
         #quick summary of population at time 
-        popsum[[time]]=apply(population,2,table)
+        if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 
         ##
         if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+1,cex=log(comus$size))
-        popsize=c(popsize,nrow(population))
+		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
         coms=table(population[,"community"])
         stopifnot(coms == comus$size[as.numeric(names(coms))])
     }
-    finalres=list(popsize=popsize,popsum=popsum)
-    if(getfinalpop){finalres[["population"]]=population}
+    finalres=list()
+    if("popsize"%in%out)finalres[["popsize"]]=popsize
+    if("popsumary"%in%out)finalres[["popsumary"]]=popsum
+    if("finalpop"%in%out)finalres[["population"]]=population
+    if("weddings"%in%out)finalres[["weddings"]]=weddings
     return(finalres)
 }
