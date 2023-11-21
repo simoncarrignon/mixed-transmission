@@ -18,6 +18,7 @@ newpop <- function(n,age=NULL,minid=0,cid=NULL,fid=NULL,community=NULL){
           "canrepro"=rep(0,n),
           "cid"=cid,
           "fid"=fid,
+	  "justMarried"=rep(0,n),
           sex=sample(c(0,1),n,replace=T)
     )
 }

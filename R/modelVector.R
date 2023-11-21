@@ -26,7 +26,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         # if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
 		if("weddings"%in%out) weddings=c(weddings,weds)
         if(weds>0){
-			if("marriage"%in% logging)print(paste("cellebrating",weds,"weddings"))
+		index=c(single_male[1:weds],single_female[1:weds])
+		population[index,'justMarried'] = 1
+		if("marriage"%in% logging)print(paste("cellebrating",weds,"weddings"))
             if(weds>1){
                 single_male  =sample(single_male)
                 single_female=sample(single_female)
