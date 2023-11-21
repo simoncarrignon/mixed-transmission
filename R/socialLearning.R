@@ -40,7 +40,7 @@ vertical <- function(p1,p2=NULL,tp,tid){
 #'
 #' @examples
 #' initNeutralTraitsPathways(1, 5)
-initNeutralTraitsPathways <- function(z=9,t_pre=c('v','h','o'),t_post=c('h','o')){
+initNeutralTraitsPathways <- function(z=9,t_pre=c('v','h','o'),t_post=c('h','o','i')){
     pre = array(0,dim=c(z,length(t_pre)))
     colnames(pre)=t_pre
     post = array(0,dim=c(z,length(t_post)))
