@@ -26,57 +26,57 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         # if m is 1, every people who could get married will do 
         # if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
 		if("weddings"%in%out) weddings=c(weddings,weds)
-        if(weds>0){
-		index=c(single_male[1:weds],single_female[1:weds])
-		population[index,'justMarried'] = 1
-		if("marriage"%in% logging)print(paste("cellebrating",weds,"weddings"))
-            if(weds>1){
-                single_male  =sample(single_male)
-                single_female=sample(single_female)
-            }
-            maxcid=max(population[,"cid"])
-            for(i in 1:weds){
-                maxcid=maxcid+1
-                c1=single_male[i]
-                c2=single_female[i]
-                population[c(c1,c2),"cid"]=maxcid #Couple ID, to track couples
-                population[c(c1,c2),"fid"]=maxcid #Family Id, to track kids
-        ## quick note: in this version offspring stay with the partner that stay alive until the parents find a new partner; then offspring will be on their own.
-                population[c1,"partner"]=population[c2,"id"]
-                population[c2,"partner"]=population[c1,"id"]
+		if(weds>0){
+			index=c(single_male[1:weds],single_female[1:weds])
+			population[index,'justMarried'] = 1
+			if("marriage"%in% logging)print(paste("cellebrating",weds,"weddings"))
+			if(weds>1){
+				single_male  =sample(single_male)
+				single_female=sample(single_female)
+			}
+			maxcid=max(population[,"cid"])
+			for(i in 1:weds){
+				maxcid=maxcid+1
+				c1=single_male[i]
+				c2=single_female[i]
+				population[c(c1,c2),"cid"]=maxcid #Couple ID, to track couples
+				population[c(c1,c2),"fid"]=maxcid #Family Id, to track kids
+				## quick note: in this version offspring stay with the partner that stay alive until the parents find a new partner; then offspring will be on their own.
+				population[c1,"partner"]=population[c2,"id"]
+				population[c2,"partner"]=population[c1,"id"]
 
-                if( population[c1,"sex"] == 1){
-                    fc=population[c1,"community"]
-                    mc=population[c2,"community"]
-                    stopifnot(population[c2,"sex"]==0) #temp test
-                }
-                else{
-                    fc=population[c2,"community"]
-                    mc=population[c1,"community"]
-                    stopifnot(population[c1,"sex"]==0) #temp test
+				if( population[c1,"sex"] == 1){
+					fc=population[c1,"community"]
+					mc=population[c2,"community"]
+					stopifnot(population[c2,"sex"]==0) #temp test
+				}
+				else{
+					fc=population[c2,"community"]
+					mc=population[c1,"community"]
+					stopifnot(population[c1,"sex"]==0) #temp test
 
-                }
-                ## choice of new community  // ugly ; could do a function(rho,fc,mc) return(lc,jc) & ifelse
+				}
+				## choice of new community  // ugly ; could do a function(rho,fc,mc) return(lc,jc) & ifelse
 
-                if(runif(1)<rho){
-                    lc=fc #leaving the father's community
-                    jc=mc #joining the mother's community
-                }
-                else{
-                    jc=fc #joining the father's community
-                    lc=mc #leaving the mother's community
-                }
+				if(runif(1)<rho){
+					lc=fc #leaving the father's community
+					jc=mc #joining the mother's community
+				}
+				else{
+					jc=fc #joining the father's community
+					lc=mc #leaving the mother's community
+				}
 
-                comus$size[jc]=comus$size[jc]+1
-                comus$size[lc]=comus$size[lc]-1
-                population[c2,"community"]= population[c1,"community"]=jc
+				comus$size[jc]=comus$size[jc]+1
+				comus$size[lc]=comus$size[lc]-1
+				population[c2,"community"]= population[c1,"community"]=jc
 
-                if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
-            }
-            stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
-            coms=table(population[,"community"])
-            stopifnot(coms == comus$size[as.numeric(names(coms))])
-        }
+				if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
+			}
+			stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
+			coms=table(population[,"community"])
+			stopifnot(coms == comus$size[as.numeric(names(coms))])
+		}
 
         ##repro
         families=population[,"cid"]
