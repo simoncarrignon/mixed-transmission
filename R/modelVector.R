@@ -16,7 +16,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 
         ##marriage
-	population[,"justMarried"]  <- 0
+		population[,"justMarried"]  <- 0
         potential=population[,"age"]>=maturity & population[,"partner"]<0
         single_male  =which(potential & population[,"sex"]==0)
         stopifnot(population[single_male,"sex"]==0) #temp test
