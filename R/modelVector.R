@@ -40,7 +40,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				c1=single_male[i]
 				c2=single_female[i]
 				population[c(c1,c2),"cid"]=maxcid #Couple ID, to track couples
-				population[c(c1,c2),"fid"]=maxcid #Family Id, to track kids
 				## quick note: in this version offspring stay with the partner that stay alive until the parents find a new partner; then offspring will be on their own.
 				population[c1,"partner"]=population[c2,"id"]
 				population[c2,"partner"]=population[c1,"id"]
@@ -107,10 +106,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                 ##group parents together
                 newparents=apply(newparents,2,function(i)population[i,],simplify=F)
 
-                ##get families ids and communities
-                famids=t(sapply(newparents,function(i)unique(i[,c("community","fid")])))
+                ##get couple ids and their associetad communities
+                famids=t(sapply(newparents,function(i)unique(i[,c("community","cid")])))
                 offcom=famids[,1] ##offsprings community id
-                offfid=famids[,2]  ##offfspsrings family id
+                offfid=famids[,2]  ##offfspsrings family id will become parents "cid"
                 offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
                 ##Vertical Transmission
                 if(sum(tp$pre[,"v"])>0)
