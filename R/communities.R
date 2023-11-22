@@ -137,13 +137,16 @@ reassignFamiliesToNewCommunity <- function(comid, population, newsize, newid) {
 
     # Select community family IDs
     fids <- population[population[, "community"] == comid, "fid"]
+    fids <- c(unique(fids),unique(fids),fids) #adding parents into the counts
 
     # Determine families to be reassigned
     cumulative_size <- cumsum(table(fids)[as.character(sample(unique(fids)))])
     selected_families <- names(cumulative_size[cumulative_size <= newsize])
 
     # Reassign the new community ID
-    population[population[, "fid"] %in% selected_families, "community"] <- newid
+    movingpeople=population[, "fid"] %in% selected_families
+    population[movingpeople, "community"] <- newid
+    population[population[, "cid"] %in% population[movingpeople,"fid"], "community"] <- newid
 
     return(population)
 }

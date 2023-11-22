@@ -89,7 +89,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
             reprofam=table(population[repro,"community"])
             fam=population[repro,c("community","cid"),drop=F]
             fcount=table(fam[,"cid"])
-            fam=fam[fcount>1,,drop=F]
+            noncelib=fam[,"cid"]%in%as.numeric(names(fcount[fcount>1]))
+            print(table(fam[,2]))
+            fam=fam[noncelib,,drop=F]
             stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
             fam=unique(fam)
             stopifnot(table(families) == 2) #families should be made of 2 individual
