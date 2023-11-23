@@ -3,7 +3,7 @@ devtools::load_all(".")
 N=400
 Th=400 #fission threshold
 ki <- 1
-km <- 2
+km <- 1
 K  <-  ki+km
 m=1 #proba marriage
 b=.2 #HG birth rate
@@ -45,7 +45,7 @@ plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,ce
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
 population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
 
-quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=800)
+quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=10, tp=neutraltraitsParam, logging=c("time"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=10800,out=c("finalpop","popsize","weddings"))
 hist(quickV$population[,"age"])
 hist(table(quickV$population[,"fid"]))
 testpop=quickV$population
@@ -83,9 +83,25 @@ alltCS[2,] >= alltCS[4,]
 ##cumsum is 6/7 time faster 
 
 
-quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time","visu","fission"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=800)
+quickV=modelVector( K =K, m=.5, b=0.03*3.1, r=0, rho=rho, d=0.03, maturity=maturity, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time","visu","fission","marriage"),ma=1,traitsid=paste0("t",1:z),out=c("popsumary","finalpop","popsize","weddings"),F_Th=800)
+tstep=1000
+
+quickV=modelVector(m=1, b=0.03*6, r=0, rho=rho, d=0.03, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=200, tp=neutraltraitsParam, logging=c("time","visu","fission","marriage"),ma=1,traitsid=paste0("t",1:z),out=c("popsumary","finalpop","popsize","weddings"),F_Th=800)
+
+par(mfrow=c(1,2))
+hist(quickV$population[,"age"],xlab="age")
+hist(table(quickV$population[,"fid"]),xlab="family size")
+testpop=quickV$population
+tapply(testpop[,c("fid")],testpop[,"community"],table)
 
 
+quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=10, tp=neutraltraitsParam, logging=c("time"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=800,out=c("finalpop","popsize","weddings"))
+
+population=quickV$population 
+
+table(population[,"community"])
+
+reassignFamiliesToNewCommunityNoFIDs(2,population,200,3)
+
+quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=100, tp=neutraltraitsParam, logging=c("time"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=10800,out=c("finalpop","popsize","weddings"))
 ```
-
-
