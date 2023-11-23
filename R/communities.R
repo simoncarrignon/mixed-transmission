@@ -115,7 +115,8 @@ splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
 #' Reassign Families to New Community
 #'
 #' This function reassigns families from a specified community to a new community ID
-#' once the cumulative size of these families reaches a specified limit.
+#' once the cumulative size of these families reaches a specified limit. This version work \emph{if and only if} 
+#' \code{fid} identify children \emph{and} their parents
 #'
 #' @param comid The ID of the community to be processed.
 #' @param population A dataframe containing population data, 
@@ -128,25 +129,24 @@ splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
 #' # Assuming `population_data` is a dataframe with 'community' and 'fid' columns
 #' reassignFamiliesToNewCommunity(1, population_data, 800, 2)
 #'
-reassignFamiliesToNewCommunity <- function(comid, population, newsize, newid) {
+reassignFamiliesToNewCommunityFIDs <- function(comid, population, newsize, newid) {
     # Validate input parameters
     if (!is.numeric(newsize) || newsize <= 0) {
         stop("newsize must be a positive number")
     }
+	commuConsistency(population)
 
 
     # Select community family IDs
     fids <- population[population[, "community"] == comid, "fid"]
-    fids <- c(unique(fids),unique(fids),fids) #adding parents into the counts
 
     # Determine families to be reassigned
     cumulative_size <- cumsum(table(fids)[as.character(sample(unique(fids)))])
     selected_families <- names(cumulative_size[cumulative_size <= newsize])
 
     # Reassign the new community ID
-    movingpeople=population[, "fid"] %in% selected_families
-    population[movingpeople, "community"] <- newid
-    population[population[, "cid"] %in% population[movingpeople,"fid"], "community"] <- newid
+    population[population[, "fid"] %in% selected_families, "community"] <- newid
+	commuConsistency(population)
 
     return(population)
 }
