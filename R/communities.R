@@ -168,3 +168,60 @@ commuConsistency <- function(population){
 	stopifnot(sapply(uniqcids[uniqcids!=-1],function(cid)length(unique(population[population[,"cid"]==cid,"community"])))==1)
 }
 
+
+#' Reassign Families to New Community
+#'
+#' This function reassigns families from a specified community to a new community ID
+#' once the cumulative size of these families reaches a specified limit. This version 
+#' recreate nuclear families using `cid` and `fid`, than split the families
+#'
+#' @param comid The ID of the community to be processed.
+#' @param population A dataframe containing population data, 
+#'                   including community IDs and family IDs.
+#' @param newsize The cumulative size limit for the family selection.
+#' @param newid The new community ID to assign.
+#'
+#' @return A modified population dataframe with updated community IDs for the selected families.
+#' @examples
+#' # Assuming `population_data` is a dataframe with 'community' and 'fid' columns
+#' reassignFamiliesToNewCommunity(1, population_data, 800, 2)
+#'
+reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, newid,debug=FALSE) {
+    # Validate input parameters
+    if (!is.numeric(newsize) || newsize <= 0) {
+        stop("newsize must be a positive number")
+    }
+	if(debug)commuConsistency(population)
+
+
+    # Select community family IDs
+    single.comu <- population[population[, "community"] == comid, ]
+	single.comu <- cbind(single.comu,nfid=single.comu[,"fid"])
+
+    kids <- single.comu[single.comu[, "cid"] == -1, "fid" ] 
+    parents <- single.comu[single.comu[, "cid"] %in% kids , "cid" ]
+	single.comu[single.comu[, "cid"] == -1, "nfid" ] = single.comu[single.comu[, "cid"] == -1, "fid" ] 
+	single.comu[single.comu[, "cid"] %in% kids , "nfid" ] <- single.comu[single.comu[, "cid"] %in% kids , "cid" ]
+
+	couple=single.comu[single.comu[,"cid"]>-1,"cid"]
+
+	couplenokids=couple[!(couple%in% parents)] 
+	single.comu[single.comu[, "cid"] %in% couplenokids , "nfid" ] <- single.comu[single.comu[, "cid"] %in% couplenokids , "cid" ]
+    fids <- single.comu[,"nfid"]
+
+    # Determine families to be reassigned
+    cumulative_size <- cumsum(table(fids)[as.character(sample(unique(fids)))])
+    selected_families <- names(cumulative_size[cumulative_size <= newsize])
+
+	stopifnot(cumulative_size[length(cumulative_size)]==sum(population[,"community"]==comid))
+
+    # Reassign the new community ID
+	selected.indiv=single.comu[single.comu[,"nfid"] %in% selected_families ,"id"]
+	npop=population
+	npop[population[, "id"] %in% selected.indiv,"community"] <- newid
+
+	if(debug)commuConsistency(npop)
+    return(population)
+}
+
+
