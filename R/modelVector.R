@@ -109,8 +109,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
                 ##get couple ids and their associated communities
                 famids=t(sapply(newparents,function(i)unique(i[,c("community","cid")])))
-                offcom=famids[,"community"] ##offsprings community id
-                offfid=famids[,"cid"]  ##parents "cid" will be used  as offfspsrings family id `fid`
+                offcom=famids[,1] ##offsprings community id
+                offfid=famids[,2]  ##parents "cid" will be used  as offfspsrings family id `fid`
                 offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
                 ##Vertical Transmission
                 if(sum(tp$pre[,"v"])>0)
