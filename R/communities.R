@@ -151,3 +151,20 @@ reassignFamiliesToNewCommunityFIDs <- function(comid, population, newsize, newid
     return(population)
 }
 
+
+#' Check Community Consistency in Population
+#'
+#' quick test that each community identifier (cid) in a given population
+#' dataset adheres to certain consistency rules:
+#' 1. Each cid, appears either once (dead partner) or twice in the population.
+#' 2. For each cid, all members of the population belonging to that cid
+#'    are part of the same community.
+#'
+#' @export
+commuConsistency <- function(population){
+	uniqcids <- unique(population[,"cid"])
+	cid.counts <- table(population[,"cid"])
+	stopifnot(cid.counts[-1] %in% c(1,2))
+	stopifnot(sapply(uniqcids[uniqcids!=-1],function(cid)length(unique(population[population[,"cid"]==cid,"community"])))==1)
+}
+
