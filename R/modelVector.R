@@ -179,6 +179,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 					comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
 					population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,nrow(comus$adaptivetraits))
 					comus$size=table(population[,"community"])
+					if("fissionsize"%in%logging)print(comus$size)
 				}
 
             }
