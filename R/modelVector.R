@@ -40,7 +40,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				c1=single_male[i]
 				c2=single_female[i]
 				population[c(c1,c2),"cid"]=maxcid #Couple ID, to track couples
-				population[c(c1,c2),"fid"]=maxcid #Family Id, to track kids
+				## population[c(c1,c2),"nfid"]=maxcid #To trakc nuclear family need to add here Family Id
 				## quick note: in this version offspring stay with the partner that stay alive until the parents find a new partner; then offspring will be on their own.
 				population[c1,"partner"]=population[c2,"id"]
 				population[c2,"partner"]=population[c1,"id"]
@@ -86,11 +86,11 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
         repro=population[,"age"]>=maturity & population[,"age"] < endrepro & population[,"partner"] > 0
         if(sum(repro)>0){
-            #ad_trcomus$adaptivetraits[population[repro,"community"],]
             reprofam=table(population[repro,"community"])
             fam=population[repro,c("community","cid"),drop=F]
             fcount=table(fam[,"cid"])
-            fam=fam[fcount>1,,drop=F]
+            noncelib=fam[,"cid"]%in%as.numeric(names(fcount[fcount>1]))
+            fam=fam[noncelib,,drop=F]
             stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
             fam=unique(fam)
             stopifnot(table(families) == 2) #families should be made of 2 individual
@@ -107,10 +107,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                 ##group parents together
                 newparents=apply(newparents,2,function(i)population[i,],simplify=F)
 
-                ##get families ids and communities
-                famids=t(sapply(newparents,function(i)unique(i[,c("community","fid")])))
-                offcom=famids[,1] ##offsprings community id
-                offfid=famids[,2]  ##offfspsrings family id
+                ##get couple ids and their associated communities
+                famids=t(sapply(newparents,function(i)unique(i[,c("community","cid")])))
+                offcom=famids[,"community"] ##offsprings community id
+                offfid=famids[,"cid"]  ##parents "cid" will be used  as offfspsrings family id `fid`
                 offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
                 ##Vertical Transmission
                 if(sum(tp$pre[,"v"])>0)
@@ -177,7 +177,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 						newcoord=comus$coordinates[ol,]+runif(2,-1,1)
 					comus$coordinates=rbind(comus$coordinates,newcoord)
 					comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
-					population=reassignFamiliesToNewCommunity(ol,population,F_Th/2,nrow(comus$adaptivetraits))
+					population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,nrow(comus$adaptivetraits))
 					comus$size=table(population[,"community"])
 				}
 
