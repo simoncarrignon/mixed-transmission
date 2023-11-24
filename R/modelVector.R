@@ -69,6 +69,32 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 				comus$size[jc]=comus$size[jc]+1
 				comus$size[lc]=comus$size[lc]-1
+				
+				#in-law transmission:
+				learner = c(c1,c2)[which(population[c(c1,c2),"community"]!=jc)]
+				teacher.offspring = c(c1,c2)[which(population[c(c1,c2),"community"]==jc)]
+				inlaw.father = which(population[,'cid']==teacher.offspring[,'fid'] & population[,'sex']==0)
+				inlaw.mother = which(population[,'cid']==teacher.offspring[,'fid'] & population[,'sex']==1)
+				for (i in 1:length(tp$s)) # for each trait
+				{
+					if (tp$post[k,'i']==1)
+					{ 
+						if (tp$s[i]==0) # learn from father in-law
+						{
+							population[learner,paste0('t',i)] = population[inlaw.father,paste0('t',i)]
+						}
+						if (tp$s[i]==1) # lear from mother in-law
+						{
+							population[learner,paste0('t',i)] = population[inlaw.mother,paste0('t',i)]
+						}
+						if (tp$s[i]==-1) # lear from one of the in-laws
+						{
+							population[learner,paste0('t',i)] = population[sample(c(inlaw.mother,inlaw.father),size=1),paste0('t',i)]
+						}
+					}
+				}
+
+				# post-marital movement:
 				population[c2,"community"]= population[c1,"community"]=jc
 
 				if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
