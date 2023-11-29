@@ -1,30 +1,30 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary")){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary")){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
-    if("popsumary"%in%out){
+	if("popsumary"%in%out){
 		popsum=list()
 		popsum[[1]]=apply(population,2,table)
 	}
-    for(time in 2:tstep){
-        if("time"%in%logging)print(paste("------",time,"------"))
-        population[,"age"]=population[,"age"]+1
-        couple=which(population[,"partner"]>-1)
+	for(time in 2:tstep){
+		if("time"%in%logging)print(paste("------",time,"------"))
+		population[,"age"]=population[,"age"]+1
+		couple=which(population[,"partner"]>-1)
 
-        coms=table(population[,"community"])
-        stopifnot(coms == comus$size[as.numeric(names(coms))])
+		coms=table(population[,"community"])
+		stopifnot(coms == comus$size[as.numeric(names(coms))])
 
 
-        ##marriage
+		##marriage
 		population[,"justMarried"]  <- 0
-        potential=population[,"age"]>=maturity & population[,"partner"]<0
-        single_male  =which(potential & population[,"sex"]==0)
-        stopifnot(population[single_male,"sex"]==0) #temp test
-        single_female=which(potential & population[,"sex"]==1)
-        stopifnot(population[single_female,"sex"]==1) #temp test
-        weds=sum(runif(min(length(single_male),length(single_female)))<m)
-        # if m is 1, every people who could get married will do 
-        # if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
+		potential=population[,"age"]>=maturity & population[,"partner"]<0
+		single_male  =which(potential & population[,"sex"]==0)
+		stopifnot(population[single_male,"sex"]==0) #temp test
+		single_female=which(potential & population[,"sex"]==1)
+		stopifnot(population[single_female,"sex"]==1) #temp test
+		weds=sum(runif(min(length(single_male),length(single_female)))<m)
+		# if m is 1, every people who could get married will do 
+		# if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
 		if("weddings"%in%out) weddings=c(weddings,weds)
 		if(weds>0){
 			index=c(single_male[1:weds],single_female[1:weds])
@@ -69,15 +69,15 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 				comus$size[jc]=comus$size[jc]+1
 				comus$size[lc]=comus$size[lc]-1
-				
+
 				#in-law transmission:
 				learner = c(c1,c2)[which(population[c(c1,c2),"community"]!=jc)]
 				teacher.offspring = c(c1,c2)[which(population[c(c1,c2),"community"]==jc)]
-				inlaw.father = which(population[,'cid']==teacher.offspring[,'fid'] & population[,'sex']==0)
-				inlaw.mother = which(population[,'cid']==teacher.offspring[,'fid'] & population[,'sex']==1)
+				inlaw.father = which(population[,'cid']==population[teacher.offspring,'fid'] & population[,'sex']==0)
+				inlaw.mother = which(population[,'cid']==population[teacher.offspring,'fid'] & population[,'sex']==1)
 				for (i in 1:length(tp$s)) # for each trait
 				{
-					if (tp$post[k,'i']==1)
+					if (tp$post[i,'i']==1)
 					{ 
 						if (tp$s[i]==0) # learn from father in-law
 						{
@@ -104,98 +104,105 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			stopifnot(coms == comus$size[as.numeric(names(coms))])
 		}
 
-        ##repro
-        families=population[,"cid"]
-        families=families[families>=0]
-        fcount=table(families)
-        stopifnot(table(families)[fcount>1] == 2)
-        stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
-        repro=population[,"age"]>=maturity & population[,"age"] < endrepro & population[,"partner"] > 0
-        if(sum(repro)>0){
-            reprofam=table(population[repro,"community"])
-            fam=population[repro,c("community","cid"),drop=F]
-            fcount=table(fam[,"cid"])
-            noncelib=fam[,"cid"]%in%as.numeric(names(fcount[fcount>1]))
-            fam=fam[noncelib,,drop=F]
-            stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
-            fam=unique(fam)
-            stopifnot(table(families) == 2) #families should be made of 2 individual
-            ad_tr=comus$adaptivetraits[fam[,"community"],,drop=F]
-            lbd=apply(ad_tr,1,lambda,base_rate=b,bonus_rate=r)
-            lbd=lbd/ma
-            newborns=runif(nrow(fam))<lbd
-            nchilds=sum(newborns)
-            if("demo"%in%logging )print(paste(nchilds,"new childs"))
-            if(nchilds>0){
-                givbirth=fam[newborns,2]
-                ##get all parents who gave birth
-                newparents=sapply(givbirth,function(cid)which(population[,"cid"]==cid))
-                ##group parents together
-                newparents=apply(newparents,2,function(i)population[i,],simplify=F)
+		## Post-Marital Horizontal and Oblique Transmission
+		population  <- social.learning(population,when='post',pathways=tp,threshold=age.threshold)
 
-                ##get couple ids and their associated communities
-                famids=t(sapply(newparents,function(i)unique(i[,c("community","cid")])))
-                offcom=famids[,"community"] ##offsprings community id
-                offfid=famids[,"cid"]  ##parents "cid" will be used  as offfspsrings family id `fid`
-                offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
-                ##Vertical Transmission
-                if(sum(tp$pre[,"v"])>0)
-                    offtraits[,tp$pre[,"v"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
+		##repro
+		families=population[,"cid"]
+		families=families[families>=0]
+		fcount=table(families)
+		stopifnot(table(families)[fcount>1] == 2)
+		stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
+		repro=population[,"age"]>=maturity & population[,"age"] < endrepro & population[,"partner"] > 0
+		if(sum(repro)>0){
+			reprofam=table(population[repro,"community"])
+			fam=population[repro,c("community","cid"),drop=F]
+			fcount=table(fam[,"cid"])
+			noncelib=fam[,"cid"]%in%as.numeric(names(fcount[fcount>1]))
+			fam=fam[noncelib,,drop=F]
+			stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
+			fam=unique(fam)
+			stopifnot(table(families) == 2) #families should be made of 2 individual
+			ad_tr=comus$adaptivetraits[fam[,"community"],,drop=F]
+			lbd=apply(ad_tr,1,lambda,base_rate=b,bonus_rate=r)
+			lbd=lbd/ma
+			newborns=runif(nrow(fam))<lbd
+			nchilds=sum(newborns)
+			if("demo"%in%logging )print(paste(nchilds,"new childs"))
+			if(nchilds>0){
+				givbirth=fam[newborns,2]
+				##get all parents who gave birth
+				newparents=sapply(givbirth,function(cid)which(population[,"cid"]==cid))
+				##group parents together
+				newparents=apply(newparents,2,function(i)population[i,],simplify=F)
 
-
-                offsprings=cbind(newpop(nchilds,minid=max(population[,"id"]),community=offcom,fid=offfid),offtraits)
-                birthpercom=table(factor(offsprings[,"community"],levels=1:length(comus$size)))
-                for(i in seq_along(birthpercom)){
-                   comus$size[i]=comus$size[i]+birthpercom[i]
-                }
+				##get couple ids and their associated communities
+				famids=t(sapply(newparents,function(i)unique(i[,c("community","cid")])))
+				offcom=famids[,"community"] ##offsprings community id
+				offfid=famids[,"cid"]  ##parents "cid" will be used  as offfspsrings family id `fid`
+				offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
+				##Vertical Transmission
+				if(sum(tp$pre[,"v"])>0)
+					offtraits[,tp$pre[,"v"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
 
 
-                ##### When do horizontal and oblique take place? who are the model? how to make it modular?
-                #   ##Pre-Marital Horizontal Transmission
-                #   if(sum(tp$pre[,"h"])>0)
-                #       offtraits[,tp$pre[,"h"]==1]=population[,traitsid[tp$pre[,"h"]==1]]
-                #   ##Pre-Marital Oblique Transmission
-                #   if(sum(tp$pre[,"o"])>0)
-                #       offtraits[,tp$pre[,"o"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
+				offsprings=cbind(newpop(nchilds,minid=max(population[,"id"]),community=offcom,fid=offfid),offtraits)
+				birthpercom=table(factor(offsprings[,"community"],levels=1:length(comus$size)))
+				for(i in seq_along(birthpercom)){
+					comus$size[i]=comus$size[i]+birthpercom[i]
+				}
 
 
-                population=rbind(population,offsprings[,colnames(population)])
-                coms=table(population[,"community"])
-                stopifnot(coms == comus$size[as.numeric(names(coms))])
-            }
-        }
+
+				##### When do horizontal and oblique take place? who are the model? how to make it modular?
+				#   ##Pre-Marital Horizontal Transmission
+				#   if(sum(tp$pre[,"h"])>0)
+				#       offtraits[,tp$pre[,"h"]==1]=population[,traitsid[tp$pre[,"h"]==1]]
+				#   ##Pre-Marital Oblique Transmission
+				#   if(sum(tp$pre[,"o"])>0)
+				#       offtraits[,tp$pre[,"o"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
 
 
-        #handle deaths
-        dead=runif(nrow(population))<d
+				population=rbind(population,offsprings[,colnames(population)])
+				coms=table(population[,"community"])
 
-        if(sum(dead)>0){
-            singled=population[dead,"partner"]
-            com=factor(population[dead,"community"],levels=1:length(comus$size))
-            deathpercom=table(com)
-            if("demo"%in%logging ){
-                print(paste(sum(dead),"deaths"))
-                #print(paste("Death of:",paste0("ind ",apply(population[1:4,c("id","partner","cid")],1,paste0,collapse=" "),collapse=";")))
-            }
-            if(sum(singled>0)>0){
-                population[population[,"id"] %in%  singled[singled>0],c("partner","cid")]=-1
-            }
-            for(i in seq_along(deathpercom)){
-                comus$size[i]=comus$size[i]-deathpercom[i]
-            }
-            population=population[!dead,,drop=F]
-
-            coms=table(population[,"community"])
-            stopifnot(coms == comus$size[as.numeric(names(coms))])
-        }
+				stopifnot(coms == comus$size[as.numeric(names(coms))])
+			}
+			## Pre-Marital Horizontal and Oblique Transmission
+			population  <- social.learning(population,when='pre',pathways=tp,threshold=age.threshold)
+		}
 
 
-        ##pm transmission
+		#handle deaths
+		dead=runif(nrow(population))<d
 
-        ## Fission
-        if(!is.null(F_Th)){
-            overloaded=comus$size>F_Th
-            if(sum(overloaded)>0){
+		if(sum(dead)>0){
+			singled=population[dead,"partner"]
+			com=factor(population[dead,"community"],levels=1:length(comus$size))
+			deathpercom=table(com)
+			if("demo"%in%logging ){
+				print(paste(sum(dead),"deaths"))
+				#print(paste("Death of:",paste0("ind ",apply(population[1:4,c("id","partner","cid")],1,paste0,collapse=" "),collapse=";")))
+			}
+			if(sum(singled>0)>0){
+				population[population[,"id"] %in%  singled[singled>0],c("partner","cid")]=-1
+			}
+			for(i in seq_along(deathpercom)){
+				comus$size[i]=comus$size[i]-deathpercom[i]
+			}
+			population=population[!dead,,drop=F]
+
+			coms=table(population[,"community"])
+			stopifnot(coms == comus$size[as.numeric(names(coms))])
+		}
+
+
+		##pm transmission
+
+		## Fission
+		if(!is.null(F_Th)){
+			overloaded=comus$size>F_Th
+			if(sum(overloaded)>0){
 				for(ol in which(overloaded)){
 					if("fission"%in%logging)print(paste("community",ol,"to be splitten"))
 					newcoord=comus$coordinates[ol,]+runif(2,-1,1)
@@ -207,23 +214,23 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 					comus$size=table(population[,"community"])
 				}
 
-            }
-        }
+			}
+		}
 
-        #quick summary of population at time 
-        if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
+		#quick summary of population at time 
+		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 
-        ##
-        if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+1,cex=log(comus$size))
+		##
+		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+1,cex=log(comus$size))
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
-        coms=table(population[,"community"])
-        stopifnot(coms == comus$size[as.numeric(names(coms))])
-    }
-    finalres=list()
-    if("popsize"%in%out)finalres[["popsize"]]=popsize
-    if("popsumary"%in%out)finalres[["popsumary"]]=popsum
-    if("finalpop"%in%out)finalres[["population"]]=population
-    if("weddings"%in%out)finalres[["weddings"]]=weddings
-    return(finalres)
+		coms=table(population[,"community"])
+		stopifnot(coms == comus$size[as.numeric(names(coms))])
+	}
+	finalres=list()
+	if("popsize"%in%out)finalres[["popsize"]]=popsize
+	if("popsumary"%in%out)finalres[["popsumary"]]=popsum
+	if("finalpop"%in%out)finalres[["population"]]=population
+	if("weddings"%in%out)finalres[["weddings"]]=weddings
+	return(finalres)
 }

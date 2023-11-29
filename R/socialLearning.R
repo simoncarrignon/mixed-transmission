@@ -185,7 +185,7 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 		age.pool.01.h <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x]);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
 
 		# Oblique
-		age.pool.0.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==0);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] > threshold)])},pop=x,learner=index.learners,community=id.communities.sex0,threshold=threshold)
+		age.pool.0.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==0);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] > threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
 
 		age.pool.1.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==1);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
 
