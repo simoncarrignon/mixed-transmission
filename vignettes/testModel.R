@@ -13,13 +13,19 @@ d=0.001
 maturity=0
 endrepro=20
 tstep=20*10
+generation.threshold = 20
 z=5
 
 
 
 neutraltraitsParam=initNeutralTraitsPathways(z = z)
-neutraltraitsParam$s=c(0,0,1,1)
-neutraltraitsParam$pre[,"v"]=c(1,1,1,0,0)
+neutraltraitsParam$s=c(0,1,0,1,0)
+neutraltraitsParam$pre[,"v"]=c(1,1,1,1,1) #this needs to be always like this otherwise there are NA traits
+neutraltraitsParam$pre[,"o"]=c(0,0,0,1,1)
+neutraltraitsParam$pre[,"h"]=c(0,0,1,1,1)
+neutraltraitsParam$post[,"i"]=c(1,1,0,0,0)
+neutraltraitsParam$post[,"o"]=c(0,0,0,1,1)
+neutraltraitsParam$post[,"h"]=c(0,0,1,1,1)
 
 
 
@@ -32,7 +38,7 @@ plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,ce
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
 population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
 
-quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time"),ma=1,traitsid=paste0("t",1:z))
+quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=generation.threshold, logging=c("time"),ma=1,traitsid=paste0("t",1:z))
 plot(quickV$popsize)
 
 tstep=800
