@@ -38,7 +38,7 @@ random2Dgrid <- function(K,Gx,Gy=NULL){
 #' comus=initialiseCommunities(G = 100, ki = 5, km = 5)
 #' plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+2,xlim=c(0,100),ylim=c(0,100))
 
-initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL){
+initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL){
     if(!is.null(traits)) K=nrow(traits)
     if(is.null(K)){
         stopifnot(!is.null(ki),!is.null(km))
@@ -59,11 +59,13 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
             }
         }
     }
-    if(is.null(traits)) traits=initraits(km,ki)
+    if(is.null(traits)) traits=initAdaptiveTraits(km,ki)
+
+	if(is.null(migrantscount))	migrantscount=matrix(0,nrow=K,ncol=K)
 
     size=vector(mode="numeric",length=K)
 
-    list(coordinates=coordinates,adaptivetraits=traits,size=size)
+    list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount)
 }
 
 

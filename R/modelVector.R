@@ -1,10 +1,14 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary")){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary"),beta=0.001){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
 		popsum=list()
 		popsum[[1]]=apply(population,2,table)
+	}
+	if(is.null(comus$migrants) ){
+		#We nee a K x K  to store after migration from where are comming 
+		comus$migrantscount=matrix(0,nrow=nrow(coms$adaptivetraits),nrow(coms$adaptivetraits))
 	}
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
@@ -23,6 +27,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		single_female=which(potential & population[,"sex"]==1)
 		stopifnot(population[single_female,"sex"]==1) #temp test
 		weds=sum(runif(min(length(single_male),length(single_female)))<m)
+
+		#current year migrant count
+		migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 		# if m is 1, every people who could get married will do 
 		# if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
 		if("weddings"%in%out) weddings=c(weddings,weds)
@@ -70,6 +77,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				comus$size[jc]=comus$size[jc]+1
 				comus$size[lc]=comus$size[lc]-1
 
+				migrantscount[jc,lc]=migrantscount[jc,lc]+1
+
+
 				#in-law transmission:
 				learner = c(c1,c2)[which(population[c(c1,c2),"community"]!=jc)]
 				teacher.offspring = c(c1,c2)[which(population[c(c1,c2),"community"]==jc)]
@@ -97,6 +107,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				# post-marital movement:
 				population[c2,"community"]= population[c1,"community"]=jc
 
+
+
 				if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
 			}
 			stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
@@ -104,8 +116,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			stopifnot(coms == comus$size[as.numeric(names(coms))])
 		}
 
+
 		## Post-Marital Horizontal and Oblique Transmission
-		population  <- social.learning(population,when='post',pathways=tp,threshold=age.threshold)
+		#population  <- social.learning(population,when='post',pathways=tp,threshold=age.threshold)
 
 		##repro
 		families=population[,"cid"]
@@ -169,7 +182,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				stopifnot(coms == comus$size[as.numeric(names(coms))])
 			}
 			## Pre-Marital Horizontal and Oblique Transmission
-			population  <- social.learning(population,when='pre',pathways=tp,threshold=age.threshold)
+			#population  <- social.learning(population,when='pre',pathways=tp,threshold=age.threshold)
 		}
 
 
@@ -212,11 +225,23 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 					comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
 					population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,nrow(comus$adaptivetraits))
 					comus$size=table(population[,"community"])
+					comus$migrants=table(population[,"community"])
 					if("fissionsize"%in%logging)print(comus$size)
 				}
 
 			}
 		}
+
+		for(pcs in  which(apply(migrantscount,1,sum)>0)){
+			adoption=comus$adaptivetraits * migrantscount[pcs,]
+			probs=apply(adoption,2,sum)*beta
+			probs=probs>runif(length(probs))
+			print(sum(probs))
+			comus$adaptivetraits[pcs,probs]=1
+		}
+
+		comus$migrantscount=comus$migrantscount+migrantscount
+		if("migrantscount"%in%logging)print(comus$migrantscount)
 
 		#quick summary of population at time 
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
