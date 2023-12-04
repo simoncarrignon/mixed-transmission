@@ -118,7 +118,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 
 		## Post-Marital Horizontal and Oblique Transmission
-		#population  <- social.learning(population,when='post',pathways=tp,threshold=age.threshold)
+		population  <- social.learning(population,when='post',pathways=tp,threshold=age.threshold)
 
 		##repro
 		families=population[,"cid"]
@@ -182,7 +182,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				stopifnot(coms == comus$size[as.numeric(names(coms))])
 			}
 			## Pre-Marital Horizontal and Oblique Transmission
-			#population  <- social.learning(population,when='pre',pathways=tp,threshold=age.threshold)
+			population  <- social.learning(population,when='pre',pathways=tp,threshold=age.threshold)
 		}
 
 
