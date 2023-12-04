@@ -191,18 +191,38 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 
 		age.pool.01.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x]);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
 
+
+		# Remove index learners if there are no specific pool to learn from:
+		index.learners.0.h  <- index.learners[which(unlist(lapply(age.pool.0.h,length))>0)]
+		age.pool.0.h <- age.pool.0.h[which(unlist(lapply(age.pool.0.h,length))>0)]
+		index.learners.1.h  <- index.learners[which(unlist(lapply(age.pool.1.h,length))>0)]
+		age.pool.1.h <- age.pool.1.h[which(unlist(lapply(age.pool.1.h,length))>0)]
+		index.learners.01.h  <- index.learners[which(unlist(lapply(age.pool.01.h,length))>0)]
+		age.pool.01.h <- age.pool.01.h[which(unlist(lapply(age.pool.01.h,length))>0)]
+
+		index.learners.0.o  <- index.learners[which(unlist(lapply(age.pool.0.o,length))>0)]
+		age.pool.0.o <- age.pool.0.o[which(unlist(lapply(age.pool.0.o,length))>0)]
+		index.learners.1.o  <- index.learners[which(unlist(lapply(age.pool.1.o,length))>0)]
+		age.pool.1.o <- age.pool.1.o[which(unlist(lapply(age.pool.1.o,length))>0)]
+		index.learners.01.o  <- index.learners[which(unlist(lapply(age.pool.01.o,length))>0)]
+		age.pool.01.o <- age.pool.01.o[which(unlist(lapply(age.pool.01.o,length))>0)]
+
+
 		#sampling probabilities of novel variant, matrix with row number corresponding to each learner and column representing the trait
-		sample.pool.0.h <- sapply(1:length(index.learners),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.0.h,pop=x)
+		sample.pool.0.h <- sapply(1:length(index.learners.0.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.0.h,pop=x)
 
-		sample.pool.1.h <- sapply(1:length(index.learners),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.1.h,pop=x)
+		sample.pool.1.h <- sapply(1:length(index.learners.1.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.1.h,pop=x)
 		
-		sample.pool.01.h <- sapply(1:length(index.learners),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.01.h,pop=x)
+		sample.pool.01.h <- sapply(1:length(index.learners.01.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.01.h,pop=x)
 
-		sample.pool.0.o <- sapply(1:length(index.learners),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.0.o,pop=x)
 
-		sample.pool.1.o <- sapply(1:length(index.learners),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.1.o,pop=x)
+
+		sample.pool.0.o <- sapply(1:length(index.learners.0.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.0.o,pop=x)
+
+		sample.pool.1.o <- sapply(1:length(index.learners.1.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.1.o,pop=x)
 		
-		sample.pool.01.o <- sapply(1:length(index.learners),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.01.o,pop=x)
+		sample.pool.01.o <- sapply(1:length(index.learners.01.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.01.o,pop=x)
+
 
 
 
@@ -213,17 +233,17 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 			{
 				if (pathways$s[i]==0)
 				{
-					x[index.learners,paste0('t',i)]  <- rbinom(length(index.learners),size=1,prob=sample.pool.0.h[i,]) 
+					x[index.learners.0.h,paste0('t',i)]  <- rbinom(length(index.learners.0.h),size=1,prob=sample.pool.0.h[i,]) 
 				}
 
 				if (pathways$s[i]==1)
 				{
-					x[index.learners,paste0('t',i)]  <- rbinom(length(index.learners),size=1,prob=sample.pool.1.h[i,]) 
+					x[index.learners.1.h,paste0('t',i)]  <- rbinom(length(index.learners.1.h),size=1,prob=sample.pool.1.h[i,]) 
 				}
 
 				if (pathways$s[i]==-1)
 				{
-					x[index.learners,paste0('t',i)]  <- rbinom(length(index.learners),size=1,prob=sample.pool.01.h[i,]) 
+					x[index.learners.01.h,paste0('t',i)]  <- rbinom(length(index.learners.01.h),size=1,prob=sample.pool.01.h[i,]) 
 				}
 			}
 
@@ -232,17 +252,17 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 			{
 				if (pathways$s[i]==0)
 				{
-					x[index.learners,paste0('t',i)]  <- rbinom(length(index.learners),size=1,prob=sample.pool.0.o[i,]) 
+					x[index.learners.0.o,paste0('t',i)]  <- rbinom(length(index.learners.0.o),size=1,prob=sample.pool.0.o[i,]) 
 				}
 
 				if (pathways$s[i]==1)
 				{
-					x[index.learners,paste0('t',i)]  <- rbinom(length(index.learners),size=1,prob=sample.pool.1.o[i,]) 
+					x[index.learners.1.o,paste0('t',i)]  <- rbinom(length(index.learners.1.o),size=1,prob=sample.pool.1.o[i,]) 
 				}
 
 				if (pathways$s[i]==-1)
 				{
-					x[index.learners,paste0('t',i)]  <- rbinom(length(index.learners),size=1,prob=sample.pool.01.o[i,]) 
+					x[index.learners.01.o,paste0('t',i)]  <- rbinom(length(index.learners.01.o),size=1,prob=sample.pool.01.o[i,]) 
 				}
 			}
 		}
