@@ -8,7 +8,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	}
 	if(is.null(comus$migrants) ){
 		#We nee a K x K  to store after migration from where are comming 
-		comus$migrantscount=matrix(0,nrow=nrow(coms$adaptivetraits),nrow(coms$adaptivetraits))
+		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 	}
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
