@@ -106,4 +106,5 @@ apply(replicate(1000, updateTraits(k=1,k.size=100,alltraits=adaptivetraits,migra
 
 #Not this implementation allow to also do the same from 1 to 0
 apply(replicate(1000, updateTraits(k=3,k.size=100,alltraits=adaptivetraits,migrantscount=c(2,2,0,0),beta=0)),1,sum)/1000
+apply(replicate(1000, updateTraits(k=3,k.size=100,alltraits=adaptivetraits,migrantscount=c(2,2,0,0),beta=1)),1,sum)/1000
 ```
