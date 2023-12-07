@@ -78,8 +78,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				comus$size[lc]=comus$size[lc]-1
 
 				migrantscount[jc,lc]=migrantscount[jc,lc]+1
-
-
 				#in-law transmission:
 				learner = c(c1,c2)[which(population[c(c1,c2),"community"]!=jc)]
 				teacher.offspring = c(c1,c2)[which(population[c(c1,c2),"community"]==jc)]
@@ -106,8 +104,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 				# post-marital movement:
 				population[c2,"community"]= population[c1,"community"]=jc
-
-
 
 				if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
 			}
