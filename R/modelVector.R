@@ -257,5 +257,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("popsumary"%in%out)finalres[["popsumary"]]=popsum
 	if("finalpop"%in%out)finalres[["population"]]=population
 	if("weddings"%in%out)finalres[["weddings"]]=weddings
+	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
 	return(finalres)
 }
