@@ -186,6 +186,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		}
 
 
+		## For all community where migrants here
+		for(pcs in  which(apply(migrantscount,1,sum)>0)){
+			#Here we assum comus$size has been updated after migration
+			comus$adaptivetrait=updateTraits(k=pcs,k.size=comus$size[k],alltraits=comus$adaptivetraits,migrantscount=migrantscount)
+		}
+
 		#handle deaths
 		dead=runif(nrow(population))<d
 
@@ -232,13 +238,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			}
 		}
 
-		for(pcs in  which(apply(migrantscount,1,sum)>0)){
-			adoption=comus$adaptivetraits * migrantscount[pcs,]
-			probs=apply(adoption,2,sum)*beta
-			probs=probs>runif(length(probs))
-			print(sum(probs))
-			comus$adaptivetraits[pcs,probs]=1
-		}
 
 		comus$migrantscount=comus$migrantscount+migrantscount
 		if("migrantscount"%in%logging)print(comus$migrantscount)
