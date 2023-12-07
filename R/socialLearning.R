@@ -102,10 +102,14 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 	if (when=='pre')
 	{
 		#learners (age 0)
-		index.learners  <- which(x[,'age']==0)
+		index.learners.sex0  <- which(x[,'age']==0 & x[,'sex']==0)
+		index.learners.sex1  <- which(x[,'age']==0 & x[,'sex']==1)
+		index.learners.sex01  <- which(x[,'age']==0)
 
 		#index communities
-		id.communities <- x[index.learners,'community']
+		id.communities.sex0 <- x[index.learners.sex0,'community']
+		id.communities.sex1 <- x[index.learners.sex1,'community']
+		id.communities.sex01 <- x[index.learners.sex01,'community']
 
 		# sampling pool
 		age.pool.0.h <- x[which(x[,'age']<=threshold & x[,'sex']==0),]
@@ -128,20 +132,20 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 		for (i in 1:ntraits)
 		{
 			if (pathways$pre[i,'h']==1)
+		{
+			if (pathways$s[i]==0)
 			{
-				if (pathways$s[i]==0)
-				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.0.h[match(id.communities,as.integer(sample.pool.0.h[,1])),i+1])
-				}
+				x[index.learners.sex0,paste0('t',i)]  <-  rbinom(length(index.learners.sex0),size=1,prob=sample.pool.0.h[match(id.communities.sex0,as.integer(sample.pool.0.h[,1])),i+1])
+			}
 
 				if (pathways$s[i]==1)
 				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.1.h[match(id.communities,as.integer(sample.pool.1.h[,1])),i+1])
+					x[index.learners.sex1,paste0('t',i)]  <-  rbinom(length(index.learners.sex1),size=1,prob=sample.pool.1.h[match(id.communities.sex1,as.integer(sample.pool.1.h[,1])),i+1])
 				}
 
 				if (pathways$s[i]==-1)
 				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.01.h[match(id.communities,as.integer(sample.pool.01.h[,1])),i+1])
+					x[index.learners.sex01,paste0('t',i)]  <-  rbinom(length(index.learners.sex01),size=1,prob=sample.pool.01.h[match(id.communities.sex01,as.integer(sample.pool.01.h[,1])),i+1])
 				}
 			}
 
@@ -150,17 +154,17 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 			{
 				if (pathways$s[i]==0)
 				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.0.o[match(id.communities,as.integer(sample.pool.0.o[,1])),i+1])
+					x[index.learners.sex0,paste0('t',i)]  <-  rbinom(length(index.learners.sex0),size=1,prob=sample.pool.0.o[match(id.communities.sex0,as.integer(sample.pool.0.o[,1])),i+1])
 				}
 
-				if (pathways$s[i]==1)
+				if (pathwayss[i]==1)
 				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.1.o[match(id.communities,as.integer(sample.pool.1.o[,1])),i+1])
+					x[index.earners.sex1,paste0('t',i)]  <-  rbinom(length(index.learners.sex1),size=1,prob=sample.pool.1.o[match(id.communities.sex1,as.integer(sample.pool.1.o[,1])),i+1])
 				}
 
-				if (pathways$s[i]==-1)
+				if (pathwayss[i]==-1)
 				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.01.o[match(id.communities,as.integer(sample.pool.01.o[,1])),i+1])
+					x[index.learners.sex01,paste0('t',i)]  <-  rbinom(length(index.learners.sex01),size=1,prob=sample.pool.01.o[match(id.communities.sex01,as.integer(sample.pool.01.o[,1])),i+1])
 				}
 			}
 		}
@@ -171,57 +175,64 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 	{
 
 		#learners (just married)
-		index.learners  <- which(x[,'justMarried']==1 & x[,'cid']!=-1)
+		index.learners.sex0  <- which(x[,'justMarried']==1 & x[,'sex']==0)
+		index.learners.sex1  <- which(x[,'justMarried']==1 & x[,'sex']==1)
+		index.learners.sex01  <- which(x[,'justMarried']==1)
 
 		#index communities
-		id.communities <- x[index.learners,'community']
+		id.communities.sex0 <- x[index.learners.sex0,'community']
+		id.communities.sex1 <- x[index.learners.sex1,'community']
+		id.communities.sex01 <- x[index.learners.sex01,'community']
 
 		# sampling pool: provide a list of index values of eligible teacher for each index.learner.*
 		# Horrizontal
-		age.pool.0.h <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==0);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
+		age.pool.0.h <- sapply(1:length(index.learners.sex0),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==0);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners.sex0,community=id.communities.sex0,threshold=threshold)
 
-		age.pool.1.h <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==1);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
+		age.pool.1.h <- sapply(1:length(index.learners.sex1),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==1);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners.sex1,community=id.communities.sex1,threshold=threshold)
 
-		age.pool.01.h <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x]);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
+		age.pool.01.h <- sapply(1:length(index.learners.sex1),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x]);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners.sex01,community=id.communities.sex01,threshold=threshold)
 
 		# Oblique
-		age.pool.0.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==0);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] > threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
+		age.pool.0.o <- sapply(1:length(index.learners.sex0),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==0);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] > threshold)])},pop=x,learner=index.learners.sex0,community=id.communities.sex0,threshold=threshold)
 
-		age.pool.1.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==1);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
+		age.pool.1.o <- sapply(1:length(index.learners.sex1),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==1);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] < threshold)])},pop=x,learner=index.learners.sex1,community=id.communities.sex1,threshold=threshold)
 
-		age.pool.01.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x]);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
+		age.pool.01.o <- sapply(1:length(index.learners.sex1),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x]);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] < threshold)])},pop=x,learner=index.learners.sex01,community=id.communities.sex01,threshold=threshold)
 
+		# In-law transmission
+		pool.0.i <- sapply(1:length(index.learners.sex0),function(x,pop,learner){
+					   partner.i <- which(pop[,'cid']==pop[learner[x],'cid'])
+					   partner.i  <- partner.i[which(partner.i!=learner[x])]
+					   return(which(pop[,'fid']==pop[partner.i,'fid'] & pop[,'sex']==0))},pop=x)
 
-		# Remove index learners if there are no specific pool to learn from:
-		index.learners.0.h  <- index.learners[which(unlist(lapply(age.pool.0.h,length))>0)]
-		age.pool.0.h <- age.pool.0.h[which(unlist(lapply(age.pool.0.h,length))>0)]
-		index.learners.1.h  <- index.learners[which(unlist(lapply(age.pool.1.h,length))>0)]
-		age.pool.1.h <- age.pool.1.h[which(unlist(lapply(age.pool.1.h,length))>0)]
-		index.learners.01.h  <- index.learners[which(unlist(lapply(age.pool.01.h,length))>0)]
-		age.pool.01.h <- age.pool.01.h[which(unlist(lapply(age.pool.01.h,length))>0)]
+		pool.1.i <- sapply(1:length(index.learners.sex0),function(x,pop,learner){
+					   partner.i <- which(pop[,'cid']==pop[learner[x],'cid'])
+					   partner.i  <- partner.i[which(partner.i!=learner[x])]
+					   return(which(pop[,'fid']==pop[partner.i,'fid'] & pop[,'sex']==1))},pop=x)
 
-		index.learners.0.o  <- index.learners[which(unlist(lapply(age.pool.0.o,length))>0)]
-		age.pool.0.o <- age.pool.0.o[which(unlist(lapply(age.pool.0.o,length))>0)]
-		index.learners.1.o  <- index.learners[which(unlist(lapply(age.pool.1.o,length))>0)]
-		age.pool.1.o <- age.pool.1.o[which(unlist(lapply(age.pool.1.o,length))>0)]
-		index.learners.01.o  <- index.learners[which(unlist(lapply(age.pool.01.o,length))>0)]
-		age.pool.01.o <- age.pool.01.o[which(unlist(lapply(age.pool.01.o,length))>0)]
-
+		pool.01.i <- sapply(1:length(index.learners.sex0),function(x,pop,learner){
+					    partner.i <- which(pop[,'cid']==pop[learner[x],'cid'])
+					    partner.i  <- partner.i[which(partner.i!=learner[x])]
+					    return(which(pop[,'fid']==pop[partner.i,'fid']))},pop=x)
 
 		#sampling probabilities of novel variant, matrix with row number corresponding to each learner and column representing the trait
-		sample.pool.0.h <- sapply(1:length(index.learners.0.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.0.h,pop=x)
+		sample.pool.0.h <- sapply(1:length(index.learners.sex0),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.0.h,pop=x)
 
-		sample.pool.1.h <- sapply(1:length(index.learners.1.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.1.h,pop=x)
+		sample.pool.1.h <- sapply(1:length(index.learners.sex1),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.1.h,pop=x)
 		
-		sample.pool.01.h <- sapply(1:length(index.learners.01.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.01.h,pop=x)
+		sample.pool.01.h <- sapply(1:length(index.learners.sex01),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.01.h,pop=x)
 
+		sample.pool.0.o <- sapply(1:length(index.learners.sex0),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.0.o,pop=x)
 
-
-		sample.pool.0.o <- sapply(1:length(index.learners.0.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.0.o,pop=x)
-
-		sample.pool.1.o <- sapply(1:length(index.learners.1.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.1.o,pop=x)
+		sample.pool.1.o <- sapply(1:length(index.learners.sex1),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.1.o,pop=x)
 		
-		sample.pool.01.o <- sapply(1:length(index.learners.01.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.01.o,pop=x)
+		sample.pool.01.o <- sapply(1:length(index.learners.sex01),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=age.pool.01.o,pop=x)
+
+		sample.pool.0.i <- sapply(1:length(index.learners.sex0),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=pool.0.i,pop=x)
+
+		sample.pool.1.i <- sapply(1:length(index.learners.sex1),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=pool.1.i,pop=x)
+		
+		sample.pool.01.i <- sapply(1:length(index.learners.sex01),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits)],2,sum)/length(pool[[x]]))},pool=pool.01.i,pop=x)
 
 
 
@@ -233,17 +244,17 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 			{
 				if (pathways$s[i]==0)
 				{
-					x[index.learners.0.h,paste0('t',i)]  <- rbinom(length(index.learners.0.h),size=1,prob=sample.pool.0.h[i,]) 
+					x[index.learners.sex0,paste0('t',i)]  <- rbinom(length(index.learners.sex0),size=1,prob=sample.pool.0.h[i,]) 
 				}
 
 				if (pathways$s[i]==1)
 				{
-					x[index.learners.1.h,paste0('t',i)]  <- rbinom(length(index.learners.1.h),size=1,prob=sample.pool.1.h[i,]) 
+					x[index.learners.sex1,paste0('t',i)]  <- rbinom(length(index.learners.sex1),size=1,prob=sample.pool.1.h[i,]) 
 				}
 
 				if (pathways$s[i]==-1)
 				{
-					x[index.learners.01.h,paste0('t',i)]  <- rbinom(length(index.learners.01.h),size=1,prob=sample.pool.01.h[i,]) 
+					x[index.learners.sex01,paste0('t',i)]  <- rbinom(length(index.learners.sex01),size=1,prob=sample.pool.01.h[i,]) 
 				}
 			}
 
@@ -252,20 +263,62 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 			{
 				if (pathways$s[i]==0)
 				{
-					x[index.learners.0.o,paste0('t',i)]  <- rbinom(length(index.learners.0.o),size=1,prob=sample.pool.0.o[i,]) 
+					x[index.learners.sex0,paste0('t',i)]  <- rbinom(length(index.learners.sex0),size=1,prob=sample.pool.0.o[i,]) 
 				}
 
 				if (pathways$s[i]==1)
 				{
-					x[index.learners.1.o,paste0('t',i)]  <- rbinom(length(index.learners.1.o),size=1,prob=sample.pool.1.o[i,]) 
+					x[index.learners.sex1,paste0('t',i)]  <- rbinom(length(index.learners.sex1),size=1,prob=sample.pool.1.o[i,]) 
 				}
 
 				if (pathways$s[i]==-1)
 				{
-					x[index.learners.01.o,paste0('t',i)]  <- rbinom(length(index.learners.01.o),size=1,prob=sample.pool.01.o[i,]) 
+					x[index.learners.sex01,paste0('t',i)]  <- rbinom(length(index.learners.sex01),size=1,prob=sample.pool.01.o[i,]) 
 				}
 			}
+
+			# In Law
+			if (pathways$post[i,'i']==1)
+			{
+				if (pathways$s[i]==0)
+				{
+					x[index.learners.sex0,paste0('t',i)]  <- rbinom(length(index.learners.sex0),size=1,prob=sample.pool.0.i[i,]) 
+				}
+
+				if (pathways$s[i]==1)
+				{
+					x[index.learners.sex1,paste0('t',i)]  <- rbinom(length(index.learners.sex1),size=1,prob=sample.pool.1.i[i,]) 
+				}
+
+				if (pathways$s[i]==-1)
+				{
+					x[index.learners.sex01,paste0('t',i)]  <- rbinom(length(index.learners.sex01),size=1,prob=sample.pool.01.i[i,]) 
+				}
+			}
+
 		}
 	}
 	return(x) #Returns the actual population matrix
+}
+
+
+# beta the paramater to fine tune the impact of size of migrants population
+# migrants, a vector of size C of number of migrants comming from each communitys
+# adaptivetraits   matrix of zie C x Z
+# N the number of individual of the population wher migrants are comming
+probaAdoptionTraits <- function(beta,migrants,N,traitToAdtopt){
+			kc=traitToAdtopt * migrants
+			ks=apply(kc,2,sum)
+            ks^(1-beta)/(ks^(1-beta)+(N-ks)^(1-beta))
+}
+
+#We assume here than k.size includes allready all migrants. Thus whencomputing the probability to adopt the trait no present in the population we compare the percentage of people who have _the other_ traits to all those who have the original traits, including the poulation that migrated from other communities with the same traits.
+updateTraits <- function(k,k.size,alltraits,migrantscount){
+	k.traits=alltraits[k,]
+	migrant.traits=alltraits
+	migrant.traits=k.traits!=alltraits 
+	proba=probaAdoptionAdaptiveTraits(beta=beta,N=k.size,adaptivetraits=migrant.traits,migrants=migrantscount)
+	adopt=proba>runif(length(proba))
+	k.traits[adopt]=!k.traits[adopt]
+	k.traits
 }
