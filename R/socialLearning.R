@@ -275,7 +275,7 @@ social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,
 # migrants, a vector of size C of number of migrants comming from each communitys
 # adaptivetraits   matrix of zie C x Z
 # N the number of individual of the population wher migrants are comming
-probaAdoptionTraits <- function(beta,migrants,N,traitToAdtopt){
+probaAdoptionAdaptiveTraits <- function(beta,migrants,N,traitToAdtopt){
 			kc=traitToAdtopt * migrants
 			ks=apply(kc,2,sum)
             ks^(1-beta)/(ks^(1-beta)+(N-ks)^(1-beta))
