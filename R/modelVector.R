@@ -6,6 +6,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		popsum=list()
 		popsum[[1]]=apply(population,2,table)
 	}
+	if("visu"%in% logging){
+		start_color <- "#006400" # Deep Green
+		end_color <- "#FFD700" # Golden Yellow
+		color_gradient <- colorRampPalette(c(start_color, end_color))(ncol(comus$adaptivetraits))
+	}
+
 	if(is.null(comus$migrants) ){
 		#We nee a K x K  to store after migration from where are comming 
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
@@ -185,7 +191,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		## For all community where migrants here
 		for(pcs in which(apply(migrantscount,1,sum)>0)){
 			#Here we assum comus$size has been updated after migration
-			comus$adaptivetraits[pcs,]=updateTraits(k=pcs,k.size=comus$size[k],alltraits=comus$adaptivetraits,migrantscount=migrantscount,beta=beta)
+			comus$adaptivetraits[pcs,]=updateTraits(k=pcs,k.size=comus$size[k],alltraits=comus$adaptivetraits,migrantscount=migrantscount[pcs,],beta=beta)
 		}
 
 		#handle deaths
@@ -242,7 +248,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 
 		##
-		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+1,cex=log(comus$size))
+		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size))
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
 		coms=table(population[,"community"])
