@@ -183,9 +183,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 
 		## For all community where migrants here
-		for(pcs in  which(apply(migrantscount,1,sum)>0)){
+		for(pcs in which(apply(migrantscount,1,sum)>0)){
 			#Here we assum comus$size has been updated after migration
-			comus$adaptivetrait=updateTraits(k=pcs,k.size=comus$size[k],alltraits=comus$adaptivetraits,migrantscount=migrantscount)
+			comus$adaptivetraits[pcs,]=updateTraits(k=pcs,k.size=comus$size[k],alltraits=comus$adaptivetraits,migrantscount=migrantscount,beta=beta)
 		}
 
 		#handle deaths
@@ -254,5 +254,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("finalpop"%in%out)finalres[["population"]]=population
 	if("weddings"%in%out)finalres[["weddings"]]=weddings
 	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
+	if("finalcomus"%in%out)finalres[["finalcomus"]]=comus
 	return(finalres)
 }
