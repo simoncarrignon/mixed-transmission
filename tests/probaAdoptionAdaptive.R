@@ -4,7 +4,7 @@
 beta=0
 
 N=rep(100,4)
-adaptivetraits=initAdaptiveTraits(2,2)
+adaptivetraits=initAdaptiveTraits(2,2,n=6)
 
 #community 1 and 2 don't have adaptive traits but 3 and 4 yes
 
@@ -12,7 +12,7 @@ migrants = c(0,10,0,0)
 
 #likelyhood of community on t switch knowing that 20 migrants are comming from 2, 40 from 3 and 50 from for:
 
-probaAdoptionAdaptiveTraits(beta=beta,counts=migrants,N=N[1],adaptivetraits=adaptivetraits)
+probaAdoptionAdaptiveTraits(beta=beta,migrants=migrants,N=N[1],adaptivetraits=adaptivetraits)
 
 
 
@@ -39,4 +39,5 @@ testthat::test_that("probaAdoptionAdaptiveTraits returns k/N when beta == 0",
                     })
 
 
+updateTraits()
 
