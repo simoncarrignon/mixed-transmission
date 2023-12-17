@@ -1,12 +1,12 @@
 
 devtools::load_all(".")
-N=200
+N=800
 Th=400 #fission threshold
-ki <- 1
-km <- 0
+ki <- 3
+km <- 2
 K  <-  ki+km
 m=1 #proba marriage
-b=.2 #HG birth rate
+b=.1 #HG birth rate
 r=.05 #farmer scale param
 rho=.5 #marriage rule
 d=0.001
@@ -30,7 +30,7 @@ neutraltraitsParam$post[,"h"]=c(0,0,1,1,1)
 
 
 pos=random2Dgrid(K=K,Gx=100)
-a=initAdaptiveTraits(ki=ki,km=km)
+a=initAdaptiveTraits(ki=ki,km=km,n=10)
 initcomus=initialiseCommunities(traits=a,coordinates=pos)
 initcomus$size=rep(N/K,K)
 plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
@@ -38,7 +38,7 @@ plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,ce
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
 population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
 
-quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=generation.threshold, logging=c("time"),ma=1,traitsid=paste0("t",1:z))
+quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=generation.threshold, logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),out=c("finalpop","finalcomus","popsize"),beta=0)
 plot(quickV$popsize)
 
 tstep=800
