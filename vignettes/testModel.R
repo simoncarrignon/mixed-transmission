@@ -43,16 +43,17 @@ plot(quickV$popsize)
 
 tstep=800
 ##Stable:
-library(parallel)
-
-par(mfrow=c(1,4))
-for(bt in seq(2,2.3,length.out=4)){
-    cl=makeCluster(10,"FORK")
-    allsizes=parLapply(cl,1:40,function(i){set.seed(as.numeric(Sys.time())+i);
-                       modelVector( m=1, b=.02*bt, r=0, rho=rho, d=0.02, maturity=0, endrepro=1000, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time","demo"),ma=1,traitsid=paste0("t",1:z))$popsize
-})
-    stopCluster(cl)
-
-    plot(1,1,type="n",xlim=c(0,tstep),ylim=c(0,800),main=bquote(b==.(bt)*d))
-    sapply(allsizes,lines)
-}
+#library(parallel)
+#
+#par(mfrow=c(1,4))
+#for(bt in seq(2,2.3,length.out=4)){
+#    cl=makeCluster(10,"FORK")
+#    allsizes=parLapply(cl,1:40,function(i){set.seed(as.numeric(Sys.time())+i);
+#                       modelVector( m=1, b=.02*bt, r=0, rho=rho, d=0.02, maturity=0, endrepro=1000, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("time","demo"),ma=1,traitsid=paste0("t",1:z))$popsize
+#})
+#    stopCluster(cl)
+#
+#    plot(1,1,type="n",xlim=c(0,tstep),ylim=c(0,800),main=bquote(b==.(bt)*d))
+#    sapply(allsizes,lines)
+#}
+#stopCluster(cl)
