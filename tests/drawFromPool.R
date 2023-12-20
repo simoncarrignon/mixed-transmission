@@ -2,7 +2,6 @@ devtools::load_all(".")
 
 
 popex
-social.learning(popex,
 expl=c()
 expl=matrix(0,nrow=60,ncol=3)
 colnames(expl)=c("sex","t1","t2")
@@ -64,3 +63,7 @@ drawFromPool(pool.traits=oneind,pool.sex=1,sexbiases=c(1,1,0,0,1))
 prts[1,]
 pool.sex=c(1,0)[1]
 sexbiases=1
+
+
+load("../data/pool.ex.data")
+sapply(pools,function(pool)drawFromPool(pool.traits=pool[,2,drop=F],pool.sex=pool[,1,drop=F],sexbiases=0))
