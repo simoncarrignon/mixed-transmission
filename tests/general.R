@@ -1,0 +1,65 @@
+devtools::load_all(".")
+N=200
+Th=400 #fission threshold
+ki <- 1
+km <- 1
+K  <-  ki+km
+m=1 #proba marriage
+rho=.5 #marriage rule
+d=0.001
+maturity=0
+endrepro=20
+tstep=20*10
+generation.threshold = 20
+z=5
+
+
+
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$s=c(0,1,0,1,0)
+neutraltraitsParam$pre[,"v"]=c(1,1,1,1,1) #this needs to be always like this otherwise there are NA traits
+neutraltraitsParam$pre[,"o"]=c(0,0,0,1,1)
+neutraltraitsParam$pre[,"h"]=c(0,0,1,1,1)
+neutraltraitsParam$post[,"i"]=c(1,1,0,0,0)
+neutraltraitsParam$post[,"o"]=c(0,0,0,1,1)
+neutraltraitsParam$post[,"h"]=c(0,0,1,1,1)
+
+pos=random2Dgrid(K=K,Gx=100)
+a=initAdaptiveTraits(ki=ki,km=km)
+initcomus=initialiseCommunities(traits=a,coordinates=pos)
+initcomus$size=rep(N/K,K)
+plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+
+communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+
+quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=generation.threshold, out=c("popsize","finalpop"),logging=c("time"),ma=1,traitsid=paste0("t",1:z))
+
+quickV$popsize == nrow(population)
+
+apply(quickV$population[,traitsid],2,sum)[1:2]== apply(population[,traitsid],2,sum)[1:2]
+
+neutraltraitsParam$pre[,"v"]=c(1,1,1,1,1) #this needs to be always like this otherwise there are NA traits
+neutraltraitsParam$pre[,"o"]=c(0,0,0,0,0)
+neutraltraitsParam$pre[,"h"]=c(0,0,0,0,0)
+neutraltraitsParam$post[,"i"]=c(0,0,0,0,0)
+neutraltraitsParam$post[,"o"]=c(0,0,0,0,0)
+neutraltraitsParam$post[,"h"]=c(0,0,0,0,0)
+
+quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=generation.threshold, out=c("popsize","finalpop"),logging=c("time"),ma=1,traitsid=paste0("t",1:z))
+
+apply(quickV$population[,traitsid],2,sum)== apply(population[,traitsid],2,sum)
+quickV$popsize == nrow(population)
+
+neutraltraitsParam$pre[,"v"]=c(1,1,1,1,1) #this needs to be always like this otherwise there are NA traits
+neutraltraitsParam$pre[,"o"]=c(1,1,1,1,1)
+neutraltraitsParam$pre[,"h"]=c(1,1,1,1,1)
+neutraltraitsParam$post[,"i"]=c(0,0,0,0,0)
+neutraltraitsParam$post[,"o"]=c(1,1,1,1,1)
+neutraltraitsParam$post[,"h"]=c(1,1,1,1,1)
+
+quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=generation.threshold, out=c("popsize","finalpop"),logging=c("time"),ma=1,traitsid=paste0("t",1:z))
+
+quickV$popsize == nrow(population)
+
+apply(quickV$population[,traitsid],2,sum)- apply(population[,traitsid],2,sum)

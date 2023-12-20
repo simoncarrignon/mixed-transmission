@@ -142,8 +142,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                 offfid=famids[,2]  ##parents "cid" will be used  as offfspsrings family id `fid`
                 offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
                 ##Vertical Transmission
-                if(sum(tp$pre[,"v"])>0)
-                    offtraits[,tp$pre[,"v"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
+                #if(sum(tp$pre[,"v"])>0)
+                #    offtraits[,tp$pre[,"v"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
+
+                offtraits[,traitsid]=t(sapply(newparents,function(parents)drawFromPool(pool.traits=parents[,traitsid],pool.sex=parents[,"sex"],sexbiases=tp$s)))
 
 
 				offsprings=cbind(newpop(nchilds,minid=max(population[,"id"]),community=offcom,fid=offfid),offtraits)
