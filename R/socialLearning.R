@@ -111,9 +111,9 @@ getAgeBand <- function(age.peers,age.ref,threshold,pos="h"){
     if(!(pos %in% c("b","h","o"))) return( NULL)
 }
 
-
 drawFromPool <- function(pool.traits,pool.sex,sexbiases){
-    if(is.null(dim(pool.traits)))return(pool.traits)
+    if(is.null(dim(pool.traits)) && length(pool.traits)==length(sexbiases))return(pool.traits)
+    stopifnot(length(dim(pool.traits))>0)
     es=aggregate(pool.traits,by=list(factor(pool.sex,levels=c(0,1))),FUN=getRatio,drop=F)[,-1,drop=F]
     es[is.na(es)]=0
     as.numeric(runif(ncol(pool.traits))<((1-sexbiases)*es[1,]+(sexbiases)*es[2,]))
@@ -150,14 +150,9 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
             if(length(unique(x[index.learners,"age"]))==1)ages=unique(x[index.learners,"age"])
             else ages=x[index.learners,"age"]
 
-            pool.teacher.age=getAgeBand(age=ages,subpop=x,threshold=threshold,pos=pw)
+            pool.teacher.age=getAgeBand(age.ref=ages,age.peers=x[,"age"],threshold=threshold,pos=pw)
 
-            if(is.null(dim(pool.teacher.age)))
-            {
-                if(all(!pool.teacher.age))
-                    pool.teacher.age=NULL
-            }
-            else{
+            if(!is.null(dim(pool.teacher.age))){
                 ##remove self learning?
                 #diag(pool.teacher.age[index.learners,])=FALSE
                 n.teachers=apply(pool.teacher.age,2,sum)
@@ -165,16 +160,12 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
                 pool.teacher.age=pool.teacher.age[,n.teachers>0,drop=F]
             }
 
-            if(length(index.learners)>0 && !all(pool.teacher.age))
+            if(length(index.learners)>0 && !all(!pool.teacher.age))
             {
                 commu=sapply(x[index.learners,"community"],function(i)x[,"community"]==i)
                 ##remove self learning?
                 #diag(commu[index.learners,])=FALSE
 
-                print("pool")
-                print(dim(pool.teacher.age))
-                print("commu")
-                print(dim(commu))
                 pool.teacher.age.commu=commu&pool.teacher.age
                 stopifnot(!is.null(pool.teacher.age.commu))
                 stopifnot(length(dim(pool.teacher.age.commu))>0)
@@ -182,13 +173,15 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
                 index.learners=index.learners[n.teachers>0]
                 pool.teacher.age.commu=pool.teacher.age.commu[,n.teachers>0,drop=F]
 
-                #if(is.null(dim(x))){print(index.learners)}
                 if(length(index.learners)>0 && sum(n.teachers)>0)
                 {
                     pools=apply(pool.teacher.age.commu,2,function(pool)x[pool,c("sex",pw.traits),drop=F],simplify=F)
                     stopifnot(length(dim(pool.teacher.age.commu))>0)
                     index.learners=index.learners[n.teachers>0]
-                    x[index.learners,pw.traits] =t(sapply(pools,function(pool)drawFromPool(pool.traits=pool[,pw.traits],pool.sex=pool[,"sex"],sexbiases=pathways$s[pathways[[when]][,pw]==1])))  
+                    if(length(index.learners)>0){
+                        newtraits=t(sapply(pools,function(pool)drawFromPool(pool.traits=pool[,pw.traits,drop=F],pool.sex=pool[,"sex",drop=F],sexbiases=pathways$s[pathways[[when]][,pw]==1])))  
+                        x[index.learners,pw.traits] =newtraits
+                    }
                 }
             }
         }
