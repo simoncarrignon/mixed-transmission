@@ -86,12 +86,29 @@ initNeutralTraits <- function(N,z=9,traitnames="t",nastart=NULL){
 getRatio <- function(listtraits) sum(listtraits)/length(listtraits)
 
 
-getAgeBand <- function(subpop,age,threshold,pos="h"){
-    if(length(age)>1)return(sapply(age,getAgeBand,subpop=subpop,threshold=threshold,pos=pos))
-    if(pos=="h")return( abs(age-subpop[,"age"]) <= threshold )
-    if(pos=="o") return( (age+threshold) <= subpop[,"age"] )
-    if(pos=="b") return( (age-threshold) >= subpop[,"age"] )
-    if(!(pos %in% c("b","h","o"))) return( (age-threshold) >= subpop[,"age"] )
+#' Get Age Band
+#'
+#' This function compares ages in `age.peers` with a reference age `age.ref` 
+#' based on a specified `threshold`. The type of comparison is determined by the `pos` parameter.
+#' 
+#' @param age.peers A numeric vector representing peer ages to compare against `age.ref`.
+#' @param age.ref A numeric value or vector representing the reference age(s) for comparison.
+#' @param threshold A numeric value representing the threshold for age difference.
+#' @param pos A character string specifying which peers are selected:
+#'        'h' horizontal copy ; the absolute difference in age is within the threshold, 
+#'        'o' oblique,  `age.peers` is greater than or equal to `age.ref + threshold`, 
+#'        'b' below,  `age.peers` is less than or equal to `age.ref - threshold`.
+#'        Defaults to 'h'.
+#'
+#' @return A logical vector (if age is a unique value) or matrix (if ages is a vector) indicating whether each element in `age.peers` meets 
+#'         the criteria specified by `pos` and `threshold` relative to `age.ref`.
+#' @examples
+getAgeBand <- function(age.peers,age.ref,threshold,pos="h"){
+    if(length(age.ref)>1)return(sapply(age.ref,getAgeBand,age.peers=age.peers,threshold=threshold,pos=pos))
+    if(pos=="h")return( abs(age.ref-age.peers) <= threshold )
+    if(pos=="o") return( (age.ref+threshold) <= age.peers )
+    if(pos=="b") return( (age.ref-threshold) >= age.peers )
+    if(!(pos %in% c("b","h","o"))) return( NULL)
 }
 
 
