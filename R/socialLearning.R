@@ -177,7 +177,6 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
                 {
                     pools=apply(pool.teacher.age.commu,2,function(pool)x[pool,c("sex",pw.traits),drop=F],simplify=F)
                     stopifnot(length(dim(pool.teacher.age.commu))>0)
-                    index.learners=index.learners[n.teachers>0]
                     if(length(index.learners)>0){
                         newtraits=t(sapply(pools,function(pool)drawFromPool(pool.traits=pool[,pw.traits,drop=F],pool.sex=pool[,"sex",drop=F],sexbiases=pathways$s[pathways[[when]][,pw]==1])))  
                         x[index.learners,pw.traits] =newtraits
