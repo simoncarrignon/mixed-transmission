@@ -1,10 +1,20 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary")){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary"),beta=0.001){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
 		popsum=list()
 		popsum[[1]]=apply(population,2,table)
+	}
+	if("visu"%in% logging){
+		start_color <- "#006400" # Deep Green
+		end_color <- "#FFD700" # Golden Yellow
+		color_gradient <- colorRampPalette(c(start_color, end_color))(ncol(comus$adaptivetraits))
+	}
+
+	if(is.null(comus$migrants) ){
+		#We nee a K x K  to store after migration from where are comming 
+		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 	}
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
@@ -23,6 +33,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		single_female=which(potential & population[,"sex"]==1)
 		stopifnot(population[single_female,"sex"]==1) #temp test
 		weds=sum(runif(min(length(single_male),length(single_female)))<m)
+
+		#current year migrant count
+		migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 		# if m is 1, every people who could get married will do 
 		# if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
 		if("weddings"%in%out) weddings=c(weddings,weds)
@@ -70,6 +83,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				comus$size[jc]=comus$size[jc]+1
 				comus$size[lc]=comus$size[lc]-1
 
+				migrantscount[jc,lc]=migrantscount[jc,lc]+1
 				#in-law transmission:
 				migrant = c(c1,c2)[population[c(c1,c2),"community"]!=jc]
 				local = c(c1,c2)[population[c(c1,c2),"community"]==jc]
@@ -101,6 +115,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			coms=table(population[,"community"])
 			stopifnot(coms == comus$size[as.numeric(names(coms))])
 		}
+
 
 		## Post-Marital Horizontal and Oblique Transmission
 		population  <- social.learning(population,when='post',pathways=tp,threshold=age.threshold)
@@ -173,6 +188,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		}
 
 
+		## For all community where migrants here
+		for(pcs in which(apply(migrantscount,1,sum)>0)){
+			#Here we assum comus$size has been updated after migration
+			comus$adaptivetraits[pcs,]=updateTraits(k=pcs,k.size=comus$size[pcs],alltraits=comus$adaptivetraits,migrantscount=migrantscount[pcs,],beta=beta)
+		}
+
 		#handle deaths
 		dead=runif(nrow(population))<d
 
@@ -212,17 +233,22 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 					comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
 					population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,nrow(comus$adaptivetraits))
 					comus$size=table(population[,"community"])
+					comus$migrants=table(population[,"community"])
 					if("fissionsize"%in%logging)print(comus$size)
 				}
 
 			}
 		}
 
+
+		comus$migrantscount=comus$migrantscount+migrantscount
+		if("migrantscount"%in%logging)print(comus$migrantscount)
+
 		#quick summary of population at time 
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 
 		##
-		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+1,cex=log(comus$size))
+		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size))
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
 		coms=table(population[,"community"])
@@ -233,6 +259,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("popsumary"%in%out)finalres[["popsumary"]]=popsum
 	if("finalpop"%in%out)finalres[["population"]]=population
 	if("weddings"%in%out)finalres[["weddings"]]=weddings
+	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
+	if("finalcomus"%in%out)finalres[["finalcomus"]]=comus
 	if("done"%in%logging)print("done")
 	return(finalres)
 }

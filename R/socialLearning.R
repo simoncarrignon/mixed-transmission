@@ -188,3 +188,24 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
     return(x)
 }
 
+
+# beta the paramater to fine tune the impact of size of migrants population
+# migrants, a vector of size C of number of migrants comming from each communitys
+# adaptivetraits   matrix of zie C x Z
+# N the number of individual of the population wher migrants are comming
+probaAdoptionAdaptiveTraits <- function(beta,migrants,N,adaptivetraits){
+			kc=adaptivetraits * migrants
+			ks=apply(kc,2,sum)
+            ks^(1-beta)/(ks^(1-beta)+(N-ks)^(1-beta))
+}
+
+#We assume here than k.size includes allready all migrants. Thus whencomputing the probability to adopt the trait no present in the population we compare the percentage of people who have _the other_ traits to all those who have the original traits, including the poulation that migrated from other communities with the same traits.
+updateTraits <- function(k,k.size,alltraits,migrantscount,beta){
+	k.traits=alltraits[k,]
+	migrant.traits=alltraits
+	migrant.traits=k.traits!=alltraits 
+	proba=probaAdoptionAdaptiveTraits(beta=beta,N=k.size,adaptivetraits=migrant.traits,migrants=migrantscount)
+	adopt=proba>runif(length(proba))
+	k.traits[adopt]=!k.traits[adopt]
+	k.traits
+}
