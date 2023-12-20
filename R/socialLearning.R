@@ -104,11 +104,11 @@ getRatio <- function(listtraits) sum(listtraits)/length(listtraits)
 #'         the criteria specified by `pos` and `threshold` relative to `age.ref`.
 #' @examples
 getAgeBand <- function(age.peers,age.ref,threshold,pos="h"){
+    if(!(pos %in% c("b","h","o"))) return( NULL)
     if(length(age.ref)>1)return(sapply(age.ref,getAgeBand,age.peers=age.peers,threshold=threshold,pos=pos))
     if(pos=="h")return( abs(age.ref-age.peers) <= threshold )
     if(pos=="o") return( (age.ref+threshold) <= age.peers )
     if(pos=="b") return( (age.ref-threshold) >= age.peers )
-    if(!(pos %in% c("b","h","o"))) return( NULL)
 }
 
 drawFromPool <- function(pool.traits,pool.sex,sexbiases){
@@ -153,19 +153,19 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
             pool.teacher.age=getAgeBand(age.ref=ages,age.peers=x[,"age"],threshold=threshold,pos=pw)
 
             if(!is.null(dim(pool.teacher.age))){
-                ##remove self learning?
-                #diag(pool.teacher.age[index.learners,])=FALSE
                 n.teachers=apply(pool.teacher.age,2,sum)
                 index.learners=index.learners[n.teachers>0]
                 pool.teacher.age=pool.teacher.age[,n.teachers>0,drop=F]
             }
 
-            if(length(index.learners)>0 && !all(!pool.teacher.age))
+            if(length(index.learners)>0 && !is.null(pool.teacher.age) )
             {
                 commu=sapply(x[index.learners,"community"],function(i)x[,"community"]==i)
-                ##remove self learning?
-                #diag(commu[index.learners,])=FALSE
-
+                ##remove self learning
+                if(dim(commu)[2]==1)
+                    commu[index.learners,]=FALSE
+                else
+                    diag(commu[index.learners,])=FALSE
                 pool.teacher.age.commu=commu&pool.teacher.age
                 stopifnot(!is.null(pool.teacher.age.commu))
                 stopifnot(length(dim(pool.teacher.age.commu))>0)
