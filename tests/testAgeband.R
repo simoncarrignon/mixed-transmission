@@ -1,6 +1,5 @@
 
 
-stopifnot(length(dim(pool.traits))>0)
 
 devtools::load_all(".")
 population.ages=0:101
