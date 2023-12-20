@@ -133,7 +133,7 @@ quickV=modelVector(K=K, m=1, b=0.01, r=0.005, rho=1, d=0.01, maturity=10, endrep
 testthat::expect_false(all(apply(quickV$population[,traitsid],2,sum)== apply(population[,traitsid],2,sum) ))
                                       testthat::expect_true(nrow(population)== nrow(population))
 
-testthat::test_that("model when only social learning changes but no grow",{
+testthat::test_that("model when random social learning, steady grow/devrease",{
                         replicate(50,
                                   {
                                       z=sample(2:20,1)
@@ -146,9 +146,42 @@ testthat::test_that("model when only social learning changes but no grow",{
                                       neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
                                       neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
                                       neutraltraitsParam$s=rbinom(z,1,.5)
+                                      traitsid=paste0("t",1:z)
 
-                                      N=200
+                                      N=sample(1:200,1)
                                       population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
                                       quickV=modelVector(K=K, m=1, b=0.07, r=0, rho=1, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(50:60,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging="done",ma=1,traitsid=paste0("t",1:z))
+                                  })
+})
+
+testthat::test_that("model social learning,adaptive learning,...",
+                    {
+                        replicate(50,
+                                  {
+                                      z=sample(2:20,1)
+
+                                      neutraltraitsParam=initNeutralTraitsPathways(z = z)
+                                      neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
+                                      neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
+                                      neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
+                                      neutraltraitsParam$pre[,"o"]=rbinom(z,1,.5)
+                                      neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
+                                      neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
+                                      neutraltraitsParam$s=rbinom(z,1,.5)
+                                      traitsid=paste0("t",1:z)
+
+                                      plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
+                                      percomu=sample(1:100,1)
+                                      K=sample(2:8,1)
+                                      km=round(K/3)
+                                      ki=K-km
+                                      N=K*percomu
+                                      pos=random2Dgrid(K=K,Gx=100)
+                                      a=initAdaptiveTraits(ki=ki,km=km,n=20 )
+                                      initcomus=initialiseCommunities(traits=a,coordinates=pos)
+                                      initcomus$size=rep(percomu,K)
+                                      communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
+                                      population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+                                      quickV=modelVector(K=K, m=1, b=0.07, r=0, rho=1, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(50:60,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging=c("visu","done","time"),ma=1,traitsid=paste0("t",1:z))
                                   })
 })
