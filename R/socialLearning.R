@@ -83,189 +83,99 @@ initNeutralTraits <- function(N,z=9,traitnames="t",nastart=NULL){
     return(traits)
 }
 
+getRatio <- function(listtraits) sum(listtraits)/length(listtraits)
+
+
+getAgeBand <- function(subpop,age,threshold,pos="h"){
+    if(length(age)>1)return(sapply(age,getAgeBand,subpop=subpop,threshold=threshold,pos=pos))
+    if(pos=="h")return( abs(age-subpop[,"age"]) <= threshold )
+    if(pos=="o") return( (age+threshold) <= subpop[,"age"] )
+    if(pos=="b") return( (age-threshold) >= subpop[,"age"] )
+    if(!(pos %in% c("b","h","o"))) return( (age-threshold) >= subpop[,"age"] )
+}
+
+
+drawFromPool <- function(pool.traits,pool.sex,sexbiases){
+    if(is.null(dim(pool.traits)))return(pool.traits)
+    es=aggregate(pool.traits,by=list(factor(pool.sex,levels=c(0,1))),FUN=getRatio,drop=F)[,-1,drop=F]
+    es[is.na(es)]=0
+    as.numeric(runif(ncol(pool.traits))<((1-sexbiases)*es[1,]+(sexbiases)*es[2,]))
+}
 
 #' @title Social Learning
 #' @description Core social learning routine
 #' @param x matrix containing population of agents
 #' @param when character defining whether the transmission is pre-marial ('pre') or post-marital ('post')
-#' @param pathways list containing the transmission pathways for each trait (generated using \code{initNeutralTraitsPathways()})
+#' @param  list containing the transmission pathways for each trait (generated using \code{initNeutralTraitsPathways()})
 #' @param threshold integer defining age tresholds for distinguishing horrizontal and oblique transmission.
 #'
 #' @return An updated matrix of the population of agents
 #' @export
 
-social.learning <- function(x=population,when='pre',pathways=neutraltraitsParam,threshold)
+social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
 {
-	ntraits <- length(pathways$s)
+    ntraits <- length(pathways$s)
+    if(is.null(traitsid)){
+        traitsid=paste0("t",1:ntraits)
+    }
+    index.learners=NULL
+    if (when=='pre')
+        index.learners  <- which(x[,'age']==0)
+    if (when=='post')
+        index.learners  <- which(x[,'justMarried']==1 & x[,'cid']!=-1)
+    if(length(index.learners)>0)
+    {
+        used.pathway=colnames(pathways[[when]])[apply(pathways[[when]],2,sum)>0]
+        for(pw in used.pathway )
+        {
+            pw.traits=traitsid[which(pathways[[when]][,pw]==1)]   #select all traits that goes throught this pathway
+            pool.teacher.age= NULL
+            if(length(unique(x[index.learners,"age"]))==1)ages=unique(x[index.learners,"age"])
+            else ages=x[index.learners,"age"]
 
-	# Pre marriage learning (horrizontal or oblique)
-	if (when=='pre')
-	{
-		#learners (age 0)
-		index.learners  <- which(x[,'age']==0)
+            pool.teacher.age=getAgeBand(age=ages,subpop=x,threshold=threshold,pos=pw)
 
-		#index communities
-		id.communities <- x[index.learners,'community']
+            if(is.null(dim(pool.teacher.age)))
+            {
+                if(all(!pool.teacher.age))
+                    pool.teacher.age=NULL
+            }
+            else{
+                ##remove self learning?
+                #diag(pool.teacher.age[index.learners,])=FALSE
+                n.teachers=apply(pool.teacher.age,2,sum)
+                index.learners=index.learners[n.teachers>0]
+                pool.teacher.age=pool.teacher.age[,n.teachers>0,drop=F]
+            }
 
-		# sampling pool
-		age.pool.0.h <- x[which(x[,'age']<=threshold & x[,'sex']==0),]
-		age.pool.1.h <- x[which(x[,'age']<=threshold & x[,'sex']==1),]
-		age.pool.01.h <- x[which(x[,'age']<=threshold),]
+            if(length(index.learners)>0 && !all(pool.teacher.age))
+            {
+                commu=sapply(x[index.learners,"community"],function(i)x[,"community"]==i)
+                ##remove self learning?
+                #diag(commu[index.learners,])=FALSE
 
-		age.pool.0.o <- x[which(x[,'age']>threshold & x[,'sex']==0),]
-		age.pool.1.o <- x[which(x[,'age']>threshold & x[,'sex']==1),]
-		age.pool.01.o <- x[which(x[,'age']>threshold),]
+                print("pool")
+                print(dim(pool.teacher.age))
+                print("commu")
+                print(dim(commu))
+                pool.teacher.age.commu=commu&pool.teacher.age
+                stopifnot(!is.null(pool.teacher.age.commu))
+                stopifnot(length(dim(pool.teacher.age.commu))>0)
+                n.teachers=apply(pool.teacher.age.commu,2,sum)
+                index.learners=index.learners[n.teachers>0]
+                pool.teacher.age.commu=pool.teacher.age.commu[,n.teachers>0,drop=F]
 
-		#sampling probabilities of novel variant
-		sample.pool.0.h <- aggregate(age.pool.0.h[,paste0('t',1:ntraits)],by=list(as.factor(age.pool.0.h[,'community'])),FUN=function(x){sum(x)/length(x)})
-		sample.pool.1.h <- aggregate(age.pool.1.h[,paste0('t',1:ntraits)],by=list(as.factor(age.pool.1.h[,'community'])),FUN=function(x){sum(x)/length(x)})
-		sample.pool.01.h <- aggregate(age.pool.01.h[,paste0('t',1:ntraits)],by=list(as.factor(age.pool.01.h[,'community'])),FUN=function(x){sum(x)/length(x)})
-
-		sample.pool.0.o <- aggregate(age.pool.0.o[,paste0('t',1:ntraits)],by=list(as.factor(age.pool.0.o[,'community'])),FUN=function(x){sum(x)/length(x)})
-		sample.pool.1.o <- aggregate(age.pool.1.o[,paste0('t',1:ntraits)],by=list(as.factor(age.pool.1.o[,'community'])),FUN=function(x){sum(x)/length(x)})
-		sample.pool.01.o <- aggregate(age.pool.01.o[,paste0('t',1:ntraits)],by=list(as.factor(age.pool.01.o[,'community'])),FUN=function(x){sum(x)/length(x)})
-
-		for (i in 1:ntraits)
-		{
-			if (pathways$pre[i,'h']==1)
-			{
-				if (pathways$s[i]==0)
-				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.0.h[match(id.communities,as.integer(sample.pool.0.h[,1])),i+1])
-				}
-
-				if (pathways$s[i]==1)
-				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.1.h[match(id.communities,as.integer(sample.pool.1.h[,1])),i+1])
-				}
-
-				if (pathways$s[i]==-1)
-				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.01.h[match(id.communities,as.integer(sample.pool.01.h[,1])),i+1])
-				}
-			}
-
-
-			if (pathways$pre[i,'o']==1)
-			{
-				if (pathways$s[i]==0)
-				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.0.o[match(id.communities,as.integer(sample.pool.0.o[,1])),i+1])
-				}
-
-				if (pathways$s[i]==1)
-				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.1.o[match(id.communities,as.integer(sample.pool.1.o[,1])),i+1])
-				}
-
-				if (pathways$s[i]==-1)
-				{
-					x[index.learners,paste0('t',i)]  <-  rbinom(length(index.learners),size=1,prob=sample.pool.01.o[match(id.communities,as.integer(sample.pool.01.o[,1])),i+1])
-				}
-			}
-		}
-	}
-
-
-	if (when=='post')
-	{
-
-		#learners (just married)
-		index.learners  <- which(x[,'justMarried']==1 & x[,'cid']!=-1)
-
-		#index communities
-		id.communities <- x[index.learners,'community']
-
-		# sampling pool: provide a list of index values of eligible teacher for each index.learner.*
-		# Horrizontal
-		age.pool.0.h <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==0);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
-
-		age.pool.1.h <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==1);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
-
-		age.pool.01.h <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x]);return(same.community.i[which(abs(pop[same.community.i,'age']-pop[learner[x],'age']) < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
-
-		# Oblique
-		age.pool.0.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==0);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] > threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
-
-		age.pool.1.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x] & pop[,'sex']==1);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
-
-		age.pool.01.o <- sapply(1:length(index.learners),function(x,community,learner,pop,threshold){same.community.i = which(pop[,'community']==community[x]);return(same.community.i[which(pop[same.community.i,'age']-pop[learner[x],'age'] < threshold)])},pop=x,learner=index.learners,community=id.communities,threshold=threshold)
-
-
-		# Remove index learners if there are no specific pool to learn from:
-		index.learners.0.h  <- index.learners[which(unlist(lapply(age.pool.0.h,length))>0)]
-		age.pool.0.h <- age.pool.0.h[which(unlist(lapply(age.pool.0.h,length))>0)]
-		index.learners.1.h  <- index.learners[which(unlist(lapply(age.pool.1.h,length))>0)]
-		age.pool.1.h <- age.pool.1.h[which(unlist(lapply(age.pool.1.h,length))>0)]
-		index.learners.01.h  <- index.learners[which(unlist(lapply(age.pool.01.h,length))>0)]
-		age.pool.01.h <- age.pool.01.h[which(unlist(lapply(age.pool.01.h,length))>0)]
-
-		index.learners.0.o  <- index.learners[which(unlist(lapply(age.pool.0.o,length))>0)]
-		age.pool.0.o <- age.pool.0.o[which(unlist(lapply(age.pool.0.o,length))>0)]
-		index.learners.1.o  <- index.learners[which(unlist(lapply(age.pool.1.o,length))>0)]
-		age.pool.1.o <- age.pool.1.o[which(unlist(lapply(age.pool.1.o,length))>0)]
-		index.learners.01.o  <- index.learners[which(unlist(lapply(age.pool.01.o,length))>0)]
-		age.pool.01.o <- age.pool.01.o[which(unlist(lapply(age.pool.01.o,length))>0)]
-
-
-		#sampling probabilities of novel variant, matrix with row number corresponding to each learner and column representing the trait
-		sample.pool.0.h <- sapply(1:length(index.learners.0.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.0.h,pop=x)
-
-		sample.pool.1.h <- sapply(1:length(index.learners.1.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.1.h,pop=x)
-		
-		sample.pool.01.h <- sapply(1:length(index.learners.01.h),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.01.h,pop=x)
-
-
-
-		sample.pool.0.o <- sapply(1:length(index.learners.0.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.0.o,pop=x)
-
-		sample.pool.1.o <- sapply(1:length(index.learners.1.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.1.o,pop=x)
-		
-		sample.pool.01.o <- sapply(1:length(index.learners.01.o),function(x,pool,pop){return(apply(pop[pool[[x]],paste0('t',1:ntraits),drop=F],2,sum)/length(pool[[x]]))},pool=age.pool.01.o,pop=x)
-
-
-
-
-		for (i in 1:ntraits)
-		{
-			# Horizzontal
-			if (pathways$post[i,'h']==1)
-			{
-				if (pathways$s[i]==0)
-				{
-					x[index.learners.0.h,paste0('t',i)]  <- rbinom(length(index.learners.0.h),size=1,prob=sample.pool.0.h[i,]) 
-				}
-
-				if (pathways$s[i]==1)
-				{
-					x[index.learners.1.h,paste0('t',i)]  <- rbinom(length(index.learners.1.h),size=1,prob=sample.pool.1.h[i,]) 
-				}
-
-				if (pathways$s[i]==-1)
-				{
-					x[index.learners.01.h,paste0('t',i)]  <- rbinom(length(index.learners.01.h),size=1,prob=sample.pool.01.h[i,]) 
-				}
-			}
-
-			# Oblique
-			if (pathways$post[i,'o']==1)
-			{
-				if (pathways$s[i]==0)
-				{
-					x[index.learners.0.o,paste0('t',i)]  <- rbinom(length(index.learners.0.o),size=1,prob=sample.pool.0.o[i,]) 
-				}
-
-				if (pathways$s[i]==1)
-				{
-					x[index.learners.1.o,paste0('t',i)]  <- rbinom(length(index.learners.1.o),size=1,prob=sample.pool.1.o[i,]) 
-				}
-
-				if (pathways$s[i]==-1)
-				{
-					x[index.learners.01.o,paste0('t',i)]  <- rbinom(length(index.learners.01.o),size=1,prob=sample.pool.01.o[i,]) 
-				}
-			}
-		}
-	}
-	return(x) #Returns the actual population matrix
+                #if(is.null(dim(x))){print(index.learners)}
+                if(length(index.learners)>0 && sum(n.teachers)>0)
+                {
+                    pools=apply(pool.teacher.age.commu,2,function(pool)x[pool,c("sex",pw.traits),drop=F],simplify=F)
+                    stopifnot(length(dim(pool.teacher.age.commu))>0)
+                    index.learners=index.learners[n.teachers>0]
+                    x[index.learners,pw.traits] =t(sapply(pools,function(pool)drawFromPool(pool.traits=pool[,pw.traits],pool.sex=pool[,"sex"],sexbiases=pathways$s[pathways[[when]][,pw]==1])))  
+                }
+            }
+        }
+    }
+    return(x)
 }
+
