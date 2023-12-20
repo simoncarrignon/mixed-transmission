@@ -182,6 +182,6 @@ testthat::test_that("model social learning,adaptive learning,...",
                                       initcomus$size=rep(percomu,K)
                                       communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
                                       population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
-                                      quickV=modelVector(K=K, m=1, b=0.07, r=0, rho=1, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(50:60,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging=c("visu","done","time"),ma=1,traitsid=paste0("t",1:z))
+                                      quickV=modelVector(K=K, m=1, b=0.07, r=0.05, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(250:360,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging=c("visu","done","time"),ma=1,traitsid=paste0("t",1:z))
                                   })
 })
