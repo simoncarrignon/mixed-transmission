@@ -253,6 +253,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 		coms=table(population[,"community"])
 		stopifnot(coms == comus$size[as.numeric(names(coms))])
+        if(nrow(population)==0){print("extinction");break}
 	}
 	finalres=list()
 	if("popsize"%in%out)finalres[["popsize"]]=popsize
