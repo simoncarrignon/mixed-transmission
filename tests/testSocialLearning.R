@@ -18,18 +18,6 @@ population[6:10,paste0("t",1:2)]=t(replicate(5,c(1,0)))
 population[,"community"]=sample(1:2,size=10,replace=T)
 
 social.learning(x = population,when="pre",threshold = 10,pathways = neutraltraitsParam)
-pos=random2Dgrid(K=K,Gx=100)
-a=initAdaptiveTraits(ki=ki,km=km)
-initcomus=initialiseCommunities(traits=a,coordinates=pos)
-initcomus$size=rep(N/K,K)
-plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
-
-communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-
-quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=generation.threshold, logging=c("time"),ma=1,traitsid=paste0("t",1:z))
-plot(quickV$popsize)
-
-
 
 z = 10
 neutraltraitsParam=initNeutralTraitsPathways(z)
@@ -94,12 +82,11 @@ population[1,"t1"]=1
 neutraltraitsParam$s=c(0,1,.5,0)
 tochange=population
 for(i in 1:10){
-    print(i)
     tochange=social.learning(population,when="pre",pathways=neutraltraitsParam,threshold=10,traitsid=traitsid)
 }
 a=aggregate(tochange[,traitsid],by=list(tochange[,"sex"]),FUN=getRatio)
 #should be true
-a[1,2]==(1/sum(population[,"sex"]==population[1,"sex"]))
+a[population[1,"sex"] + 1,"t1"]==(1/sum(population[,"sex"]==population[1,"sex"]))
 
 neutraltraitsParam$s=c(0,1,.5,0)
 tochange=population
@@ -109,6 +96,7 @@ for(i in 1:10){
 }
 aggregate(tochange[,traitsid],by=list(tochange[,"sex"]),FUN=getRatio)
 
+tochange=population
 neutraltraitsParam$post[,"o"]=rep(0,4)
 neutraltraitsParam$post[,"h"]=c(1,1,1,1)
 for(i in 1:10){
@@ -116,18 +104,33 @@ for(i in 1:10){
     tochange=social.learning(population,when="pre",pathways=neutraltraitsParam,threshold=10,traitsid=traitsid)
 }
 
-neutraltraitsParam$post[,"o"]=rbinom(4,1,.5)
-neutraltraitsParam$post[,"h"]=rbinom(4,1,.5)
-neutraltraitsParam$pre[,"o"]=rbinom(4,1,.5)
-neutraltraitsParam$pre[,"h"]=rbinom(4,1,.5)
-for(i in 1:100){
-    neutraltraitsParam$post[,"o"]=rbinom(4,1,.5)
-    neutraltraitsParam$post[,"h"]=rbinom(4,1,.5)
-    neutraltraitsParam$pre[,"o"]=rbinom(4,1,.5)
-    neutraltraitsParam$pre[,"h"]=rbinom(4,1,.5)
-    neutraltraitsParam$s=rbinom(4,1,.5)
-    print(i)
-    tochange[,"age"]= sample(0:50,200,replace=T)
-    tochange=social.learning(tochange,when="pre",pathways=neutraltraitsParam,threshold=10,traitsid=traitsid)
-    print(aggregate(tochange[,traitsid],by=list(tochange[,"sex"]),FUN=getRatio))
+
+
+randomSocialLearning <- function(tochange,pathways,ttimes=100){
+    for(i in 1:ttimes){
+        pathways$post[,"o"]=rbinom(4,1,.5)
+        pathways$post[,"h"]=rbinom(4,1,.5)
+        pathways$pre[,"o"]=rbinom(4,1,.5)
+        pathways$pre[,"h"]=rbinom(4,1,.5)
+        pathways$s=rbinom(4,1,.5)
+        print(i)
+        tochange[,"age"]= sample(0:50,200,replace=T)
+        new=social.learning( x=tochange , when="pre" , pathways=pathways , threshold=10 , traitsid=traitsid)
+        if(is.null(dim(new)))stop()
+        tochange=new
+        print(aggregate(tochange[,traitsid],by=list(tochange[,"sex"]),FUN=getRatio))
+    }
 }
+exploreSocialLearing <- function(tochange,pathways,ttimes=100){
+    for(i in 1:ttimes){
+        print(i)
+        tochange=social.learning( x=tochange , when="pre" , pathways=pathways , threshold=10 , traitsid=traitsid)
+        print(aggregate(tochange[,traitsid],by=list(tochange[,"sex"]),FUN=getRatio))
+    }
+}
+
+randomSocialLearning(population,neutraltraitsParam,ttimes=100)
+aggregate(population[,traitsid],by=list(population[,"sex"]),FUN=getRatio)
+as=aggregate(population[,traitsid],by=list(population[,"sex"]),FUN=getRatio)
+bs=exploreSocialLearing(population,neutraltraitsParam,ttimes=10)
+bs[1,2]==as[1,2]
