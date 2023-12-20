@@ -71,28 +71,26 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				comus$size[lc]=comus$size[lc]-1
 
 				#in-law transmission:
-				learner = c(c1,c2)[which(population[c(c1,c2),"community"]!=jc)]
-				teacher.offspring = c(c1,c2)[which(population[c(c1,c2),"community"]==jc)]
-				inlaw.father = which(population[,'cid']==population[teacher.offspring,'fid'] & population[,'sex']==0)
-				inlaw.mother = which(population[,'cid']==population[teacher.offspring,'fid'] & population[,'sex']==1)
-				for (i in 1:length(tp$s)) # for each trait
-				{
-					if (tp$post[i,'i']==1)
-					{ 
-						if (tp$s[i]==0) # learn from father in-law
-						{
-							population[learner,paste0('t',i)] = population[inlaw.father,paste0('t',i)]
-						}
-						if (tp$s[i]==1) # lear from mother in-law
-						{
-							population[learner,paste0('t',i)] = population[inlaw.mother,paste0('t',i)]
-						}
-						if (tp$s[i]==-1) # lear from one of the in-laws
-						{
-							population[learner,paste0('t',i)] = population[sample(c(inlaw.mother,inlaw.father),size=1),paste0('t',i)]
-						}
-					}
-				}
+				migrant = c(c1,c2)[population[c(c1,c2),"community"]!=jc]
+				local = c(c1,c2)[population[c(c1,c2),"community"]==jc]
+				#teacher.offspring = c(c1,c2)[which(population[c(c1,c2),"community"]==jc)]
+                if(length(local)==2){
+                    warning("same community couple in the population")
+                    local=sample(local,1)
+                }
+                inlawtraits=tp$post[,"i"]==1
+                if(sum(inlawtraits)>0){
+                    if(population[local,"fid"]==-1){warning("famillies not created yet, inlaw copying impossible")}
+                    else{
+                        it=traitsid[inlawtraits]
+                        inlaws=population[ population[,"cid"] == population[local,"fid"],]
+                        if(dim(inlaws)[1]==2)
+                        {
+                            newtraits=drawFromPool(pool.traits=inlaws[,it],pool.sex=inlaws[,"sex"],sexbiases=tp$s[inlawtraits])
+                            population[migrant,it]=newtraits
+                        }
+                    }
+                }
 
 				# post-marital movement:
 				population[c2,"community"]= population[c1,"community"]=jc
@@ -235,5 +233,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("popsumary"%in%out)finalres[["popsumary"]]=popsum
 	if("finalpop"%in%out)finalres[["population"]]=population
 	if("weddings"%in%out)finalres[["weddings"]]=weddings
+	if("done"%in%logging)print("done")
 	return(finalres)
 }
