@@ -45,9 +45,23 @@ initcomus=initialiseCommunities(traits=a,coordinates=pos)
 initcomus$size=rep(percomu,K)
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
 population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
-quickV=modelVector( K=K, m=1, b=0.08, r=0.005, rho=1, d=0.01, maturity=18, endrepro=60, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=generation.threshold, logging=c("time","visu"),out="finalpop",ma=1,traitsid=paste0("t",1:z))
+quickV=modelVector( K=K, m=1, b=0.08, r=0.005, rho=1, d=0.01, maturity=18, endrepro=60, population=population, comus=initcomus, tstep=200, tp=neutraltraitsParam,age.threshold=generation.threshold, logging=c("time","visu"),out="finalpop",ma=1,traitsid=paste0("t",1:z))
 population=quickV$population
 
 testthat::expect_true(all(sapply(matchingCelib(population,10),function(i)population[i,"cid"])==-1))
 testthat::expect_true(all(sapply(matchingCelib(population,10),function(i)population[i,"partner"])==-1))
 testthat::expect_true(all(table(matchingCelib(population,10))==1))
+testthat::test_that('matching is ok',{
+                        replicate(10,{
+                        newmatches=matchingCelib(population,10)
+                        testthat::expect_true(all(sapply(newmatches,function(i)population[i,"cid"])==-1))
+                        testthat::expect_true(all(sapply(newmatches,function(i)population[i,"partner"])==-1))
+                        testthat::expect_true(all(table(newmatches)==1))
+                        testthat::expect_true(all(table(newmatches)==1))
+                        testthat::expect_true(all(population[newmatches[,1],"sex"]==0)) 
+                        testthat::expect_true(all(population[newmatches[,2],"sex"]==1))
+                        testthat::expect_true(all(population[newmatches[,2],"community"]!=population[newmatches[,1],"community"]))
+})
+                    })
+
+
