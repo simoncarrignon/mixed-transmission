@@ -4,7 +4,7 @@ tablePerSexAndGroup <- function(is.candidate,pop.group,pop.sex){
 }
 
 
-matchingCelib <- function(population,maturity){
+matchingSingle <- function(population,maturity){
     potential=population[,"age"]>=maturity & population[,"partner"]<0
     if(sum(population)==0)return(NULL)
     comus=unique(population[potential,"community"])

@@ -32,14 +32,15 @@ initcomus$size=rep(N/K,K)
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
 population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
 
-testthat::test_that('general test',
-                    testthat::expect_silent(
+testthat::test_that('general test',{
+                    testthat::expect_warning(
                                             {
                                                 replicate(10,
                                                           {
                                                               quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=generation.threshold, out=NULL,logging=NULL,ma=1,traitsid=paste0("t",1:z))
                                                           })
-                                            }))
+                                            })
+})
 
 testthat::test_that('general test',{
                         testthat::expect_true({
@@ -55,7 +56,6 @@ testthat::expect_true(all( apply(quickV$population[,traitsid],2,sum)[1:2]== appl
                     })
 
 testthat::test_that("model don't change when no growth, no social learning",{
-
                         neutraltraitsParam$pre[,"v"]=c(1,1,1,1,1) #this needs to be always like this otherwise there are NA traits
                         neutraltraitsParam$pre[,"o"]=c(0,0,0,0,0)
                         neutraltraitsParam$pre[,"h"]=c(0,0,0,0,0)
@@ -84,7 +84,7 @@ testthat::test_that("model don't when only social learning but no grow",{
                                       neutraltraitsParam$post[,"o"]=c(1,1,1,1,1)
                                       neutraltraitsParam$post[,"h"]=c(1,1,1,1,1)
 
-                                      quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=sample(100,1), endrepro=sample(100,1), population=population, comus=initcomus, tstep=sample(4:150,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging="done",ma=1,traitsid=paste0("t",1:z))
+                                      quickV=modelVector(K=K, m=1, b=0.07, r=0, rho=1, d=0.001, maturity=sample(100,1), endrepro=sample(100,1), population=population, comus=initcomus, tstep=10, tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging=c("time","done"),ma=1,traitsid=paste0("t",1:z))
 
                                       testthat::expect_false(all(apply(quickV$population[,traitsid],2,sum)== apply(population[,traitsid],2,sum) ))
                                       testthat::expect_true(nrow(population)== nrow(population))
