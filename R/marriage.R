@@ -10,6 +10,7 @@ matchingCelib <- function(population,maturity){
     comus=unique(population[potential,"community"])
     if(length(comus)==1)return(NULL)  ## only one community, no marriage allowed
     tpsg=tablePerSexAndGroup(potential,population[,"community"],population[,"sex"])
+    if(is.null(dim(tpsg)))return(NULL)
     lcom=apply(tpsg,2,lengths)
     lc1=lcom[,1]
     lc2=lcom[,2]
