@@ -4,7 +4,11 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
 		popsum=list()
-		popsum[[1]]=apply(population,2,table)
+		popsum[[1]]=rep(0,length(comus$popsize))
+	}
+	if("migrsum"%in%out){
+		migrsum=list()
+		migrsum[[1]]=apply(population,2,table)
 	}
 	if("visu"%in% logging){
 		start_color <- "#006400" # Deep Green
@@ -241,6 +245,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		}
 
 
+		if("migrsum"%in%out)migrsum[[time]]=apply(migrantscount,2,sum)
 		comus$migrantscount=comus$migrantscount+migrantscount
 		if("migrantscount"%in%logging)print(comus$migrantscount)
 
@@ -261,6 +266,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("finalpop"%in%out)finalres[["population"]]=population
 	if("weddings"%in%out)finalres[["weddings"]]=weddings
 	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
+	if("migrsum"%in%out)finalres[["migrsum"]]=migrsum
 	if("finalcomus"%in%out)finalres[["finalcomus"]]=comus
 	if("done"%in%logging)print("done")
 	return(finalres)
