@@ -15,23 +15,19 @@ matchingCelib <- function(population,maturity){
     lc2=lcom[,2]
     pairs=c()
     while(sum(lc1)>0 && sum(lc2)>0){
-        print("c1")
         candidate.comu=which(lc1>0)
         c1=ifelse(length(candidate.comu)==1,candidate.comu,sample(candidate.comu,1))
-        print(c1)
-        print("i1")
         candidate.ind=tpsg[,1][[c1]] #randomly chose an individual from this commu
         i1=ifelse(length(candidate.ind)==1,candidate.ind,sample(candidate.ind,1))
-        print(i1)
         tpsg[,1][[c1]]=tpsg[,1][[c1]][tpsg[,1][[c1]]!=i1] #remove this individual from the pool
         candidate.comu=which(lc2>0)
-        candidate.comu=candidate.comu[candidate.comu!=-c1]
+        candidate.comu=candidate.comu[candidate.comu!=c1]
         if(length(candidate.comu)>0){
             c2=ifelse(length(candidate.comu)==1,candidate.comu,sample(candidate.comu,1))
             candidate.ind=tpsg[,2][[c2]] #randomly chose an individual from this commu
             i2=ifelse(length(candidate.ind)==1,candidate.ind,sample(candidate.ind,1))
-            print(i2)
             tpsg[,2][[c2]]=tpsg[,2][[c2]][tpsg[,2][[c2]]!=i2]
+            stopifnot(length(unique(population[c(i1,i2),"community"]))==2)
             pairs=rbind(pairs,c(i1,i2))
         }
         lcom=apply(tpsg,2,lengths) ##update left individual
