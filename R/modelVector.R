@@ -8,7 +8,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	}
 	if("migrsum"%in%out){
 		migrsum=list()
-		migrsum[[1]]=apply(population,2,table)
+		migrsum[[1]]=rep(0,K)
 	}
 	if("visu"%in% logging){
 		start_color <- "#006400" # Deep Green
@@ -31,31 +31,20 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 		##marriage
 		population[,"justMarried"]  <- 0
-		potential=population[,"age"]>=maturity & population[,"partner"]<0
-		single_male  =which(potential & population[,"sex"]==0)
-		stopifnot(population[single_male,"sex"]==0) #temp test
-		single_female=which(potential & population[,"sex"]==1)
-		stopifnot(population[single_female,"sex"]==1) #temp test
-		weds=sum(runif(min(length(single_male),length(single_female)))<m)
+		weds=matchingCelib(population,maturity=maturity)
 
 		#current year migrant count
 		migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 		# if m is 1, every people who could get married will do 
 		# if m is .5, half o the people who could get married will do , but depdns on the balance male/female.
-		if("weddings"%in%out) weddings=c(weddings,weds)
-		if(weds>0){
-			index=c(single_male[1:weds],single_female[1:weds])
-			population[index,'justMarried'] = 1
-			if("marriage"%in% logging)print(paste("cellebrating",weds,"weddings"))
-			if(weds>1){
-				single_male  =sample(single_male)
-				single_female=sample(single_female)
-			}
+		if("weddings"%in%out) weddings=c(weddings,ifelse(is.null(weds),0,nrow(weds)))
+		if(!is.null(weds)){
 			maxcid=max(population[,"cid"])
-			for(i in 1:weds){
+            if(is.null(dim(weds)))weds=matrix(weds,nrow=1,ncol=2)
+			for(i in 1:nrow(weds)){
 				maxcid=maxcid+1
-				c1=single_male[i]
-				c2=single_female[i]
+				c1=weds[i,1]
+				c2=weds[i,2]
 				population[c(c1,c2),"cid"]=maxcid #Couple ID, to track couples
 				## population[c(c1,c2),"nfid"]=maxcid #To trakc nuclear family need to add here Family Id
 				## quick note: in this version offspring stay with the partner that stay alive until the parents find a new partner; then offspring will be on their own.
@@ -101,10 +90,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                     if(population[local,"fid"]==-1){warning("famillies not created yet, inlaw copying impossible")}
                     else{
                         it=traitsid[inlawtraits]
-                        inlaws=population[ population[,"cid"] == population[local,"fid"],]
+                        inlaws=population[ population[,"cid"] == population[local,"fid"],,drop=F]
                         if(dim(inlaws)[1]==2)
                         {
-                            newtraits=drawFromPool(pool.traits=inlaws[,it],pool.sex=inlaws[,"sex"],sexbiases=tp$s[inlawtraits])
+                            newtraits=drawFromPool(pool.traits=inlaws[,it,drop=F],pool.sex=inlaws[,"sex",drop=F],sexbiases=tp$s[inlawtraits])
                             population[migrant,it]=newtraits
                         }
                     }
