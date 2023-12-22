@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary"),beta=0.001){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(0,nrow=10,ncol=10),out=c("popsize","popsumary"),beta=0.001){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
@@ -20,6 +20,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		#We nee a K x K  to store after migration from where are comming 
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 	}
+    worldlimit[comus$coordinates]=1
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
 		population[,"age"]=population[,"age"]+1
@@ -209,36 +210,38 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 		##pm transmission
 
+		if("migrsum"%in%out)migrsum[[time]]=apply(migrantscount,2,sum)
+		comus$migrantscount=comus$migrantscount+migrantscount
+		if("migrantscount"%in%logging)print(comus$migrantscount)
+
 		## Fission
 		if(!is.null(F_Th)){
 			overloaded=comus$size>F_Th
 			if(sum(overloaded)>0){
+                potential=which(worldlimit==0,arr.ind=T)
 				for(ol in which(overloaded)){
-					if("fission"%in%logging)print(paste("community",ol,"to be splitten"))
-					newcoord=comus$coordinates[ol,]+runif(2,-1,1)
-					while(!(all(newcoord>=worldlimit[,1] , newcoord<=worldlimit[,2])))
-						newcoord=comus$coordinates[ol,]+runif(2,-1,1)
-					comus$coordinates=rbind(comus$coordinates,newcoord)
-					comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
-					population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,nrow(comus$adaptivetraits))
-					comus$size=table(population[,"community"])
-					comus$migrants=table(population[,"community"])
-					if("fissionsize"%in%logging)print(comus$size)
+                    new.com.id=-1
+                    new.comus=fissionCommunity(comus,ol,potential)
+                    if(nrow(new.comus$coordinates)>nrow(comus$coordinates)){
+                        comus=new.comus
+                        new.com.id=nrow(comus$coordinates)
+                    }
+                    population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,new.com.id)
+                    if(new.com.id == -1)population[population[,"community"]==-1,]=NULL
+                    if("fissionsize"%in%logging)print(comus$size)
+                    comus$size=table(population[,"community"])
 				}
 
 			}
 		}
 
 
-		if("migrsum"%in%out)migrsum[[time]]=apply(migrantscount,2,sum)
-		comus$migrantscount=comus$migrantscount+migrantscount
-		if("migrantscount"%in%logging)print(comus$migrantscount)
 
 		#quick summary of population at time 
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 
 		##
-		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size))
+		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(0,10),xlim=c(0,10))
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
 		coms=table(population[,"community"])
