@@ -15,6 +15,7 @@
 #' plot(com,xlim=c(0,100),ylim=c(0,100),pch=20)
 random2Dgrid <- function(K,Gx,Gy=NULL){
     if(is.null(Gy))Gy=Gx
+    stopifnot(K>length(Gx*Gy))
     cbind(x=sample(Gx,K),y=sample(Gy,K))
 }
 
@@ -218,7 +219,9 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 	stopifnot(cumulative_size[length(cumulative_size)]==sum(population[,"community"]==comid))
 
     # Reassign the new community ID
-	selected.indiv=single.comu[single.comu[,"nfid"] %in% selected_families ,"id"]
+	selected.indiv<<-single.comu[single.comu[,"nfid"] %in% selected_families ,"id"]
+    print(selected.indiv)
+    print(newid)
 	population[population[, "id"] %in% selected.indiv,"community"] <- newid
 
 	if(debug)commuConsistency(npop)
@@ -226,3 +229,15 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 }
 
 
+fissionCommunity <- function(comus,ol,potential){
+    if(nrow(potential)>0){
+        distprob=sqrt(rowSums((potential-unlist(comus$coordinate[ol,]))^2))
+        newcoord=potential[sample(1:nrow(potential),1,prob=distprob),]
+        comus$coordinates=rbind(comus$coordinates,unlist(newcoord))
+        comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
+        comus$size=c(comus$size,0)
+        comus$migrantscount=cbind(comus$migrantscount,rep(0,nrow(comus$migrantscount)))
+        comus$migrantscount=rbind(comus$migrantscount,rep(0,ncol(comus$migrantscount)))
+    }
+    return(comus)
+}
