@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(0,nrow=10,ncol=10),out=c("popsize","popsumary"),beta=0.001){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,maxX=5,maxY=5){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
@@ -20,6 +20,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		#We nee a K x K  to store after migration from where are comming 
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 	}
+    worldlimit=matrix(0,nrow=maxX,ncol=maxY)
     worldlimit[comus$coordinates]=1
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
@@ -225,6 +226,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                     if(nrow(new.comus$coordinates)>nrow(comus$coordinates)){
                         comus=new.comus
                         new.com.id=nrow(comus$coordinates)
+                        worldlimit[comus$coordinates[new.com.id],]=1
                     }
                     population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,new.com.id)
                     if(new.com.id == -1)population[population[,"community"]==-1,]=NULL
@@ -241,7 +243,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 
 		##
-		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(0,10),xlim=c(0,10))
+		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(0,maxY),xlim=c(0,maxX))
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
 		coms=table(population[,"community"])
