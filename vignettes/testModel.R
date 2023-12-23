@@ -29,7 +29,7 @@ neutraltraitsParam$post[,"h"]=c(0,0,1,1,1)
 
 
 
-pos=random2Dgrid(K=K,Gx=100)
+pos=random2Dgrid(K=K,Gx=10)
 a=initAdaptiveTraits(ki=ki,km=km,n=10)
 initcomus=initialiseCommunities(traits=a,coordinates=pos)
 initcomus$size=rep(N/K,K)
@@ -57,3 +57,26 @@ tstep=800
 #    sapply(allsizes,lines)
 #}
 #stopCluster(cl)
+z=sample(2:20,1)
+
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
+neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
+neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"o"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
+neutraltraitsParam$s=rbinom(z,1,.5)
+traitsid=paste0("t",1:z)
+percomu=sample(1:100,1)
+K=sample(2:8,1)
+km=round(K/3)
+ki=K-km
+N=K*percomu
+pos=random2Dgrid(K=K,Gx=10)
+a=initAdaptiveTraits(ki=ki,km=km,n=20 )
+initcomus=initialiseCommunities(traits=a,coordinates=pos)
+initcomus$size=rep(percomu,K)
+communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+quickV=modelVector(K=K, m=1, b=0.085, r=0.015, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=250, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomu"),logging=c("fission","visu","time"),ma=1,traitsid=paste0("t",1:z),F_Th=percomu+5)
