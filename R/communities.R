@@ -65,10 +65,13 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
     if(is.null(traits)) traits=initAdaptiveTraits(km,ki)
 
 	if(is.null(migrantscount))	migrantscount=matrix(0,nrow=K,ncol=K)
+	if(is.null(G))G=nrow(coordinates)
 
     size=vector(mode="numeric",length=K)
+    occupation=matrix(0,nrow=G,ncol=G)
+    occupation[coordinates]=1
 
-    list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount)
+    list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount,occupation=occupation)
 }
 
 
@@ -231,11 +234,13 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 }
 
 
-fissionCommunity <- function(comus,ol,potential){
+fissionCommunity <- function(comus,ol){
+    potential=which(comus$occupation==0,arr.ind=T)
     if(nrow(potential)>0){
         distprob=sqrt(rowSums((potential-unlist(comus$coordinate[ol,]))^2))
         newcoord=potential[sample(1:nrow(potential),1,prob=distprob),]
         comus$coordinates=rbind(comus$coordinates,unlist(newcoord))
+        comus$occupation[newcoord[1],newcoord[2]]=1
         comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
         comus$size=c(comus$size,0)
         comus$migrantscount=cbind(comus$migrantscount,rep(0,nrow(comus$migrantscount)))

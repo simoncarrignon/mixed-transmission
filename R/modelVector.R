@@ -20,8 +20,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		#We nee a K x K  to store after migration from where are comming 
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 	}
-    worldlimit=matrix(0,nrow=maxX,ncol=maxY)
-    worldlimit[comus$coordinates]=1
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
 		population[,"age"]=population[,"age"]+1
@@ -219,14 +217,13 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if(!is.null(F_Th)){
 			overloaded=comus$size>F_Th
 			if(sum(overloaded)>0){
-                potential=which(worldlimit==0,arr.ind=T)
 				for(ol in which(overloaded)){
+                    if("fission"%in%logging)print(paste("splitting community",ol))
                     new.com.id=-1
-                    new.comus=fissionCommunity(comus,ol,potential)
+                    new.comus=fissionCommunity(comus,ol)
                     if(nrow(new.comus$coordinates)>nrow(comus$coordinates)){
                         comus=new.comus
                         new.com.id=nrow(comus$coordinates)
-                        worldlimit[comus$coordinates[new.com.id],]=1
                     }
                     population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,new.com.id)
                     if(new.com.id == -1)population[population[,"community"]==-1,]=NULL
