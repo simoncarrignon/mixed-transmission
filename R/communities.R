@@ -15,8 +15,10 @@
 #' plot(com,xlim=c(0,100),ylim=c(0,100),pch=20)
 random2Dgrid <- function(K,Gx,Gy=NULL){
     if(is.null(Gy))Gy=Gx
-    stopifnot(K>length(Gx*Gy))
-    cbind(x=sample(Gx,K),y=sample(Gy,K))
+    stopifnot(K<=(Gx*Gy))
+    allpossible=as.matrix(expand.grid(X=1:Gx,Y=1:Gy))
+    ind=sample.int(nrow(allpossible),K)
+    allpossible[ind,,drop=F]
 }
 
 #' Initialise Communities with Traits and Coordinates
