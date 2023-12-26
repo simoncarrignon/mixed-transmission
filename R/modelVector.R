@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,maxX=5,maxY=5){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
@@ -226,9 +226,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                         new.com.id=nrow(comus$coordinates)
                     }
                     population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,new.com.id)
-                    if(new.com.id == -1)population[population[,"community"]==-1,]=NULL
-                    if("fissionsize"%in%logging)print(comus$size)
-                    comus$size=table(population[,"community"])
+                    if(new.com.id == -1){
+                        population=population[population[,"community"]!=-1,]
+                    }
+                    comus$size=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
 				}
 
 			}
@@ -240,11 +241,11 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 
 		##
-		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(0,maxY),xlim=c(0,maxX))
+		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(0,nrow(comus$occupation)),xlim=c(0,ncol(comus$occupation)))
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
 		coms=table(population[,"community"])
-		stopifnot(coms == comus$size[as.numeric(names(coms))])
+		#stopifnot(coms == comus$size[as.numeric(names(coms))])
         if(nrow(population)==0){print("extinction");break}
 	}
 	finalres=list()

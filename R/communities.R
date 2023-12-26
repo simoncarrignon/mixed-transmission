@@ -225,8 +225,6 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 
     # Reassign the new community ID
 	selected.indiv<<-single.comu[single.comu[,"nfid"] %in% selected_families ,"id"]
-    print(selected.indiv)
-    print(newid)
 	population[population[, "id"] %in% selected.indiv,"community"] <- newid
 
 	if(debug)commuConsistency(npop)
