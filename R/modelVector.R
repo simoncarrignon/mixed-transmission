@@ -227,14 +227,25 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                     new.com.id=-1
                     new.comus=fissionCommunity(comus,ol)
                     if(nrow(new.comus$coordinates)>nrow(comus$coordinates)){
-                        comus=new.comus
-                        new.com.id=nrow(comus$coordinates)
+                        new.com.id=nrow(new.comus$coordinates)
                     }
-                    population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,new.com.id)
+                    newsize=min(F_Th,comus$size[ol]-F_Th) #how many people should leave  _ol_
+                    population=reassignFamiliesToNewCommunityNoFIDs(ol,population,newsize,new.com.id)
+                    oldol=comus$size[ol]
+                    new.comus$size=table(factor(population[,"community"],levels=1:nrow(new.comus$coordinates)))
                     if(new.com.id == -1){
                         population=population[population[,"community"]!=-1,]
+                        comus$size=table(factor(population[,"community"],levels=1:nrow(new.comus$coordinates)))
+                        if("fission"%in%logging)print(paste("splitting community",ol,",",newsize,"should leave",oldol-comus$size[ol],"actually did"))
                     }
-                    comus$size=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
+                    if(new.com.id != -1){
+                        if(new.comus$size[new.com.id]>0){
+                            comus=new.comus
+                            if("fission"%in%logging)print(paste0("splitting community ",ol," ( of size ",comus$size[ol],", was ",oldol,") in comu: ",new.com.id," ( of size ",comus$size[new.com.id],"); expected migrant:",newsize,""))
+                    }
+                        else
+                            if("fission"%in%logging)print(paste0("failed splitting community ",ol," (of size ",comus$size[ol],", was ",oldol,") in comu: ",new.com.id," (of size ",new.comus$size[new.com.id],"); expected migrant:",newsize,""))
+                    }
 				}
 
 			}
