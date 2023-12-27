@@ -16,6 +16,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		color_gradient <- colorRampPalette(c(start_color, end_color))(ncol(comus$adaptivetraits))
 	}
 
+    if("comufull"%in%out){
+        comufull=list()
+        comufull[[1]]=comus
+    }
 	if(is.null(comus$migrants) ){
 		#We nee a K x K  to store after migration from where are comming 
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
@@ -256,6 +260,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
 	if("migrsum"%in%out)finalres[["migrsum"]]=migrsum
 	if("finalcomus"%in%out)finalres[["finalcomus"]]=comus
+    if("comufull"%in%out)finalres[["comufull"]]=comufull
 	if("done"%in%logging)print("done")
 	return(finalres)
 }
