@@ -140,7 +140,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			lbd=lbd/ma
 			newborns=runif(nrow(fam))<lbd
 			nchilds=sum(newborns)
-			if("demo"%in%logging )print(paste(nchilds,"new childs"))
+			if("demo"%in%logging )print(paste(nchilds,"new childs",paste(fam[newborns,"cid"],collapse=",")))
 			if(nchilds>0){
 				givbirth=fam[newborns,2]
 				##get all parents who gave birth
