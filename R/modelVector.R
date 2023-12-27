@@ -36,6 +36,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		##marriage
 		population[,"justMarried"]  <- 0
 		weds=matchingSingle(population,maturity=maturity)
+		population[weds[,1],"justMarried"]  <- 1
+		population[weds[,2],"justMarried"]  <- 1
 
 		#current year migrant count
 		migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
