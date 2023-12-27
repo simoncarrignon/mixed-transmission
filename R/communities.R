@@ -249,7 +249,7 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 fissionCommunity <- function(comus,ol){
     potential=which(comus$occupation==0,arr.ind=T)
     if(nrow(potential)>0){
-        distprob=sqrt(rowSums((potential-unlist(comus$coordinate[ol,]))^2))
+        distprob=apply(potential,1,function(x1,x2)sqrt(sum((x1 - x2)^2)),x2=comus$coordinates[ol,])
         newcoord=potential[sample(1:nrow(potential),1,prob=distprob),]
         comus$coordinates=rbind(comus$coordinates,unlist(newcoord))
         comus$occupation[newcoord[1],newcoord[2]]=1
