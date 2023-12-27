@@ -41,7 +41,7 @@ random2Dgrid <- function(K,Gx,Gy=NULL){
 #' comus=initialiseCommunities(G = 100, ki = 5, km = 5)
 #' plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+2,xlim=c(0,100),ylim=c(0,100))
 
-initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL){
+initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL,sizes=NULL){
     if(!is.null(traits)) K=nrow(traits)
     if(is.null(K)){
         stopifnot(!is.null(ki),!is.null(km))
@@ -66,8 +66,13 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
 
 	if(is.null(migrantscount))	migrantscount=matrix(0,nrow=K,ncol=K)
 	if(is.null(G))G=nrow(coordinates)
-
-    size=vector(mode="numeric",length=K)
+    if(length(sizes)==K)size=sizes
+    else if(length(sizes)==1)size=rep(sizes,K)
+    else if(is.null(sizes))size=vector(mode="numeric",length=K)
+    else{
+        stop("what are community sizes")
+    }
+    
     occupation=matrix(0,nrow=G,ncol=G)
     occupation[coordinates]=1
 
