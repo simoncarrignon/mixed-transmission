@@ -15,7 +15,10 @@
 #' plot(com,xlim=c(0,100),ylim=c(0,100),pch=20)
 random2Dgrid <- function(K,Gx,Gy=NULL){
     if(is.null(Gy))Gy=Gx
-    cbind(x=sample(Gx,K),y=sample(Gy,K))
+    stopifnot(K<=(Gx*Gy))
+    allpossible=as.matrix(expand.grid(X=1:Gx,Y=1:Gy))
+    ind=sample.int(nrow(allpossible),K)
+    allpossible[ind,,drop=F]
 }
 
 #' Initialise Communities with Traits and Coordinates
@@ -38,7 +41,7 @@ random2Dgrid <- function(K,Gx,Gy=NULL){
 #' comus=initialiseCommunities(G = 100, ki = 5, km = 5)
 #' plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+2,xlim=c(0,100),ylim=c(0,100))
 
-initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL){
+initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL,sizes=NULL){
     if(!is.null(traits)) K=nrow(traits)
     if(is.null(K)){
         stopifnot(!is.null(ki),!is.null(km))
@@ -62,10 +65,18 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
     if(is.null(traits)) traits=initAdaptiveTraits(km,ki)
 
 	if(is.null(migrantscount))	migrantscount=matrix(0,nrow=K,ncol=K)
+	if(is.null(G))G=nrow(coordinates)
+    if(length(sizes)==K)size=sizes
+    else if(length(sizes)==1)size=rep(sizes,K)
+    else if(is.null(sizes))size=vector(mode="numeric",length=K)
+    else{
+        stop("what are community sizes")
+    }
+    
+    occupation=matrix(0,nrow=G,ncol=G)
+    occupation[coordinates]=1
 
-    size=vector(mode="numeric",length=K)
-
-    list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount)
+    list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount,occupation=occupation)
 }
 
 
@@ -212,13 +223,22 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
     fids <- single.comu[,"nfid"]
 
     # Determine families to be reassigned
-    cumulative_size <- cumsum(table(fids)[as.character(sample(unique(fids)))])
-    selected_families <- names(cumulative_size[cumulative_size <= newsize])
+    candidates=unique(fids)
+    if(length(candidates)>1){
+        cumulative_size <- cumsum(table(fids)[as.character(sample(candidates))])
+        selected_families <- as.numeric(names(cumulative_size[cumulative_size <= newsize]))
+    }
+    else{
+        cumulative_size <- length(fids)
+        selected_families=candidates
+    }
 
 	stopifnot(cumulative_size[length(cumulative_size)]==sum(population[,"community"]==comid))
 
     # Reassign the new community ID
-	selected.indiv=single.comu[single.comu[,"nfid"] %in% selected_families ,"id"]
+	selected.indiv <- single.comu[single.comu[,"nfid"] %in% selected_families ,"id"]
+    if(length(selected.indiv)>newsize) return(population)
+
 	population[population[, "id"] %in% selected.indiv,"community"] <- newid
 
 	if(debug)commuConsistency(npop)
@@ -226,3 +246,17 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 }
 
 
+fissionCommunity <- function(comus,ol){
+    potential=which(comus$occupation==0,arr.ind=T)
+    if(nrow(potential)>0){
+        distprob=apply(potential,1,function(x1,x2)sqrt(sum((x1 - x2)^2)),x2=comus$coordinates[ol,])
+        newcoord=potential[sample(1:nrow(potential),1,prob=distprob),]
+        comus$coordinates=rbind(comus$coordinates,unlist(newcoord))
+        comus$occupation[newcoord[1],newcoord[2]]=1
+        comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
+        comus$size=c(comus$size,0)
+        comus$migrantscount=cbind(comus$migrantscount,rep(0,nrow(comus$migrantscount)))
+        comus$migrantscount=rbind(comus$migrantscount,rep(0,ncol(comus$migrantscount)))
+    }
+    return(comus)
+}

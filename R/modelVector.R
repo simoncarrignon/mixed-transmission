@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,worldlimit=matrix(c(0,0,100,100),nrow=2),out=c("popsize","popsumary"),beta=0.001){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
@@ -16,6 +16,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		color_gradient <- colorRampPalette(c(start_color, end_color))(ncol(comus$adaptivetraits))
 	}
 
+    if("comufull"%in%out){
+        comufull=list()
+        comufull[[1]]=comus
+    }
 	if(is.null(comus$migrants) ){
 		#We nee a K x K  to store after migration from where are comming 
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
@@ -25,13 +29,15 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		population[,"age"]=population[,"age"]+1
 		couple=which(population[,"partner"]>-1)
 
-		coms=table(population[,"community"])
+		coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
 		stopifnot(coms == comus$size[as.numeric(names(coms))])
 
 
 		##marriage
 		population[,"justMarried"]  <- 0
 		weds=matchingSingle(population,maturity=maturity)
+		population[weds[,1],"justMarried"]  <- 1
+		population[weds[,2],"justMarried"]  <- 1
 
 		#current year migrant count
 		migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
@@ -105,7 +111,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
 			}
 			stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
-			coms=table(population[,"community"])
+			coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
 			stopifnot(coms == comus$size[as.numeric(names(coms))])
 		}
 
@@ -134,7 +140,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			lbd=lbd/ma
 			newborns=runif(nrow(fam))<lbd
 			nchilds=sum(newborns)
-			if("demo"%in%logging )print(paste(nchilds,"new childs"))
+			if("demo"%in%logging )print(paste(nchilds,"new childs",paste(fam[newborns,"cid"],collapse=",")))
 			if(nchilds>0){
 				givbirth=fam[newborns,2]
 				##get all parents who gave birth
@@ -146,13 +152,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                 famids=t(sapply(newparents,function(i)unique(i[,c("community","cid")])))
                 offcom=famids[,1] ##offsprings community id
                 offfid=famids[,2]  ##parents "cid" will be used  as offfspsrings family id `fid`
-                offtraits=initNeutralTraits(nchilds,z=z,nastart = T )
+                offtraits=initNeutralTraits(nchilds,z=length(traitsid),nastart = T )
                 ##Vertical Transmission
-                #if(sum(tp$pre[,"v"])>0)
-                #    offtraits[,tp$pre[,"v"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
-
                 offtraits[,traitsid]=t(sapply(newparents,function(parents)drawFromPool(pool.traits=parents[,traitsid],pool.sex=parents[,"sex"],sexbiases=tp$s)))
-
 
 				offsprings=cbind(newpop(nchilds,minid=max(population[,"id"]),community=offcom,fid=offfid),offtraits)
 				birthpercom=table(factor(offsprings[,"community"],levels=1:length(comus$size)))
@@ -166,13 +168,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				#   ##Pre-Marital Horizontal Transmission
 				#   if(sum(tp$pre[,"h"])>0)
 				#       offtraits[,tp$pre[,"h"]==1]=population[,traitsid[tp$pre[,"h"]==1]]
-				#   ##Pre-Marital Oblique Transmission
 				#   if(sum(tp$pre[,"o"])>0)
 				#       offtraits[,tp$pre[,"o"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
 
 
 				population=rbind(population,offsprings[,colnames(population)])
-				coms=table(population[,"community"])
+				coms=table(factor(population[,"community"],levels=1:length(comus$size)))
 
 				stopifnot(coms == comus$size[as.numeric(names(coms))])
 			}
@@ -206,46 +207,61 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			}
 			population=population[!dead,,drop=F]
 
-			coms=table(population[,"community"])
+            coms=table(factor(population[,"community"],levels=1:length(comus$size)))
 			stopifnot(coms == comus$size[as.numeric(names(coms))])
 		}
 
-
 		##pm transmission
+
+		if("migrsum"%in%out)migrsum[[time]]=apply(migrantscount,2,sum)
+		comus$migrantscount=comus$migrantscount+migrantscount
+		if("migrantscount"%in%logging)print(comus$migrantscount)
 
 		## Fission
 		if(!is.null(F_Th)){
 			overloaded=comus$size>F_Th
 			if(sum(overloaded)>0){
+                if("fission"%in%logging)print(paste("fission starting"))
+                if("fission"%in%logging)paste0(table(population[,"community"]),collapse=" ")
 				for(ol in which(overloaded)){
-					if("fission"%in%logging)print(paste("community",ol,"to be splitten"))
-					newcoord=comus$coordinates[ol,]+runif(2,-1,1)
-					while(!(all(newcoord>=worldlimit[,1] , newcoord<=worldlimit[,2])))
-						newcoord=comus$coordinates[ol,]+runif(2,-1,1)
-					comus$coordinates=rbind(comus$coordinates,newcoord)
-					comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
-					population=reassignFamiliesToNewCommunityNoFIDs(ol,population,F_Th/2,nrow(comus$adaptivetraits))
-					comus$size=table(population[,"community"])
-					comus$migrants=table(population[,"community"])
-					if("fissionsize"%in%logging)print(comus$size)
+                    new.com.id=-1
+                    new.comus=fissionCommunity(comus,ol)
+                    if(nrow(new.comus$coordinates)>nrow(comus$coordinates)){
+                        new.com.id=nrow(new.comus$coordinates)
+                    }
+                    newsize=min(F_Th,comus$size[ol]-F_Th) #how many people should leave  _ol_
+                    population=reassignFamiliesToNewCommunityNoFIDs(ol,population,newsize,new.com.id)
+                    oldol=comus$size[ol]
+                    new.comus$size=table(factor(population[,"community"],levels=1:nrow(new.comus$coordinates)))
+                    if(new.com.id == -1){
+                        population=population[population[,"community"]!=-1,]
+                        comus$size=table(factor(population[,"community"],levels=1:nrow(new.comus$coordinates)))
+                        if("fission"%in%logging)print(paste("splitting community",ol,",",newsize,"should leave",oldol-comus$size[ol],"actually did"))
+                    }
+                    if(new.com.id != -1){
+                        if(new.comus$size[new.com.id]>0){
+                            comus=new.comus
+                            if("fission"%in%logging)print(paste0("splitting community ",ol," ( of size ",comus$size[ol],", was ",oldol,") in comu: ",new.com.id," ( of size ",comus$size[new.com.id],"); expected migrant:",newsize,""))
+                    }
+                        else
+                            if("fission"%in%logging)print(paste0("failed splitting community ",ol," (of size ",comus$size[ol],", was ",oldol,") in comu: ",new.com.id," (of size ",new.comus$size[new.com.id],"); expected migrant:",newsize,""))
+                    }
 				}
 
 			}
 		}
 
 
-		if("migrsum"%in%out)migrsum[[time]]=apply(migrantscount,2,sum)
-		comus$migrantscount=comus$migrantscount+migrantscount
-		if("migrantscount"%in%logging)print(comus$migrantscount)
 
 		#quick summary of population at time 
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
+		if("comufull"%in%out)comufull[[time]]=comus
 
 		##
-		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size))
+		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(1,nrow(comus$occupation)),xlim=c(1,ncol(comus$occupation)))
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
-		coms=table(population[,"community"])
+		coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
 		stopifnot(coms == comus$size[as.numeric(names(coms))])
         if(nrow(population)==0){print("extinction");break}
 	}
@@ -257,6 +273,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
 	if("migrsum"%in%out)finalres[["migrsum"]]=migrsum
 	if("finalcomus"%in%out)finalres[["finalcomus"]]=comus
+    if("comufull"%in%out)finalres[["comufull"]]=comufull
 	if("done"%in%logging)print("done")
 	return(finalres)
 }
