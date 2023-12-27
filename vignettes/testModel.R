@@ -29,7 +29,7 @@ neutraltraitsParam$post[,"h"]=c(0,0,1,1,1)
 
 
 
-pos=random2Dgrid(K=K,Gx=100)
+pos=random2Dgrid(K=K,Gx=10)
 a=initAdaptiveTraits(ki=ki,km=km,n=10)
 initcomus=initialiseCommunities(traits=a,coordinates=pos)
 initcomus$size=rep(N/K,K)
@@ -57,3 +57,27 @@ tstep=800
 #    sapply(allsizes,lines)
 #}
 #stopCluster(cl)
+z=sample(2:20,1)
+
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
+neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
+neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"o"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
+neutraltraitsParam$s=rbinom(z,1,.5)
+traitsid=paste0("t",1:z)
+km=sample(1:5,1)
+ki=sample(1:5,1)
+G=sample(4:8,1)
+initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=ki,km=km,n=20),coordinates=random2Dgrid(K=ki+km,Gx=G),G=G,sizes=sample(10:100,1))
+communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
+quickV=modelVector(K=K, m=1, b=0.08, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus"),logging=c("visu","fission","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 80)
+population=quickV$population
+initcomus=quickV$finalcomus
+quickV=modelVector(K=K, m=1, b=0.08, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus"),logging=c("visu","fission","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 80)
+population=quickV$population
+initcomus=quickV$finalcomus
+quickV=modelVector(K=K, m=1, b=0.08, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus"),logging=c("visu","fission","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 80)
