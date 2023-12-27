@@ -221,8 +221,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if(!is.null(F_Th)){
 			overloaded=comus$size>F_Th
 			if(sum(overloaded)>0){
+                if("fission"%in%logging)print(paste("fission starting"))
+                if("fission"%in%logging)paste0(table(population[,"community"]),collapse=" ")
 				for(ol in which(overloaded)){
-                    if("fission"%in%logging)print(paste("splitting community",ol))
                     new.com.id=-1
                     new.comus=fissionCommunity(comus,ol)
                     if(nrow(new.comus$coordinates)>nrow(comus$coordinates)){
