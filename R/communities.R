@@ -223,13 +223,22 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
     fids <- single.comu[,"nfid"]
 
     # Determine families to be reassigned
-    cumulative_size <- cumsum(table(fids)[as.character(sample(unique(fids)))])
-    selected_families <- names(cumulative_size[cumulative_size <= newsize])
+    candidates=unique(fids)
+    if(length(candidates)>1){
+        cumulative_size <- cumsum(table(fids)[as.character(sample(candidates))])
+        selected_families <- as.numeric(names(cumulative_size[cumulative_size <= newsize]))
+    }
+    else{
+        cumulative_size <- length(fids)
+        selected_families=candidates
+    }
 
 	stopifnot(cumulative_size[length(cumulative_size)]==sum(population[,"community"]==comid))
 
     # Reassign the new community ID
-	selected.indiv<<-single.comu[single.comu[,"nfid"] %in% selected_families ,"id"]
+	selected.indiv <- single.comu[single.comu[,"nfid"] %in% selected_families ,"id"]
+    if(length(selected.indiv)>newsize) return(population)
+
 	population[population[, "id"] %in% selected.indiv,"community"] <- newid
 
 	if(debug)commuConsistency(npop)
