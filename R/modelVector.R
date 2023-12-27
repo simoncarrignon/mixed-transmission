@@ -29,7 +29,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		population[,"age"]=population[,"age"]+1
 		couple=which(population[,"partner"]>-1)
 
-		coms=table(population[,"community"])
+		coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
 		stopifnot(coms == comus$size[as.numeric(names(coms))])
 
 
@@ -111,7 +111,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
 			}
 			stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
-			coms=table(population[,"community"])
+			coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
 			stopifnot(coms == comus$size[as.numeric(names(coms))])
 		}
 
@@ -168,13 +168,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				#   ##Pre-Marital Horizontal Transmission
 				#   if(sum(tp$pre[,"h"])>0)
 				#       offtraits[,tp$pre[,"h"]==1]=population[,traitsid[tp$pre[,"h"]==1]]
-				#   ##Pre-Marital Oblique Transmission
 				#   if(sum(tp$pre[,"o"])>0)
 				#       offtraits[,tp$pre[,"o"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
 
 
 				population=rbind(population,offsprings[,colnames(population)])
-				coms=table(population[,"community"])
+				coms=table(factor(population[,"community"],levels=1:length(comus$size)))
 
 				stopifnot(coms == comus$size[as.numeric(names(coms))])
 			}
@@ -208,10 +207,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			}
 			population=population[!dead,,drop=F]
 
-			coms=table(population[,"community"])
+            coms=table(factor(population[,"community"],levels=1:length(comus$size)))
 			stopifnot(coms == comus$size[as.numeric(names(coms))])
 		}
-
 
 		##pm transmission
 
@@ -245,13 +243,14 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 		#quick summary of population at time 
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
+		if("comufull"%in%out)comufull[[time]]=comus
 
 		##
-		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(0,nrow(comus$occupation)),xlim=c(0,ncol(comus$occupation)))
+		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(1,nrow(comus$occupation)),xlim=c(1,ncol(comus$occupation)))
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
-		coms=table(population[,"community"])
-		#stopifnot(coms == comus$size[as.numeric(names(coms))])
+		coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
+		stopifnot(coms == comus$size[as.numeric(names(coms))])
         if(nrow(population)==0){print("extinction");break}
 	}
 	finalres=list()
