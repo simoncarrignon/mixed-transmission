@@ -264,7 +264,7 @@ fissionCommunity <- function(comus,ol){
     return(comus)
 }
 
-plot.comu <- function(comus,color_gradient=NULL)
+plot.comu <- function(comus,color_gradient=NULL,vidfile=NULL)
 {
     if(is.null(color_gradient))
     {
@@ -273,5 +273,7 @@ plot.comu <- function(comus,color_gradient=NULL)
         color_gradient <- colorRampPalette(c(start_color, end_color))(ncol(comus$adaptivetraits)+1)
     }
 
+    if(!is.null(vidfile)) png(paste0(vidfile,".png"),height = 800,width = 800,pointsize = 18)
     plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)+1],cex=log(comus$size),ylim=c(1,nrow(comus$occupation)),xlim=c(1,ncol(comus$occupation)))
+    if(!is.null(vidfile)) dev.off()
 }

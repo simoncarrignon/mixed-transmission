@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,vidfile=NULL){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
@@ -19,6 +19,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		#We nee a K x K  to store after migration from where are comming 
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 	}
+	if(is.null(vidfile)) stepfile=NULL
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
 		population[,"age"]=population[,"age"]+1
@@ -253,7 +254,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if("comufull"%in%out)comufull[[time]]=comus
 
 		##
-		if("visu"%in% logging)plot.comu(comus)
+		if(!is.null(vidfile))stepfile=sprintf(paste0(vidfile,"%05d"),time)
+		if("visu"%in% logging)plot.comu(comus,vidfile=stepfile)
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
 		coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
