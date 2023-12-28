@@ -41,7 +41,7 @@ random2Dgrid <- function(K,Gx,Gy=NULL){
 #' comus=initialiseCommunities(G = 100, ki = 5, km = 5)
 #' plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+2,xlim=c(0,100),ylim=c(0,100))
 
-initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL,sizes=NULL){
+initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL,sizes=NULL,plot=F){
     if(!is.null(traits)) K=nrow(traits)
     if(is.null(K)){
         stopifnot(!is.null(ki),!is.null(km))
@@ -76,7 +76,10 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
     occupation=matrix(0,nrow=G,ncol=G)
     occupation[coordinates]=1
 
-    list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount,occupation=occupation)
+
+    comus=list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount,occupation=occupation)
+    if(plot)plot.comu(comus)
+    return(comus)
 }
 
 
@@ -259,4 +262,16 @@ fissionCommunity <- function(comus,ol){
         comus$migrantscount=rbind(comus$migrantscount,rep(0,ncol(comus$migrantscount)))
     }
     return(comus)
+}
+
+plot.comu <- function(comus,color_gradient=NULL)
+{
+    if(is.null(color_gradient))
+    {
+        start_color <- "#006400" # Deep Green
+        end_color <- "#FFD700" # Golden Yellow
+        color_gradient <- colorRampPalette(c(start_color, end_color))(ncol(comus$adaptivetraits)+1)
+    }
+
+    plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)+1],cex=log(comus$size),ylim=c(1,nrow(comus$occupation)),xlim=c(1,ncol(comus$occupation)))
 }

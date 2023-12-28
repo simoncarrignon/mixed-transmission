@@ -10,11 +10,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		migrsum=list()
 		migrsum[[1]]=rep(0,K)
 	}
-	if("visu"%in% logging){
-		start_color <- "#006400" # Deep Green
-		end_color <- "#FFD700" # Golden Yellow
-		color_gradient <- colorRampPalette(c(start_color, end_color))(ncol(comus$adaptivetraits))
-	}
 
     if("comufull"%in%out){
         comufull=list()
@@ -258,7 +253,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if("comufull"%in%out)comufull[[time]]=comus
 
 		##
-		if("visu"%in% logging)plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)],cex=log(comus$size),ylim=c(1,nrow(comus$occupation)),xlim=c(1,ncol(comus$occupation)))
+		if("visu"%in% logging)plot.comu(comus)
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
 		coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
