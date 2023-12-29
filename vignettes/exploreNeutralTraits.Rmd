@@ -1,0 +1,68 @@
+
+
+## A simple vignette to explore simple neutral transmission between realtively stable, and close to equilibrium population
+
+```{r}
+devtools::load_all(".")
+```
+
+We have z neutral traits, specifc for each community.
+
+```{r}
+z=4
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$post[,"i"]=1
+neutraltraitsParam$s=rep(.5,z)
+traitsid=paste0("t",1:z)
+```
+
+
+we will have $K=z$  community of local population
+
+```{r}
+km=0
+ki=z
+G=2
+initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=ki,km=km,n=20),coordinates=random2Dgrid(K=ki+km,Gx=G),G=G,sizes=150,plot=T)
+```
+
+Population is random, with 150 individual per community, 150 will also be the Fission Threshold
+```{r}
+communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
+```
+
+Each community will posses its own specific traits
+
+```{r,results='asis'}
+population[,traitsid]=0
+for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
+knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),sum))
+```
+
+
+```{r}
+tstep=200
+allinlaw=replicate(100,{
+                       quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                       pop=quickV$population
+                       #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)[-1,]
+                       sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+})
+
+apply(allinlaw,1,apply,1,mean)
+neutraltraitsParam$post[,"i"]=0
+neutraltraitsParam$post[,"h"]=1
+allposthoriz=replicate(100,{
+                       quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                       pop=quickV$population
+                       aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+})
+
+neutraltraitsParam$post[,"h"]=0
+neutraltraitsParam$pre[,"h"]=1
+allprehoriz=replicate(100,{
+                       quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                       pop=quickV$population
+                       aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+})
