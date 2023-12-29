@@ -19,7 +19,7 @@ traitsid=paste0("t",1:z)
 
 we will have $K=z$  community of local population
 
-```{r}
+```{r initparam}
 km=0
 ki=z
 G=2
@@ -27,22 +27,43 @@ initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=ki,km=km,n=20),coor
 ```
 
 Population is random, with 150 individual per community, 150 will also be the Fission Threshold
-```{r}
+```{r randompop}
 communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
 population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
 ```
 
 Each community will posses its own specific traits
 
-```{r,results='asis'}
+```{r assigntraits,results='asis'}
 population[,traitsid]=0
 for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
 knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),sum))
 ```
 
 
-```{r}
-tstep=200
+```{r runsimu,warnings=F,message=FALSE}
+tstep=400
+quickV=modelVector(K=ki, m=1, b=0.2, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150)
+```
+
+check that the population is indid stable:
+
+```{r followpopsize}
+plot(quickV$popsize,type="l",ylim=c(300,650),lwd=5,xlab="time",ylab="number of individual")
+```
+
+What is the distribution of traits at the end:
+
+```{r finaldistrib}
+knitr::kable(aggregate(quickV$population[,traitsid],by=list(quickV$population[,"community"]),FUN=getRatio))
+```
+
+
+
+replicate experiments
+
+```{r,eval=F}
+
 allinlaw=replicate(100,{
                        quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
                        pop=quickV$population
