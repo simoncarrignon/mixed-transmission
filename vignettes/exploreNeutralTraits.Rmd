@@ -41,12 +41,12 @@ knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),s
 ```
 
 
-```{r runsimu,warnings=F,message=FALSE}
+```{r runsimu,warnings=FALSE,message=FALSE,results='hold'}
 tstep=400
 quickV=modelVector(K=ki, m=1, b=0.2, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150)
 ```
 
-check that the population is indid stable:
+check that the population is stable:
 
 ```{r followpopsize}
 plot(quickV$popsize,type="l",ylim=c(300,650),lwd=5,xlab="time",ylab="number of individual")
@@ -56,8 +56,27 @@ What is the distribution of traits at the end:
 
 ```{r finaldistrib}
 knitr::kable(aggregate(quickV$population[,traitsid],by=list(quickV$population[,"community"]),FUN=getRatio))
+
+cols=c("#E41A1C","#377EB8","#4DAF4A","#984EA3")
+barplot(as.matrix(aggregate(quickV$population[,traitsid],by=list(quickV$population[,"community"]),FUN=getRatio)[,-1]),beside=T,col=cols,main="percentage of population with traits")
+barplot(table(quickV$population[,"community"]),col=cols,main="community size")
+
 ```
 
+What if it's horizontal transmission pre-marital only? Expecting less changes?
+
+```{r runsimu-horiz,warnings=FALSE,results=FALSE,results='hold'}
+neutraltraitsParam$post[,"i"]=0
+neutraltraitsParam$pre[,"h"]=1
+quickV=modelVector(K=ki, m=1, b=0.2, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150)
+plot(quickV$popsize,type="l",ylim=c(300,650),lwd=5,xlab="time",ylab="number of individual")
+knitr::kable(aggregate(quickV$population[,traitsid],by=list(quickV$population[,"community"]),FUN=getRatio))
+
+cols=c("#E41A1C","#377EB8","#4DAF4A","#984EA3")
+barplot(as.matrix(aggregate(quickV$population[,traitsid],by=list(quickV$population[,"community"]),FUN=getRatio)[,-1]),beside=T,col=cols,main="percentage of population with traits")
+barplot(table(quickV$population[,"community"]),col=cols,main="community size")
+
+```
 
 
 replicate experiments
