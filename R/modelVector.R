@@ -6,6 +6,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		popsum=list()
 		popsum[[1]]=rep(0,length(comus$popsize))
 	}
+	if("traitsumary"%in%out){
+		traitsum=list()
+		traitsum[[1]]=apply(population[,traitsid],2,sum)
+    }
 	if("migrsum"%in%out){
 		migrsum=list()
 		migrsum[[1]]=rep(0,K)
@@ -251,6 +255,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 		#quick summary of population at time 
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
+		if("traitsumary"%in%out)traitsum[[time]]=apply(population[,traitsid],2,sum)
 		if("comufull"%in%out)comufull[[time]]=comus
 
 		##
@@ -265,6 +270,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	finalres=list()
 	if("popsize"%in%out)finalres[["popsize"]]=popsize
 	if("popsumary"%in%out)finalres[["popsumary"]]=popsum
+	if("traitsumary"%in%out)finalres[["traitsumary"]]=traitsum
 	if("finalpop"%in%out)finalres[["population"]]=population
 	if("weddings"%in%out)finalres[["weddings"]]=weddings
 	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
