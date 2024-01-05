@@ -128,6 +128,7 @@ neutraltraitsParam$s=rbinom(z,1,.5)
 N=200
 population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
 quickV=modelVector(K=K, m=1, b=0.01, r=0.005, rho=1, d=0.01, maturity=10, endrepro=65, population=population, comus=initcomus, tstep=200, tp=neutraltraitsParam,age.threshold=10, out=c("finalpop"),logging=NULL,ma=1,traitsid=paste0("t",1:z))
+traitsid=paste0("t",1:z)
 
 testthat::expect_false(all(apply(quickV$population[,traitsid],2,sum)== apply(population[,traitsid],2,sum) ))
                                       testthat::expect_true(nrow(population)== nrow(population))
