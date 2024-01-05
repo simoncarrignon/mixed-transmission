@@ -65,7 +65,7 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
     if(is.null(traits)) traits=initAdaptiveTraits(km,ki)
 
 	if(is.null(migrantscount))	migrantscount=matrix(0,nrow=K,ncol=K)
-	if(is.null(G))G=nrow(coordinates)
+	if(is.null(G))stop("need to give grid limits")
     if(length(sizes)==K)size=sizes
     else if(length(sizes)==1)size=rep(sizes,K)
     else if(is.null(sizes))size=vector(mode="numeric",length=K)
