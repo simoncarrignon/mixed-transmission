@@ -143,7 +143,7 @@ splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
 #' @return A modified population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population_data` is a dataframe with 'community' and 'fid' columns
-#' reassignFamiliesToNewCommunityFIDs(1, population_data, 800, 2)
+#' # reassignFamiliesToNewCommunityFIDs(1, population_data, 800, 2)
 #'
 reassignFamiliesToNewCommunityFIDs <- function(comid, population, newsize, newid) {
     # Validate input parameters
