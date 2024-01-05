@@ -38,7 +38,7 @@ testthat::test_that('Quick general test',{
                                   {
                                       testthat::expect_warning(regexp="famillies not*",
                                                                {
-                                                                   quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=generation.threshold, out=NULL,logging=NULL,ma=1,traitsid=paste0("t",1:z))
+                                                                   quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=generation.threshold, out=NULL,logging=NULL,ma=1,traitsid=paste0("t",1:z),warn=T)
                                                                })
                                   })
                         )
@@ -168,6 +168,8 @@ testthat::test_that("model when random social learning, steady grow/decrease",{
                                       communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
                                       population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
                                       quickV=suppressWarnings(modelVector(K=K, m=1, b=0.07, r=0, rho=1, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(50:60,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging="",ma=1,traitsid=paste0("t",1:z)))
+
+                                      testthat::expect_named(quickV)
                                   })
 })
 
@@ -198,5 +200,6 @@ testthat::test_that("model everything, everything random: social learning,adapti
                                       communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
                                       population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
                                       quickV=suppressWarnings(modelVector(K=K, m=1, b=0.07, r=0.005, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(50:60,1), tp=neutraltraitsParam,age.threshold=20, out=c("finalpop"),logging=c(""),ma=1,traitsid=paste0("t",1:z)))
+                                      testthat::expect_named(quickV)
                                   })
 })
