@@ -1,6 +1,4 @@
 
-devtools::load_all(".")
-
 testthat::test_that("test group sex and communities",
                     {
                         replicate(100,{
