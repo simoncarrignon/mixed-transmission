@@ -200,7 +200,7 @@ commuConsistency <- function(population){
 #' @return A modified population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population_data` is a dataframe with 'community' and 'fid' columns
-#' reassignFamiliesToNewCommunity(1, population_data, 800, 2)
+#' reassignFamiliesToNewCommunityNoFIDs(1, population_data, 800, 2)
 #'
 reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, newid,debug=FALSE) {
     # Validate input parameters
