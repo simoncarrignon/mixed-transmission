@@ -34,6 +34,6 @@ notes  <- function(a){
     ## new adatpive trais frunciton that unsure no list are returned
     alist=lapply(1:1000000,function(a)runif(1))
     avec=unlist(alist)
-    microbenchmark::microbenchmark(sum(avec),sum(unlist(avec)),sum(unlist(alist)))
+    #microbenchmark::microbenchmark(sum(avec),sum(unlist(avec)),sum(unlist(alist)))
 }
 
