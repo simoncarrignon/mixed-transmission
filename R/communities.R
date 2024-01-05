@@ -211,7 +211,12 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 
 
     # Select community family IDs
-    single.comu <- population[population[, "community"] == comid, ]
+    single.comu <- population[population[, "community"] == comid,,drop=F ]
+    if(nrow(single.comu)==1){
+        warning("splitting a one individual community")
+        population[population[, "id"] == single.comu[,"id"],"community"] <- newid
+        return(population)
+    }
 	single.comu <- cbind(single.comu,nfid=single.comu[,"fid"])
 
     kids <- single.comu[single.comu[, "cid"] == -1, "fid" ] 
