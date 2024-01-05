@@ -21,6 +21,8 @@ including community IDs and family IDs.}
 \item{newsize}{The cumulative size limit for the family selection.}
 
 \item{newid}{The new community ID to assign.}
+
+\item{debug}{verbose output}
 }
 \value{
 A modified population dataframe with updated community IDs for the selected families.

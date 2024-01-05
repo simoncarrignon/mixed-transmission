@@ -122,8 +122,9 @@ drawFromPool <- function(pool.traits,pool.sex,sexbiases){
 #' @description Core social learning routine
 #' @param x matrix containing population of agents
 #' @param when character defining whether the transmission is pre-marial ('pre') or post-marital ('post')
-#' @param  list containing the transmission pathways for each trait (generated using \code{initNeutralTraitsPathways()})
+#' @param pathways list containing the transmission pathways for each trait (generated using \code{initNeutralTraitsPathways()})
 #' @param threshold integer defining age tresholds for distinguishing horrizontal and oblique transmission.
+#' @param traitsid a vector with the name/index of the traits of the traits 
 #'
 #' @return An updated matrix of the population of agents
 #' @export

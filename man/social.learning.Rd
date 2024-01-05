@@ -11,9 +11,11 @@ social.learning(x = NULL, when = "pre", pathways, threshold, traitsid = NULL)
 
 \item{when}{character defining whether the transmission is pre-marial ('pre') or post-marital ('post')}
 
+\item{pathways}{list containing the transmission pathways for each trait (generated using \code{initNeutralTraitsPathways()})}
+
 \item{threshold}{integer defining age tresholds for distinguishing horrizontal and oblique transmission.}
 
-\item{list}{containing the transmission pathways for each trait (generated using \code{initNeutralTraitsPathways()})}
+\item{traitsid}{a vector with the name/index of the traits of the traits}
 }
 \value{
 An updated matrix of the population of agents

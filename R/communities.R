@@ -143,7 +143,7 @@ splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
 #' @return A modified population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population_data` is a dataframe with 'community' and 'fid' columns
-#' reassignFamiliesToNewCommunity(1, population_data, 800, 2)
+#' reassignFamiliesToNewCommunityFIDs(1, population_data, 800, 2)
 #'
 reassignFamiliesToNewCommunityFIDs <- function(comid, population, newsize, newid) {
     # Validate input parameters
@@ -196,6 +196,7 @@ commuConsistency <- function(population){
 #'                   including community IDs and family IDs.
 #' @param newsize The cumulative size limit for the family selection.
 #' @param newid The new community ID to assign.
+#' @param debug verbose output
 #'
 #' @return A modified population dataframe with updated community IDs for the selected families.
 #' @examples
@@ -249,7 +250,7 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 
 	population[population[, "id"] %in% selected.indiv,"community"] <- newid
 
-	if(debug)commuConsistency(npop)
+	if(debug)commuConsistency(population)
     return(population)
 }
 
