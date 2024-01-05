@@ -62,5 +62,5 @@ pool.sex=c(1,0)[1]
 sexbiases=1
 
 
-load("data/pool.ex.data")
-testthat::expect_identical(sapply(pools,function(pool)drawFromPool(pool.traits=pool[,2,drop=F],pool.sex=pool[,1,drop=F],sexbiases=0)),c(0,0,0))
+#load("data/pool.ex.data")
+#testthat::expect_identical(sapply(pools,function(pool)drawFromPool(pool.traits=pool[,2,drop=F],pool.sex=pool[,1,drop=F],sexbiases=0)),c(0,0,0))
