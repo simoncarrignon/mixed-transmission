@@ -32,6 +32,6 @@ recreate nuclear families using \code{cid} and \code{fid}, than split the famili
 }
 \examples{
 # Assuming `population_data` is a dataframe with 'community' and 'fid' columns
-reassignFamiliesToNewCommunity(1, population_data, 800, 2)
+reassignFamiliesToNewCommunityNoFIDs(1, population_data, 800, 2)
 
 }
