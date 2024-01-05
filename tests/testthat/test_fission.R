@@ -63,8 +63,9 @@ testthat::test_that("test randomly adding element to the grid", {
                     })
 
 testthat::test_that("test reassignFamiliesToNewCommunityNoFIDs", {
-                        replicate(100,{
-neutraltraitsParam=initNeutralTraitsPathways(z = 5)
+                        replicate(20,{
+                                      z=5
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
 percomu=sample(1:100,1)
 km=sample(1:8,1)
 ki=km*3
