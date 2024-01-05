@@ -143,3 +143,52 @@ quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=0, d=0.01, maturity=18, endrepro=
 population=quickV$population
 initcomus=quickV$finalcomus
 quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus"),logging=c("visu","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 20)
+
+km=1
+ki=3
+G=4
+initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=ki,km=km,n=20),coordinates=random2Dgrid(K=ki+km,Gx=G) ,G=G)
+
+
+z=sample(2:20,1)
+
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
+neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
+neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"o"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
+neutraltraitsParam$s=rbinom(z,1,.5)
+traitsid=paste0("t",1:z)
+initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=ki,km=km,n=20),coordinates=random2Dgrid(K=ki+km,Gx=G),G=G,sizes=sample(10:100,1))
+communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
+quickV=modelVector(K=K, m=1, b=0.07, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus"),logging=c("visu","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 80)
+population=quickV$population
+initcomus=quickV$finalcomus
+quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus"),logging=c("visu","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 20)
+population=quickV$population
+initcomus=quickV$finalcomus
+quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus"),logging=c("visu","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,beta=0)
+
+
+## big
+z=sample(2:20,1)
+
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
+neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
+neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"o"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
+neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
+neutraltraitsParam$s=rbinom(z,1,.5)
+traitsid=paste0("t",1:z)
+km=5
+ki=30
+G=20
+initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=ki,km=km,n=20),coordinates=random2Dgrid(K=ki+km,Gx=G),G=G,sizes=sample(130:160,1),plot=T)
+communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
+quickV=modelVector(K=K, m=1, b=0.07, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus"),logging=c("visu-file","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150)
