@@ -1,5 +1,5 @@
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,vidfile=NULL){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,vidfile=NULL,warn=FALSE){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
@@ -88,12 +88,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				local = c(c1,c2)[population[c(c1,c2),"community"]==jc]
 				#teacher.offspring = c(c1,c2)[which(population[c(c1,c2),"community"]==jc)]
                 if(length(local)==2){
-                    warning("same community couple in the population")
+                    if(warn)warning("same community couple in the population")
                     local=sample(local,1)
                 }
                 inlawtraits=tp$post[,"i"]==1
                 if(sum(inlawtraits)>0){
-                    if(population[local,"fid"]==-1){warning("famillies not created yet, inlaw copying impossible")}
+                    if(population[local,"fid"]==-1 && warn){warning("famillies not created yet, inlaw copying impossible")}
                     else{
                         it=traitsid[inlawtraits]
                         inlaws=population[ population[,"cid"] == population[local,"fid"],,drop=F]
