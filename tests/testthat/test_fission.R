@@ -79,4 +79,5 @@ K
 population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
 testthat::expect_true(length(table(reassignFamiliesToNewCommunityNoFIDs(2,population,200,-1)[,"community"]))>0)
 })
+                    })
 
