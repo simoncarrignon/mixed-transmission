@@ -26,7 +26,6 @@ until the total population size of the selected families reaches or exceeds a sp
 It then assigns a new community ID to these families.
 }
 \examples{
-# Assuming `population_data` is a dataframe with 'community' and 'fid' columns
-splitCommunitiesByFamilies(1, population_data, 800, 2)
-
+# Assuming `population` is a dataframe with 'community' and 'fid' columns
+splitCommunitiesByFamilies(1, population, 800, 2)
 }

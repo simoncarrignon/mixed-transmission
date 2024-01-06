@@ -33,7 +33,7 @@ once the cumulative size of these families reaches a specified limit. This versi
 recreate nuclear families using \code{cid} and \code{fid}, than split the families
 }
 \examples{
-# Assuming `population_data` is a dataframe with 'community' and 'fid' columns
-reassignFamiliesToNewCommunityNoFIDs(1, population_data, 800, 2)
+# Assuming `population` is a dataframe with 'community' and 'fid' columns
+# reassignFamiliesToNewCommunityNoFIDs(1, population, 800, 2)
 
 }

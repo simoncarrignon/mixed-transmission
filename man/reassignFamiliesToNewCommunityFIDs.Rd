@@ -25,7 +25,7 @@ once the cumulative size of these families reaches a specified limit. This versi
 \code{fid} identify children \emph{and} their parents
 }
 \examples{
-# Assuming `population_data` is a dataframe with 'community' and 'fid' columns
-# reassignFamiliesToNewCommunityFIDs(1, population_data, 800, 2)
+# Assuming `population` is a dataframe with 'community' and 'fid' columns
+# reassignFamiliesToNewCommunityFIDs(1, population, 800, 2)
 
 }
