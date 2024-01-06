@@ -10,6 +10,13 @@ initNeutralTraitsPathways(
   t_post = c("h", "o", "i")
 )
 }
+\arguments{
+\item{z}{number of traitsj}
+
+\item{t_pre}{pathway pre marital}
+
+\item{t_post}{pathway post marital}
+}
 \description{
 This function initializes the paramater matrix for the traits
 }

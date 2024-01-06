@@ -33,6 +33,9 @@ random2Dgrid <- function(K,Gx,Gy=NULL){
 #' @param km integer, the number of migrants communities.
 #' @param ki integer, the number of incumbents communities.
 #' @param K integer, the total number of communities ; if NULL, it's derived from `ki` and `km.
+#' @param migrantscount initial number of migrants from/to each commus
+#' @param sizes initial size of communities
+#' @param plot should the communities represent in 2D plots?
 #'
 #' @return A list containing matrices or vectors for the coordinates, adaptive traits, and sizes of each the communities. 
 #' @export
@@ -177,6 +180,7 @@ reassignFamiliesToNewCommunityFIDs <- function(comid, population, newsize, newid
 #' 2. For each cid, all members of the population belonging to that cid
 #'    are part of the same community.
 #'
+#' @param population population to check
 #' @export
 commuConsistency <- function(population){
 	uniqcids <- unique(population[,"cid"])

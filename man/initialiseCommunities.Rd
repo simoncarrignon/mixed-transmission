@@ -34,6 +34,12 @@ initialiseCommunities(
 \item{ki}{integer, the number of incumbents communities.}
 
 \item{K}{integer, the total number of communities ; if NULL, it's derived from \code{ki} and `km.}
+
+\item{migrantscount}{initial number of migrants from/to each commus}
+
+\item{sizes}{initial size of communities}
+
+\item{plot}{should the communities represent in 2D plots?}
 }
 \value{
 A list containing matrices or vectors for the coordinates, adaptive traits, and sizes of each the communities.
