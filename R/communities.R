@@ -100,7 +100,7 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
 #' @return The population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population` is a dataframe with 'community' and 'fid' columns
-#' splitCommunitiesByFamilies(1, population, 800, 2)
+#' #splitCommunitiesByFamilies(1, population, 2, 2)
 #' @export
 #'
 splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
@@ -144,7 +144,7 @@ splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
 #' @return A modified population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population` is a dataframe with 'community' and 'fid' columns
-#' # reassignFamiliesToNewCommunityFIDs(1, population, 800, 2)
+#' # reassignFamiliesToNewCommunityFIDs(1, population, 8, 2)
 #'
 reassignFamiliesToNewCommunityFIDs <- function(comid, population, newsize, newid) {
     # Validate input parameters
@@ -202,7 +202,7 @@ commuConsistency <- function(population){
 #' @return A modified population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population` is a dataframe with 'community' and 'fid' columns
-#' # reassignFamiliesToNewCommunityNoFIDs(1, population, 800, 2)
+#' # reassignFamiliesToNewCommunityNoFIDs(1, population, 8, 2)
 #'
 #' @export
 reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, newid,debug=FALSE) {
