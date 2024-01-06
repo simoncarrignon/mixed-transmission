@@ -18,11 +18,15 @@ traitsid=paste0("t",1:z)
 
 
 To simplify we define $K=z$ communities, all communities of hunter gatherer , with 150 individual per community, 150 will also be the Fission Threshold (ie community starts at maximum pop size).
-```{r initparam}
+```{r initparam,out.width="40%"}
 km=0
 ki=z
 G=2
 initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=ki,km=km,n=20),coordinates=random2Dgrid(K=ki+km,Gx=G),G=G,sizes=150,plot=T)
+text(initcomus$coordinates[,1],initcomus$coordinates[,2],labels=1:nrow(initcomus$coordinates))
+cols=c("#E41A1C","#377EB8","#4DAF4A","#984EA3")
+plot(initcomus$coordinates[,1],initcomus$coordinates[,2],bg=cols,pch=21,cex=20)
+text(initcomus$coordinates[,1],initcomus$coordinates[,2],labels=1:nrow(initcomus$coordinates))
 ```
 
 Age of people is initially random
@@ -40,7 +44,7 @@ knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),s
 ```
 
 
-```{r runsimu,warning=FALSE,message=FALSE,results='hold',cache=TRUE}
+```{r runsimu,warning=FALSE,message=FALSE,fig.show='hold',cache=TRUE}
 tstep=400
 quickV=modelVector(K=ki, m=1, b=0.2, r=0.01, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c(""),ma=1,traitsid=paste0("t",1:z),F_Th = 150)
 ```
@@ -53,10 +57,9 @@ plot(quickV$popsize,type="l",ylim=c(300,650),lwd=5,xlab="time",ylab="number of i
 
 What is the distribution of traits at the end:
 
-```{r finaldistrib}
+```{r finaldistrib,fig.show="hold"}
 knitr::kable(aggregate(quickV$population[,traitsid],by=list(quickV$population[,"community"]),FUN=getRatio))
 
-cols=c("#E41A1C","#377EB8","#4DAF4A","#984EA3")
 barplot(as.matrix(aggregate(quickV$population[,traitsid],by=list(quickV$population[,"community"]),FUN=getRatio)[,-1]),beside=T,col=cols,main="percentage of population with traits")
 barplot(table(quickV$population[,"community"]),col=cols,main="community size")
 
@@ -85,7 +88,7 @@ library(parallel)
 neutraltraitsParam$s=c(.5,.5,.5,.5)
 cl <- makeCluster(10,type="FORK")
 
-rhodep=lapply(c(0,1),function(rho){
+rhodep=lapply(c(0,.5,1),function(rho){
            neutraltraitsParam$post[,]=0
            neutraltraitsParam$pre[,]=0
            neutraltraitsParam$post[,"i"]=1
@@ -136,7 +139,7 @@ rhodep=readRDS("precomp.RDS")
 matmean <- function(m)Reduce("+",m)/length(m)
 
 #sorry :D
-lapply(lapply(rhodep,lapply,matmean),lapply,image,zlim=c(0,150))
+lapply(lapply(rhodep,lapply,matmean),lapply,image,zlim=c(0,150),xlab="comu",x=c(1,2,3,4),y=c(1,2,3,4),ylab="traits")
 ```
 
 
@@ -149,7 +152,7 @@ library(parallel)
 neutraltraitsParam$s=c(0,0,1,1)
 cl <- makeCluster(10,type="FORK")
 
-rhodepSB=lapply(c(0,1),function(rho){
+rhodepSB=lapply(c(0,.5,1),function(rho){
            neutraltraitsParam$post[,]=0
            neutraltraitsParam$pre[,]=0
            neutraltraitsParam$post[,"i"]=1
