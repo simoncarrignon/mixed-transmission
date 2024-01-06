@@ -37,6 +37,9 @@ vertical <- function(p1,p2=NULL,tp,tid){
 #' This function initializes the paramater matrix for the traits 
 #'
 #' @export
+#' @param z number of traitsj
+#' @param t_pre pathway pre marital
+#' @param t_post pathway post marital
 #'
 #' @examples
 #' initNeutralTraitsPathways(1, 5)

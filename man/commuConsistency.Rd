@@ -6,6 +6,9 @@
 \usage{
 commuConsistency(population)
 }
+\arguments{
+\item{population}{population to check}
+}
 \description{
 quick test that each community identifier (cid) in a given population
 dataset adheres to certain consistency rules:

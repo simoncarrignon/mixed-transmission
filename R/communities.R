@@ -33,6 +33,9 @@ random2Dgrid <- function(K,Gx,Gy=NULL){
 #' @param km integer, the number of migrants communities.
 #' @param ki integer, the number of incumbents communities.
 #' @param K integer, the total number of communities ; if NULL, it's derived from `ki` and `km.
+#' @param migrantscount initial number of migrants from/to each commus
+#' @param sizes initial size of communities
+#' @param plot should the communities represent in 2D plots?
 #'
 #' @return A list containing matrices or vectors for the coordinates, adaptive traits, and sizes of each the communities. 
 #' @export
@@ -100,7 +103,7 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
 #' @return The population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population` is a dataframe with 'community' and 'fid' columns
-#' splitCommunitiesByFamilies(1, population, 800, 2)
+#' #splitCommunitiesByFamilies(1, population, 2, 2)
 #' @export
 #'
 splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
@@ -144,7 +147,7 @@ splitCommunitiesByFamilies <- function(comid, population, newsize, newid) {
 #' @return A modified population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population` is a dataframe with 'community' and 'fid' columns
-#' # reassignFamiliesToNewCommunityFIDs(1, population, 800, 2)
+#' # reassignFamiliesToNewCommunityFIDs(1, population, 8, 2)
 #'
 reassignFamiliesToNewCommunityFIDs <- function(comid, population, newsize, newid) {
     # Validate input parameters
@@ -177,6 +180,7 @@ reassignFamiliesToNewCommunityFIDs <- function(comid, population, newsize, newid
 #' 2. For each cid, all members of the population belonging to that cid
 #'    are part of the same community.
 #'
+#' @param population population to check
 #' @export
 commuConsistency <- function(population){
 	uniqcids <- unique(population[,"cid"])
@@ -202,7 +206,7 @@ commuConsistency <- function(population){
 #' @return A modified population dataframe with updated community IDs for the selected families.
 #' @examples
 #' # Assuming `population` is a dataframe with 'community' and 'fid' columns
-#' # reassignFamiliesToNewCommunityNoFIDs(1, population, 800, 2)
+#' # reassignFamiliesToNewCommunityNoFIDs(1, population, 8, 2)
 #'
 #' @export
 reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, newid,debug=FALSE) {
