@@ -26,6 +26,6 @@ once the cumulative size of these families reaches a specified limit. This versi
 }
 \examples{
 # Assuming `population` is a dataframe with 'community' and 'fid' columns
-# reassignFamiliesToNewCommunityFIDs(1, population, 800, 2)
+# reassignFamiliesToNewCommunityFIDs(1, population, 8, 2)
 
 }

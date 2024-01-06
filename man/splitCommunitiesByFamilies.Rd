@@ -27,5 +27,5 @@ It then assigns a new community ID to these families.
 }
 \examples{
 # Assuming `population` is a dataframe with 'community' and 'fid' columns
-splitCommunitiesByFamilies(1, population, 800, 2)
+#splitCommunitiesByFamilies(1, population, 2, 2)
 }
