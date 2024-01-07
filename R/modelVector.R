@@ -1,4 +1,31 @@
 
+#' Model a Population Vector over Time
+#'
+#' This function simulates the evolution of a population over a given number of time steps. 
+#' It models various aspects such as marriages, migrations, community changes, and more.
+#'
+#' @param N overall population size
+#' @param F_Th Threshold for community fission, NULL by default. When a community's size exceeds this threshold, it splits.
+#' @param ki,km,K,m,b,r,rho,d,maturity,endrepro,a,tp,age.threshold,population,comus,tstep,ma,traitsid Specific parameters used in the population model. Set marriage, communities etc...
+#' @param logging Controls the level of logging. implemented so far: "time" ,"demo" ,"pairing" ,"migrantscount" ,"fission" ,"visu" ,"done"
+#' @param getfinalpop Logical flag to determine if the final population should be returned.
+#' @param out Character vector specifying the types of output to be generated. Possible values include "popsize" for population size and "popsumary" for a summary of the population.  implemented so far "popsize" ,"popsumary" ,"weddings" ,"traitsumary" ,"migrsum" ,"comufull" ,"finalpop" ,"finalmigrants" ,"finalcomus"
+#' @param beta  parameter to adjust impact of migrant pop size model, with a default value of 0.001.
+#' @param vidfile Optional file path for saving video output, NULL by default.
+#' @param warn Logical flag to control the display of warnings.
+#' 
+#' @return A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
+#'
+#' @examples
+#' # Example usage of the modelVector function
+#' #result <- modelVector(N = 100, ki = 1, km = 1, K = 5, m = 0.5, b = 0.1, r = 0.05, rho = 0.5, d = 0.01, 
+#' #                     maturity = 18, endrepro = 50, a = 1, tp = tp_param, age.threshold = 20, 
+#' #                     population = initial_population, comus = initial_comus, tstep = 10, 
+#' #                     ma = 1, traitsid = 1:5, getfinalpop = TRUE, out = c("popsize", "popsumary"))
+#'
+#' @importFrom stats runif   
+#' @export
+
 modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,vidfile=NULL,warn=FALSE){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0

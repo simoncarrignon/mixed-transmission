@@ -43,6 +43,10 @@ random2Dgrid <- function(K,Gx,Gy=NULL){
 #' @examples
 #' comus=initialiseCommunities(G = 100, ki = 5, km = 5)
 #' plot(comus$coordinates,pch=21,bg=apply(comus$adaptivetraits,1,mean)+2,xlim=c(0,100),ylim=c(0,100))
+#' @importFrom graphics points  
+#' @importFrom grDevices colorRampPalette
+#' @importFrom grDevices dev.off
+#' @importFrom grDevices png
 
 initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL,sizes=NULL,plot=F){
     if(!is.null(traits)) K=nrow(traits)

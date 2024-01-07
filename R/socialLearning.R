@@ -105,6 +105,7 @@ getRatio <- function(listtraits) sum(listtraits)/length(listtraits)
 #'
 #' @return A logical vector (if age is a unique value) or matrix (if ages is a vector) indicating whether each element in `age.peers` meets 
 #'         the criteria specified by `pos` and `threshold` relative to `age.ref`.
+#' @importFrom stats  aggregate  
 getAgeBand <- function(age.peers,age.ref,threshold,pos="h"){
     if(!(pos %in% c("b","h","o"))) return( NULL)
     if(length(age.ref)>1)return(sapply(age.ref,getAgeBand,age.peers=age.peers,threshold=threshold,pos=pos))

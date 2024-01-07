@@ -1,4 +1,5 @@
 listToVec <- function(listpop){
+    N=length(listpop)
     vecpop=matrix(0)
     age=unname(sapply(listpop,"[[","age"))
     partner=unname(sapply(listpop,"[[","partner"))
