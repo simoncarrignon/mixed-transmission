@@ -232,3 +232,83 @@ plot(1,1,ylim=c(0,1),xlim=c(0,1000),pch="n")
 sapply(rhodepSBBIB[[rr]][[pth]],function(olo)sapply(1:4,function(tr)lines(olo[,tr],col=tr)))
 }}
 ```
+
+
+Let# s play with adaptive traits
+
+```{r}
+population[,traitsid]=0
+for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
+knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),sum))
+tstep=2000
+repli=50
+library(parallel)
+neutraltraitsParam$s=c(0,0,1,1)
+
+initcomus$size=unname(table(population[,"community"]))
+cl <- makeCluster(10,type="FORK")
+
+rhos=c(0,.5,1)
+rhodepSBBIB=lapply(rhos,function(rho){
+           neutraltraitsParam$post[,]=0
+           neutraltraitsParam$pre[,]=0
+           neutraltraitsParam$post[,"i"]=1
+           #allinlaw=replicate(repli,
+           allinlaw=parSapply(cl,1:repli,function(r)
+                              {
+                                  set.seed(as.numeric(Sys.time())+r)
+                                  quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                  pop=quickV$population
+                                  #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)[-1,]
+                                  #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                  do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+           neutraltraitsParam$post[,"i"]=0
+           neutraltraitsParam$post[,"h"]=1
+           #allposthoriz=replicate(repli,{
+           allposthoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                      quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                      pop=quickV$population
+                                      #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+                                      #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+
+           neutraltraitsParam$post[,"h"]=0
+           neutraltraitsParam$pre[,"h"]=1
+           #allprehoriz=replicate(repli,{
+           allprehoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                     quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                     pop=quickV$population
+                                     #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+                                     #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+           list(allinlaw=allinlaw,allposthoriz=allposthoriz,allprehoriz=allprehoriz)
+}
+)
+
+stopCluster(cl)
+saveRDS(file="precompSBbibi.RDS",rhodepSBBIB)
+```
+
+
+```{r,out.width="30%"}
+rhodepSB=readRDS("precompSB.RDS")
+
+#sorry :D
+lapply(lapply(rhodepSB,lapply,matmean),lapply,image,zlim=c(0,150),xlab="comu",x=c(1,2,3,4),y=c(1,2,3,4),ylab="traits")
+
+
+par(mfrow=c(2,3))
+for(rr in 1:2){
+for(pth in 1:3){
+plot(1,1,ylim=c(0,1),xlim=c(0,1000),pch="n")
+sapply(rhodepSBBIB[[rr]][[pth]],function(olo)sapply(1:4,function(tr)lines(olo[,tr],col=tr)))
+```
+
