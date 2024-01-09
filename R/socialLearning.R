@@ -114,12 +114,31 @@ getAgeBand <- function(age.peers,age.ref,threshold,pos="h"){
     if(pos=="b") return( (age.ref-threshold) >= age.peers )
 }
 
-drawFromPool <- function(pool.traits,pool.sex,sexbiases){
-    if(is.null(dim(pool.traits)) && length(pool.traits)==length(sexbiases))return(pool.traits)
-    stopifnot(length(dim(pool.traits))>0)
-    es=aggregate(pool.traits,by=list(factor(pool.sex,levels=c(0,1))),FUN=getRatio,drop=F)[,-1,drop=F]
-    es[is.na(es)]=0
-    as.numeric(runif(ncol(pool.traits))<((1-sexbiases)*es[1,]+(sexbiases)*es[2,]))
+#drawFromPool <- function(pool.traits,pool.sex,sexbiases){
+#    if(is.null(dim(pool.traits)) && length(pool.traits)==length(sexbiases))return(pool.traits)
+#    stopifnot(length(dim(pool.traits))>0)
+#    es=aggregate(pool.traits,by=list(factor(pool.sex,levels=c(0,1))),FUN=getRatio,drop=F)[,-1,drop=F]
+#    es[is.na(es)]=0
+#    as.numeric(runif(ncol(pool.traits))<((1-sexbiases)*es[1,]+(sexbiases)*es[2,]))
+#}
+
+drawFromPool <- function(pool.traits, pool.sex, sexbiases) {
+    if (is.null(dim(pool.traits)) && length(pool.traits) == length(sexbiases)) {
+        return(pool.traits)
+    }
+    stopifnot(length(dim(pool.traits)) > 0)
+
+    # Pre-calculate dimensions
+    ncolTraits = ncol(pool.traits)
+
+    # Efficient aggregation and subsetting
+    es = aggregate(pool.traits, by = list(factor(pool.sex, levels = c(0, 1))), FUN = getRatio, drop = FALSE)
+    es = es[, -1, drop = FALSE]
+    es[is.na(es)] = 0
+
+    # Vectorized operation for final calculation
+    ratios = (1 - sexbiases) * es[1, ] + sexbiases * es[2, ]
+    as.numeric(runif(ncolTraits) < ratios)
 }
 
 #' @title Social Learning
