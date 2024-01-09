@@ -13,6 +13,7 @@
 #' @param beta  parameter to adjust impact of migrant pop size model, with a default value of 0.001.
 #' @param vidfile Optional file path for saving video output, NULL by default.
 #' @param warn Logical flag to control the display of warnings.
+#' @param testdebug Logical flag to control stop test for debugging
 #' 
 #' @return A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
 #'
@@ -26,7 +27,7 @@
 #' @importFrom stats runif   
 #' @export
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,vidfile=NULL,warn=FALSE){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,vidfile=NULL,warn=FALSE,testdebug=FALSE){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
@@ -57,8 +58,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		population[,"age"]=population[,"age"]+1
 		couple=which(population[,"partner"]>-1)
 
-		coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
-		stopifnot(coms == comus$size[as.numeric(names(coms))])
+		if(testdebug){
+            coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
+            stopifnot(coms == comus$size[as.numeric(names(coms))])
+        }
 
 
 		##marriage
@@ -88,12 +91,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				if( population[c1,"sex"] == 1){
 					fc=population[c1,"community"]
 					mc=population[c2,"community"]
-					stopifnot(population[c2,"sex"]==0) #temp test
+                    if(testdebug) stopifnot(population[c2,"sex"]==0) #temp test
 				}
 				else{
 					fc=population[c2,"community"]
 					mc=population[c1,"community"]
-					stopifnot(population[c1,"sex"]==0) #temp test
+					if(testdebug) stopifnot(population[c1,"sex"]==0) #temp test
 
 				}
 				## choice of new community  // ugly ; could do a function(rho,fc,mc) return(lc,jc) & ifelse
@@ -137,11 +140,13 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				population[c2,"community"]= population[c1,"community"]=jc
 
 				if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
-			}
-			stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
-			coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
-			stopifnot(coms == comus$size[as.numeric(names(coms))])
-		}
+            }
+            if(testdebug){
+                stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
+                coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
+                stopifnot(coms == comus$size[as.numeric(names(coms))])
+            }
+        }
 
 
 		## Post-Marital Horizontal and Oblique Transmission
@@ -151,8 +156,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		families=population[,"cid"]
 		families=families[families>=0]
 		fcount=table(families)
-		stopifnot(table(families)[fcount>1] == 2)
-		stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
+        if(testdebug){
+            stopifnot(table(families)[fcount>1] == 2)
+            stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
+        }
 		repro=population[,"age"]>=maturity & population[,"age"] < endrepro & population[,"partner"] > 0
 		if(sum(repro)>0){
 			reprofam=table(population[repro,"community"])
@@ -160,9 +167,12 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			fcount=table(fam[,"cid"])
 			noncelib=fam[,"cid"]%in%as.numeric(names(fcount[fcount>1]))
 			fam=fam[noncelib,,drop=F]
-			stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
+            if(testdebug){
+                stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
+                stopifnot(table(families) == 2) #families should be made of 2 individual
+            }
+
 			fam=unique(fam)
-			stopifnot(table(families) == 2) #families should be made of 2 individual
 			ad_tr=comus$adaptivetraits[fam[,"community"],,drop=F]
 			lbd=apply(ad_tr,1,lambda,base_rate=b,bonus_rate=r)
 			lbd=lbd/ma
@@ -201,9 +211,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 
 				population=rbind(population,offsprings[,colnames(population)])
-				coms=table(factor(population[,"community"],levels=1:length(comus$size)))
-
-				stopifnot(coms == comus$size[as.numeric(names(coms))])
+                if(testdebug){
+                    coms=table(factor(population[,"community"],levels=1:length(comus$size)))
+                    stopifnot(coms == comus$size[as.numeric(names(coms))])
+                }
 			}
 			## Pre-Marital Horizontal and Oblique Transmission
 			population  <- social.learning(population,when='pre',pathways=tp,threshold=age.threshold)
@@ -235,8 +246,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			}
 			population=population[!dead,,drop=F]
 
-            coms=table(factor(population[,"community"],levels=1:length(comus$size)))
-			stopifnot(coms == comus$size[as.numeric(names(coms))])
+            if(testdebug){
+                coms=table(factor(population[,"community"],levels=1:length(comus$size)))
+                stopifnot(coms == comus$size[as.numeric(names(coms))])
+            }
 		}
 
 		##pm transmission
@@ -291,8 +304,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if("visu"%in% logging)plot.comu(comus,vidfile=stepfile)
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
-		coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
-		stopifnot(coms == comus$size[as.numeric(names(coms))])
+		if(testdebug){
+            coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
+            stopifnot(coms == comus$size[as.numeric(names(coms))])
+        }
         if(nrow(population)==0){print("extinction");break}
 	}
 	finalres=list()
