@@ -30,7 +30,8 @@ modelVector(
   out = c("popsize", "popsumary"),
   beta = 0.001,
   vidfile = NULL,
-  warn = FALSE
+  warn = FALSE,
+  testdebug = FALSE
 )
 }
 \arguments{
@@ -51,6 +52,8 @@ modelVector(
 \item{vidfile}{Optional file path for saving video output, NULL by default.}
 
 \item{warn}{Logical flag to control the display of warnings.}
+
+\item{testdebug}{Logical flag to control stop test for debugging}
 }
 \value{
 A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
