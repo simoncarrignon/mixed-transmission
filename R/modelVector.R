@@ -51,6 +51,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 	}
 	if(is.null(vidfile)) stepfile=NULL
+    if("visu"%in% logging)plot.comu(comus,vidfile=stepfile)
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
 		population[,"age"]=population[,"age"]+1
@@ -297,7 +298,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	finalres=list()
 	if("popsize"%in%out)finalres[["popsize"]]=popsize
 	if("popsumary"%in%out)finalres[["popsumary"]]=popsum
-	if("traitsumary"%in%out)finalres[["traitsumary"]]=traitsum
+	if("traitsumary"%in%out)finalres[["traitsumary"]]=do.call("rbind",traitsum)
 	if("finalpop"%in%out)finalres[["population"]]=population
 	if("weddings"%in%out)finalres[["weddings"]]=weddings
 	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
