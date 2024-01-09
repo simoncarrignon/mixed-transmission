@@ -200,16 +200,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 					comus$size[i]=comus$size[i]+birthpercom[i]
 				}
 
-
-
-				##### When do horizontal and oblique take place? who are the model? how to make it modular?
-				#   ##Pre-Marital Horizontal Transmission
-				#   if(sum(tp$pre[,"h"])>0)
-				#       offtraits[,tp$pre[,"h"]==1]=population[,traitsid[tp$pre[,"h"]==1]]
-				#   if(sum(tp$pre[,"o"])>0)
-				#       offtraits[,tp$pre[,"o"]==1]=t(sapply(newparents,vertical,tp=tp,tid=traitsid))
-
-
 				population=rbind(population,offsprings[,colnames(population)])
                 if(testdebug){
                     coms=table(factor(population[,"community"],levels=1:length(comus$size)))
