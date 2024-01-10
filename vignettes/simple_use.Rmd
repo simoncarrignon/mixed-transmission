@@ -1,0 +1,541 @@
+---
+author: "Sim sim"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{A very simple exemple}
+  %\usepackage[UTF-8]{inputenc}
+---
+
+
+
+## Minimal Example
+
+We have $z$ neutral traits, specifc for each community, with no sexual biases and all transmitted from pre migration horizontal copying
+
+```{r}
+z=4
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$pre[,"h"]=1
+neutraltraitsParam$s=rep(.5,z)
+traitsid=paste0("t",1:z)
+```
+
+
+To simplify we define $K=z$ communities, 1 communities is of farmer, the other are of hunter gatherer , with 150 individual per community, 150 will also be the Fission Threshold (ie community starts at maximum pop size).
+
+Communities are defined by thee aspect:
+1. presence absence of adaptive traits and number of such traits
+2. position on the map
+3. size
+
+
+Thes three aspc can be initialised as follow:
+
+### The traits:
+```{r initparam,out.width="40%"}
+km=1
+ki=z-1
+traits=initAdaptiveTraits(ki=ki,km=km,n=3) # this generate a table for 3 adaptive traits, with ki communities of full hunter-gathere and km of farmers
+```
+
+
+The position:
+
+```{r}
+G=2 #limits/numer of row & column of the world grid
+coordinates=random2Dgrid(K=ki+km,Gx=G) #random coordinated on the grid
+```
+
+We use these to generate the communities, the size for now being fixed at 150
+
+```{r}
+initcomus=initialiseCommunities(traits=traits,coordinates=coordinates,G=G,sizes=150,plot=T)
+text(initcomus$coordinates[,1],initcomus$coordinates[,2],labels=1:nrow(initcomus$coordinates))
+cols=c("#E41A1C","#377EB8","#4DAF4A","#984EA3")
+plot(initcomus$coordinates[,1],initcomus$coordinates[,2],bg=cols,pch=21,cex=20)
+text(initcomus$coordinates[,1],initcomus$coordinates[,2],labels=1:nrow(initcomus$coordinates))
+```
+
+We then initialise a random population based on these communities:
+```{r randompop}
+communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
+```
+
+
+We run a first simulation to have a proper age and family structure 
+
+```{r runburnin,warning=FALSE,message=FALSE,results='hold',cache=TRUE}
+tstep=500
+burnin=modelVector(
+   K=ki, m=1, b=0.2, r=0, rho=0, d=0.01, maturity=18, endrepro=65, 
+   population=population, 
+   comus=initcomus, 
+   tstep=tstep, 
+   tp=initNeutralTraitsPathways(z = z) , #we recreate a temporary neutral trait table with no neutral transmission
+   age.threshold=20, 
+   out=c("finalpop","finalcomus"),   #we only want the final population
+   logging=c("done"),ma=1,traitsid=paste0("t",1:z),F_Th = 150
+)
+```
+
+We use the output of theis simulation as our starting points
+
+```{r getburnin,results='asis'}
+population=burnin$population
+initcomus$size=burnin$finalcomus$size
+```
+
+There is a bit of redundancy here as `burnin$finalcomus$size` is (and should always be) the same than `table(population[,"community"])`
+
+We need now to reset the neutral traits and set them as unique in each population
+
+```{r setuppopulation}
+population[,traitsid]=0
+for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
+knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),sum))
+```
+
+We can also reset ids to start at one and have more readable results:
+
+
+```{r resetids}
+population[population[,"cid"]!= -1 ,"cid"] = as.numeric(as.factor(as.character(population[population[,"cid"]!= -1 ,"cid"])))
+population[,"fid"] = as.numeric(as.factor(as.character(population[ ,"fid"])))
+ids = as.numeric(as.factor(as.character(population[ ,"id"])))
+names(ids)=population[,"id"]
+population[,"id"] = as.numeric(as.factor(as.character(population[ ,"id"])))
+population[,"partner"]=as.numeric(ids[as.character(population[,"partner"])])
+population[is.na(population[,"partner"]),"partner"]=-1
+```
+
+(this is done in `data-raw/population.R` to generate the dataset `population` available from the package)
+
+
+We can now run a proper simulation:
+
+
+```{r runpropersimu}
+tstep=1000
+simuTest=modelVector(
+    K=ki, m=1, b=0.2, r=0.01, rho=0, d=0.01, 
+    maturity=18, endrepro=65, 
+    population=population, 
+    comus=initcomus, 
+    tstep=tstep, 
+    tp=neutraltraitsParam,
+    age.threshold=20, 
+    out=c("finalpop","finalcomus","traitsumary","popsize"), #this time we keep track of more things
+    logging=c("done"),
+    beta=0,
+    ma=1,traitsid=paste0("t",1:z),F_Th = 150
+)
+```
+
+
+The choice of parameter should ensure a stable population:
+
+```{r followpopsize}
+plot(simuTest$popsize,type="l",ylim=c(300,650),lwd=5,xlab="time",ylab="number of individual")
+```
+
+The parameter `out` define what's available as outcome, and multiple things are available. `finalpop` tells the model to return the population at the final time step. Using that we can look at the distribution of traits at the end:
+
+```{r finaldistrib,fig.show="hold"}
+
+knitr::kable(aggregate(simuTest$population[,traitsid],by=list(simuTest$population[,"community"]),FUN=getRatio))
+
+barplot(as.matrix(aggregate(simuTest$population[,traitsid],by=list(simuTest$population[,"community"]),FUN=getRatio)[,-1]),beside=T,col=cols,main="percentage of population with traits")
+barplot(table(simuTest$population[,"community"]),col=cols,main="community size")
+
+```
+
+```{r}
+
+simuTest$finalcomus
+
+```
+
+
+We can track the frequencie of each traits using "traitsumary"
+
+```{r runsimu-pre,warnings=FALSE,results=FALSE,results='hold'}
+
+
+```
+
+
+replicate experiments
+
+```{r,eval=F}
+tstep=500
+repli=50
+neutraltraitsParam$s=c(.5,.5,.5,.5)
+rhodep=lapply(c(0,1),function(rho){
+           neutraltraitsParam$post[,]=0
+           neutraltraitsParam$pre[,]=0
+           neutraltraitsParam$post[,"i"]=1
+           allinlaw=replicate(repli,
+                              {
+                                  quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                  pop=quickV$population
+                                  sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                              },simplify=F)
+
+           neutraltraitsParam$post[,"i"]=0
+           neutraltraitsParam$post[,"h"]=1
+           allposthoriz=replicate(repli,{
+                                  set.seed(as.numeric(Sys.time())+r)
+                                      quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                      pop=quickV$population
+                                      sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                              },simplify=F)
+
+
+           neutraltraitsParam$post[,"h"]=0
+           neutraltraitsParam$pre[,"h"]=1
+           allprehoriz=replicate(repli,{
+                                  set.seed(as.numeric(Sys.time())+r)
+                                     quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                     pop=quickV$population
+                                     sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                              },simplify=F)
+
+           list(allinlaw=allinlaw,allposthoriz=allposthoriz,allprehoriz=allprehoriz)
+}
+)
+
+```
+
+```{r,out.width="30%"}
+rhodep=readRDS("precomp.RDS")
+
+matmean <- function(m)Reduce("+",m)/length(m)
+
+#sorry :D
+lapply(lapply(rhodep,lapply,matmean),lapply,image,zlim=c(0,150),xlab="comu",x=c(1,2,3,4),y=c(1,2,3,4),ylab="traits")
+```
+
+
+If we introduce rho, lets introduce sex biases tooj
+
+```{r,eval=F}
+population[,traitsid]=0
+for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
+knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),sum))
+tstep=5000
+repli=10
+library(parallel)
+neutraltraitsParam$s=c(0,0,1,1)
+initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=ki,km=km,n=3),coordinates=random2Dgrid(K=ki+km,Gx=G),G=G,sizes=150,plot=T)
+
+initcomus$adaptivetraits[1,]=c(1,1,1)
+cl <- makeCluster(10,type="FORK")
+
+rhos=c(0,1)
+rhodepSBBIB=lapply(rhos,function(rho){
+           neutraltraitsParam$post[,]=0
+           neutraltraitsParam$pre[,]=0
+           neutraltraitsParam$post[,"i"]=1
+           #allinlaw=replicate(repli,
+           allinlaw=parSapply(cl,1:repli,function(r)
+                              {
+                                  set.seed(as.numeric(Sys.time())+r)
+                                  quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                  pop=quickV$population
+                                  #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)[-1,]
+                                  #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                  do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+           neutraltraitsParam$post[,"i"]=0
+           neutraltraitsParam$post[,"h"]=1
+           #allposthoriz=replicate(repli,{
+           allposthoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                      quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL,beta=0)
+                                      pop=quickV$population
+                                      #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+                                      #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+
+           neutraltraitsParam$post[,"h"]=0
+           neutraltraitsParam$pre[,"h"]=1
+           #allprehoriz=replicate(repli,{
+           allprehoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                     quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                     pop=quickV$population
+                                     #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+                                     #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+           list(allinlaw=allinlaw,allposthoriz=allposthoriz,allprehoriz=allprehoriz)
+}
+)
+
+stopCluster(cl)
+saveRDS(file="precompSBbibi_adc.RDS",rhodepSBBIB)
+```
+
+
+```{r,out.width="30%"}
+rhodepSBBIB=readRDS("../inst/scripts/precompSBbibi.RDS")
+
+#sorry :D
+lapply(lapply(rhodepSB,lapply,matmean),lapply,image,zlim=c(0,150),xlab="comu",x=c(1,2,3,4),y=c(1,2,3,4),ylab="traits")
+
+
+pdf("neutral_dynamic_distrib.pdf",width=12)
+par(mfrow=c(2,3))
+pathways= c("in-law","horiz before","horiz after")
+for(rr in 1:2){
+for(pth in 1:3){
+plot(1,1,ylim=c(0,1),xlim=c(0,5000),type="n",xlab="time",ylab="freq",main=paste(pathways[pth],"rho=",rhos[rr]))
+sapply(rhodepSBBIB[[rr]][[pth]],function(olo)sapply(1:4,function(tr)lines(olo[,tr],col=tr)))
+}}
+par(xpd=NA)
+legend(x=-9,y=1.5,lwd=4,col=1:4,legend=paste0("t",1:4),cex=1,bty="n")
+dev.off()
+
+pdf("initial_distrib.pdf",width=7)
+for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
+initcount=as.matrix(aggregate(population[,traitsid],by=list(population[,"community"]),sum)[,-1])
+rownames(initcount)=LETTERS[1:4]
+barplot(t(as.matrix(initcount)),beside=T,legend=T,xlab="community",args.legend=list(bty="n",title="traits",x="top"),ylim=c(0,180),ylab="#individual",col=1:4)
+dev.off()
+
+pdf("legend.pdf",width=5)
+plot(1,1,type="n",ann=F,axes=F)
+legend("center",fill=1:4,legend=paste0("t",1:4),cex=5)
+dev.off()
+```
+
+
+Let# s play with adaptive traits
+
+```{r}
+population[,traitsid]=0
+for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
+knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),sum))
+tstep=2000
+repli=50
+library(parallel)
+neutraltraitsParam$s=c(0,0,1,1)
+
+initcomus$size=unname(table(population[,"community"]))
+cl <- makeCluster(10,type="FORK")
+
+rhos=c(0,.5,1)
+rhodepSBBIB=lapply(rhos,function(rho){
+           neutraltraitsParam$post[,]=0
+           neutraltraitsParam$pre[,]=0
+           neutraltraitsParam$post[,"i"]=1
+           #allinlaw=replicate(repli,
+           allinlaw=parSapply(cl,1:repli,function(r)
+                              {
+                                  set.seed(as.numeric(Sys.time())+r)
+                                  quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                  pop=quickV$population
+                                  #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)[-1,]
+                                  #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                  do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+           neutraltraitsParam$post[,"i"]=0
+           neutraltraitsParam$post[,"h"]=1
+           #allposthoriz=replicate(repli,{
+           allposthoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                      quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                      pop=quickV$population
+                                      #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+                                      #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+
+           neutraltraitsParam$post[,"h"]=0
+           neutraltraitsParam$pre[,"h"]=1
+           #allprehoriz=replicate(repli,{
+           allprehoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                     quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                     pop=quickV$population
+                                     #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+                                     #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+           list(allinlaw=allinlaw,allposthoriz=allposthoriz,allprehoriz=allprehoriz)
+}
+)
+
+stopCluster(cl)
+saveRDS(file="precompSBbibi.RDS",rhodepSBBIB)
+```
+
+
+```{r,out.width="30%"}
+rhodepSB=readRDS("precompSB.RDS")
+
+#sorry :D
+lapply(lapply(rhodepSB,lapply,matmean),lapply,image,zlim=c(0,150),xlab="comu",x=c(1,2,3,4),y=c(1,2,3,4),ylab="traits")
+
+
+par(mfrow=c(2,3))
+for(rr in 1:2){
+for(pth in 1:3){
+plot(1,1,ylim=c(0,1),xlim=c(0,1000),pch="n")
+sapply(rhodepSBBIB[[rr]][[pth]],function(olo)sapply(1:4,function(tr)lines(olo[,tr],col=tr)))
+```
+
+||||||| constructed merge base
+=======
+```{r}
+
+sapply(rhodepSB[[rr]][[pth]],function(olo)sapply(1:4,function(tr)lines(olo[1000,tr],col=tr)))
+
+apply(sapply(rhodepSB[[1]][[3]],function(i)i[5000,])==1,1,sum)
+do.call("rbind",quickV$traitsumary)/quickV$popsize
+
+tstep=10000
+rhos=c(0,1)
+rhodepSBBIB=lapply(rhos,function(rho){
+           neutraltraitsParam$post[,]=0
+           neutraltraitsParam$pre[,]=0
+           neutraltraitsParam$post[,"i"]=1
+           #allinlaw=replicate(repli,
+           allinlaw=parSapply(cl,1:repli,function(r)
+                              {
+                                  set.seed(as.numeric(Sys.time())+r)
+                                  quickV=modelVector(K=K, m=1, b=0.2, r=0.2, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                  pop=quickV$population
+                                  #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)[-1,]
+                                  #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                  do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+           neutraltraitsParam$post[,"i"]=0
+           neutraltraitsParam$post[,"h"]=1
+           #allposthoriz=replicate(repli,{
+           allposthoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                      quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL,beta=0)
+                                      pop=quickV$population
+                                      #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+                                      #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+
+           neutraltraitsParam$post[,"h"]=0
+           neutraltraitsParam$pre[,"h"]=1
+           #allprehoriz=replicate(repli,{
+           allprehoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                     quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                     pop=quickV$population
+                                     #aggregate(pop[,traitsid],by=list(pop[,"community"]),sum)
+                                     #sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+           list(allinlaw=allinlaw,allposthoriz=allposthoriz,allprehoriz=allprehoriz)
+}
+)
+
+stopCluster(cl)
+
+
+```
+```{r}
+devtools::load_all(".")
+z=4
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$post[,"i"]=1
+neutraltraitsParam$s=c(0,1)
+traitsid=paste0("t",1:z)
+km=0
+ki=z
+G=2
+initcomus=initialiseCommunities(traits=initAdaptiveTraits(ki=3,km=1,n=3),coordinates=random2Dgrid(K=ki+km,Gx=G),G=G,sizes=150,plot=T)
+communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
+data(population)
+population[,traitsid]=0
+for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
+knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),sum))
+tstep=200
+rhos=c(0,1)
+repli=10
+rhodepSBBIB=lapply(rhos,function(rho){
+           neutraltraitsParam$post[,]=0
+           neutraltraitsParam$pre[,]=0
+           neutraltraitsParam$post[,"i"]=1
+           allinlaw=parSapply(cl,1:repli,function(r)
+                              {
+                                  set.seed(as.numeric(Sys.time())+r)
+                                  quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.02, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                  pop=quickV$population
+                                  do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+           neutraltraitsParam$post[,"i"]=0
+           neutraltraitsParam$post[,"h"]=1
+           allposthoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                      quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL,beta=0)
+                                      pop=quickV$population
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+
+
+           neutraltraitsParam$post[,"h"]=0
+           neutraltraitsParam$pre[,"h"]=1
+           allprehoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                     quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                     pop=quickV$population
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+           neutraltraitsParam$pre[,"h"]=0
+           neutraltraitsParam$post[,"o"]=1
+           allposthoriz=parSapply(cl,1:repli,function(r){
+                                  set.seed(as.numeric(Sys.time())+r)
+                                     quickV=modelVector(K=K, m=1, b=0.2, r=0.1, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("traitsumary","finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
+                                     pop=quickV$population
+                                     do.call("rbind",quickV$traitsumary)/quickV$popsize
+                              },simplify=F)
+           list(allinlaw=allinlaw,allposthoriz=allposthoriz,allprehoriz=allprehoriz)
+}
+)
+
+stopCluster(cl)
+```
+
+
+attempt to do stuff:
+
+```{r}
+
+rhodep=readRDS("../precompSB_3rho.RDS")
+rangeZ=range(unlist(rhodep))
+pdf("neutral_final_distrib.pdf",width=9)
+par(mfrow=c(3,3),xpd=F)
+par(oma=c(5,5,5,1))
+par(mar=c(1,3,0,0))
+allmatrices=lapply(rhodep,lapply,matmean)
+
+lapply(allmatrices,lapply,image,zlim=rangeZ,xlab="",x=c(1,2,3,4),y=c(1,2,3,4),ylab="traits",xaxt="n")
+axis(1,label=LETTERS[1:4],at=1:4)
+mtext(c("in-law","horiz beforw","horiz after"),3,2,at=c(0.2,.5,.85),outer=T)
+mtext("community",1,2)
+mtext("rho",2,4,outer=T,cex=.8)
+mtext(c("0",".5","1"),2,1,5,at=c(0.3,.6,.9),outer=T,cex=.9)
+mtext("traits",2,0,at=0.2,outer=T,cex=.8)
+dev.off()
+```
