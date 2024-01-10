@@ -53,10 +53,10 @@ testthat::test_that('Testing popsize hasnt changed',{
 )
                     })
 
-testthat::test_that("Testing that traits distribution hasn't changed",
+testthat::test_that("Testing when all pathways at 0 that traits distribution hasn't changed",
                     {
                         suppressWarnings({
-                            quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=50, tp=neutraltraitsParam,age.threshold=generation.threshold, out="finalpop",logging=NULL,ma=1,traitsid=paste0("t",1:z))
+                            quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=50, tp=initNeutralTraitsPathways(z = z),age.threshold=generation.threshold, out="finalpop",logging=NULL,ma=1,traitsid=paste0("t",1:z))
 testthat::expect_true(all( apply(quickV$population[,traitsid],2,sum)[1:2]== apply(population[,traitsid],2,sum)[1:2]))
                         }
 )
