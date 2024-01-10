@@ -77,7 +77,7 @@ population=cbind(newpop(n=sum(initcomus$size),age="random",community = communiti
 We run a first simulation to have a proper age and family structure 
 
 ```{r runburnin,warning=FALSE,message=FALSE,results='hold',cache=TRUE}
-tstep=500
+tstep=100
 burnin=modelVector(
    K=ki, m=1, b=0.2, r=0, rho=0, d=0.01, maturity=18, endrepro=65, 
    population=population, 
@@ -127,7 +127,7 @@ We can now run a proper simulation:
 
 
 ```{r runpropersimu}
-tstep=1000
+tstep=500
 simuTest=modelVector(
     K=ki, m=1, b=0.2, r=0.01, rho=0, d=0.01, 
     maturity=18, endrepro=65, 
@@ -179,7 +179,7 @@ We can track the frequencie of each traits using "traitsumary"
 replicate experiments
 
 ```{r,eval=F}
-tstep=500
+tstep=100
 repli=50
 neutraltraitsParam$s=c(.5,.5,.5,.5)
 rhodep=lapply(c(0,1),function(rho){
