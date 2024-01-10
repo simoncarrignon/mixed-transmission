@@ -32,12 +32,17 @@ print.pathways(neutraltraitsParam,verb=F)
 
 adaptive traits and communities:
 ```{r}
-km=5
-ki=z-km
+km=1
+ki=4
 traits=initAdaptiveTraits(ki=ki,km=km,n=3) # this generate a table for 3 adaptive traits, with ki communities of full hunter-gathere and km of farmers
+traits[1:ki,]=0
+traits[5,]=1
 
 G=5 #limits/numer of row & column of the world grid
 coordinates=random2Dgrid(K=ki+km,Gx=G) #random coordinated on the grid
+farmers=expand.grid(3:5, 3:5)
+coordinates[1:ki,]=as.matrix(farmers[sample(1:nrow(farmers),ki),])
+coordinates[5,]=c(1,1)
 
 initcomus=initialiseCommunities(traits=traits,coordinates=coordinates,G=G,sizes=100,plot=T)
 
@@ -50,45 +55,34 @@ We run a first simulation to have a proper age and family structure
 
 ```{r runburnin,warning=FALSE,message=FALSE,results='hold',cache=TRUE}
 tstep=500
+tpcomu=initcomus
+tpcomu$occupation[,]=1
 burnin=modelVector(
    K=ki, m=1, b=0.2, r=0, rho=0, d=0.01, maturity=18, endrepro=65, 
    population=population, 
-   comus=initcomus, 
+   comus=tpcomu, 
    tstep=tstep, 
    tp=initNeutralTraitsPathways(z = z) , #we recreate a temporary neutral trait table with no neutral transmission
    age.threshold=20, 
    out=c("finalpop","finalcomus"),   #we only want the final population
-   logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 100
+   beta=-1,
+   logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 50
 )
-population=burnin$population
+population=resetIds(burnin$population)
 initcomus$size=burnin$finalcomus$size
 ```
 
 ```{r setuppopulation}
-traitsid=paste0("t",1:z)
 population[,traitsid]=0
-for(i in 1:z){population[population[,"community"]==i,traitsid[i]]=1}
+population[population[,"community"]==5,traitsid]=1
 knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),sum))
-```
 
-We can also reset ids to start at one and have more readable results:
-
-
-```{r resetids}
-population[population[,"cid"]!= -1 ,"cid"] = as.numeric(as.factor(as.character(population[population[,"cid"]!= -1 ,"cid"])))
-population[,"fid"] = as.numeric(as.factor(as.character(population[ ,"fid"])))
-ids = as.numeric(as.factor(as.character(population[ ,"id"])))
-names(ids)=population[,"id"]
-population[,"id"] = as.numeric(as.factor(as.character(population[ ,"id"])))
-population[,"partner"]=as.numeric(ids[as.character(population[,"partner"])])
-population[is.na(population[,"partner"]),"partner"]=-1
 ```
 
 
 ```{r runpropersimu}
 tstep=1000
 a=Sys.time()
-initcomus$occupation[,]=1 #cheat and prohibit the empty space to be colonised
 simuTest=modelVector(
     K=ki, m=1, b=0.2, r=0.01, rho=0, d=0.01, 
     maturity=18, endrepro=65, 
@@ -100,16 +94,20 @@ simuTest=modelVector(
     out=c("finalpop","finalcomus","traitsumary","popsize"), #this time we keep track of more things
     logging=c("time","done","visu"),
     beta=-1,
-    ma=1,traitsid=paste0("t",1:z),F_Th = 150
+    ma=1,traitsid=paste0("t",1:z),F_Th = 100
 )
 print(Sys.time()-a)
+
+
+
+
 ```
 
 
 The choice of parameter should ensure a stable population:
 
 ```{r followpopsize}
-plot(simuTest$popsize,type="l",ylim=c(300,650),lwd=5,xlab="time",ylab="number of individual")
+plot(simuTest$popsize,type="l",ylim=c(300,2500),lwd=5,xlab="time",ylab="number of individual")
 ```
 
 The parameter `out` define what's available as outcome, and multiple things are available. `finalpop` tells the model to return the population at the final time step. Using that we can look at the distribution of traits at the end:
@@ -132,7 +130,15 @@ simuTest$finalcomus
 
 We can track the frequencie of each traits using "traitsumary"
 
-```{r runsimu-pre,warnings=FALSE,results=FALSE,results='hold'}
+```{r track-traits,warnings=FALSE,results=FALSE,results='hold'}
+
+traitsfreq=simuTest$traitsumary/simuTest$popsize
+
+pathways= c("in-law","horiz before","horiz after")
+plot(1,1,ylim=c(0,1),xlim=c(0,1000),type="n",xlab="time",ylab="freq")
+sapply(1:24,function(tr)lines(traitsfreq[,tr],col=tr))
+par(xpd=NA)
+legend(x=-9,y=1.5,lwd=4,col=1:4,legend=paste0("t",1:4),cex=1,bty="n")
 
 
 ```
@@ -141,7 +147,7 @@ We can track the frequencie of each traits using "traitsumary"
 replicate experiments
 
 ```{r,eval=F}
-tstep=500
+tstep=20000
 repli=50
 neutraltraitsParam$s=c(.5,.5,.5,.5)
 rhodep=lapply(c(0,1),function(rho){
