@@ -132,7 +132,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                     else{
                         it=traitsid[inlawtraits]
                         inlaws=population[ population[,"cid"] == population[local,"fid"],,drop=F]
-                        if(dim(inlaws)[1]==2)
+                        if(dim(inlaws)[1]>0)
                         {
                             newtraits=drawFromPool(pool.traits=inlaws[,it,drop=F],pool.sex=inlaws[,"sex",drop=F],sexbiases=tp$s[inlawtraits])
                             population[migrant,it]=newtraits
