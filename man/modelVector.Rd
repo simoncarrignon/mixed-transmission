@@ -28,7 +28,7 @@ modelVector(
   traitsid,
   getfinalpop = FALSE,
   out = c("popsize", "popsumary"),
-  beta = 0.001,
+  beta = 0,
   vidfile = NULL,
   warn = FALSE,
   testdebug = FALSE
@@ -47,7 +47,7 @@ modelVector(
 
 \item{out}{Character vector specifying the types of output to be generated. Possible values include "popsize" for population size and "popsumary" for a summary of the population.  implemented so far "popsize" ,"popsumary" ,"weddings" ,"traitsumary" ,"migrsum" ,"comufull" ,"finalpop" ,"finalmigrants" ,"finalcomus"}
 
-\item{beta}{parameter to adjust impact of migrant pop size model, with a default value of 0.001.}
+\item{beta}{parameter to adjust impact of migrant pop size model, with a default value of 0}
 
 \item{vidfile}{Optional file path for saving video output, NULL by default.}
 

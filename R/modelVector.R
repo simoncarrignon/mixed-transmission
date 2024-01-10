@@ -10,7 +10,7 @@
 #' @param logging Controls the level of logging. implemented so far: "time" ,"demo" ,"pairing" ,"migrantscount" ,"fission" ,"visu" ,"done"
 #' @param getfinalpop Logical flag to determine if the final population should be returned.
 #' @param out Character vector specifying the types of output to be generated. Possible values include "popsize" for population size and "popsumary" for a summary of the population.  implemented so far "popsize" ,"popsumary" ,"weddings" ,"traitsumary" ,"migrsum" ,"comufull" ,"finalpop" ,"finalmigrants" ,"finalcomus"
-#' @param beta  parameter to adjust impact of migrant pop size model, with a default value of 0.001.
+#' @param beta  parameter to adjust impact of migrant pop size model, with a default value of 0
 #' @param vidfile Optional file path for saving video output, NULL by default.
 #' @param warn Logical flag to control the display of warnings.
 #' @param testdebug Logical flag to control stop test for debugging
@@ -27,7 +27,7 @@
 #' @importFrom stats runif   
 #' @export
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0.001,vidfile=NULL,warn=FALSE,testdebug=FALSE){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
