@@ -19,7 +19,7 @@ newpop <- function(n,age=NULL,minid=0,cid=NULL,fid=NULL,community=NULL){
         age=rep(0,n)
     }
     else{
-        if(age=="random") age=sample(0:85,n,replace=T)
+        if(length(age)==1 && age=="random") age=sample(0:85,n,replace=T)
     }
     if(is.null(cid))cid=rep(-1,n)
     if(is.null(community))community=rep(1,n)
@@ -33,7 +33,7 @@ newpop <- function(n,age=NULL,minid=0,cid=NULL,fid=NULL,community=NULL){
           "canrepro"=rep(0,n),
           "cid"=cid,
           "fid"=fid,
-	  "justMarried"=rep(0,n),
+          "justMarried"=rep(0,n),
           sex=sample(c(0,1),n,replace=T)
     )
 }
