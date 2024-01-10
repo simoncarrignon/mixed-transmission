@@ -1,13 +1,22 @@
 ---
-author: "Sim sim"
-date: "`r Sys.Date()`"
+title: "simple_use"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteEngine{knitr::knitr}
-  %\VignetteIndexEntry{A very simple exemple}
-  %\usepackage[UTF-8]{inputenc}
+  %\VignetteIndexEntry{simple_use}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(multimodalCT)
+```
 
 
 ## Minimal Example
