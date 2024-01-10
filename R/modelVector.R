@@ -43,6 +43,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		migrsum[[1]]=rep(0,K)
 	}
 
+    if("popfull"%in%out) {
+		popfull=list()
+		popfull[[1]]=population
+	}
     if("comufull"%in%out){
         comufull=list()
         comufull[[1]]=comus
@@ -288,6 +292,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 		if("traitsumary"%in%out)traitsum[[time]]=apply(population[,traitsid],2,sum)
 		if("comufull"%in%out)comufull[[time]]=comus
+		if("popfull"%in%out) popfull[[time]]=population
 
 		##
 		if(!is.null(vidfile))stepfile=sprintf(paste0(vidfile,"%05d"),time)
@@ -310,6 +315,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	if("migrsum"%in%out)finalres[["migrsum"]]=migrsum
 	if("finalcomus"%in%out)finalres[["finalcomus"]]=comus
     if("comufull"%in%out)finalres[["comufull"]]=comufull
+    if("popfull"%in%out)finalres[["popfull"]]=popfull
 	if("done"%in%logging)print("done")
 	return(finalres)
 }
