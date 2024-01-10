@@ -31,7 +31,8 @@ modelVector(
   beta = 0,
   vidfile = NULL,
   warn = FALSE,
-  testdebug = FALSE
+  testdebug = FALSE,
+  remarriage = FALSE
 )
 }
 \arguments{
@@ -54,6 +55,8 @@ modelVector(
 \item{warn}{Logical flag to control the display of warnings.}
 
 \item{testdebug}{Logical flag to control stop test for debugging}
+
+\item{remarriage}{Logical flag to control if widower can remarry or not}
 }
 \value{
 A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.

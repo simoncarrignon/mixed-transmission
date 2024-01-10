@@ -14,6 +14,7 @@
 #' @param vidfile Optional file path for saving video output, NULL by default.
 #' @param warn Logical flag to control the display of warnings.
 #' @param testdebug Logical flag to control stop test for debugging
+#' @param remarriage Logical flag to control if widower can remarry or not
 #' 
 #' @return A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
 #'
@@ -27,7 +28,7 @@
 #' @importFrom stats runif   
 #' @export
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
@@ -232,7 +233,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 				print(paste(sum(dead),"deaths"))
 				#print(paste("Death of:",paste0("ind ",apply(population[1:4,c("id","partner","cid")],1,paste0,collapse=" "),collapse=";")))
 			}
-			if(sum(singled>0)>0){
+			if(remarriage & sum(singled>0)>0){
 				population[population[,"id"] %in%  singled[singled>0],c("partner","cid")]=-1
 			}
 			for(i in seq_along(deathpercom)){
