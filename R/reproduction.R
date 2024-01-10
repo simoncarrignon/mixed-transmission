@@ -1,10 +1,25 @@
-newpop <- function(n,age=NULL,minid=0,cid=NULL,fid=NULL,community=NULL){
+#' Create a population matrix with specified attributes
+#'
+#' This function generates a matrix representing a population with each row corresponding to an individual. Attributes include age, community, family IDs, and more. The function allows customization of the population size, age distribution, community, and family structures.
+#'
+#' @param n Integer; the number of individuals in the population.
+#' @param age Numeric vector or NULL; the ages of the individuals. If set to 'random', ages are assigned randomly between 0 and 85. If NULL, all ages are set to 0.
+#' @param minid Integer; the starting ID for the population. Used to offset the IDs of individuals.
+#' @param cid Numeric vector or NULL; the community IDs for the individuals. If NULL, all individuals are assigned to community -1.
+#' @param fid Numeric vector or NULL; the family IDs for the individuals. If NULL, all individuals are assigned a family ID of -1.
+#' @param community Numeric vector or NULL; the community numbers for the individuals. If NULL, all individuals are assigned to community 1.
+#' @return A matrix with each row representing an individual and columns for 'id', 'age', 'partner', 'community', 'canrepro', 'cid', 'fid', 'justmarried', and 'sex'.
+#' @examples
+#' newpop(10, age = "random", minid = 100)
+#' newpop(5, age = c(25, 30, 35, 40, 45), community = c(1, 2, 2, 3, 3))
+#' @export
+newpop <- function(n,age=null,minid=0,cid=null,fid=null,community=null){
 
     if(is.null(age)){
         age=rep(0,n)
     }
     else{
-        if(age=="random") age=sample(0:85,n,replace=T)
+        if(age=="random") age=sample(0:85,n,replace=t)
     }
     if(is.null(cid))cid=rep(-1,n)
     if(is.null(community))community=rep(1,n)
@@ -18,8 +33,8 @@ newpop <- function(n,age=NULL,minid=0,cid=NULL,fid=NULL,community=NULL){
           "canrepro"=rep(0,n),
           "cid"=cid,
           "fid"=fid,
-	  "justMarried"=rep(0,n),
-          sex=sample(c(0,1),n,replace=T)
+	  "justmarried"=rep(0,n),
+          sex=sample(c(0,1),n,replace=t)
     )
 }
 ## Evaluatiting different sampling strategies:
