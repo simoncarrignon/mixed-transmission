@@ -4,7 +4,7 @@
 \alias{newpop}
 \title{Create a population matrix with specified attributes}
 \usage{
-newpop(n, age = null, minid = 0, cid = null, fid = null, community = null)
+newpop(n, age = NULL, minid = 0, cid = NULL, fid = NULL, community = NULL)
 }
 \arguments{
 \item{n}{Integer; the number of individuals in the population.}

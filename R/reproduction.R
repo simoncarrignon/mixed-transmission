@@ -13,13 +13,13 @@
 #' newpop(10, age = "random", minid = 100)
 #' newpop(5, age = c(25, 30, 35, 40, 45), community = c(1, 2, 2, 3, 3))
 #' @export
-newpop <- function(n,age=null,minid=0,cid=null,fid=null,community=null){
+newpop <- function(n,age=NULL,minid=0,cid=NULL,fid=NULL,community=NULL){
 
     if(is.null(age)){
         age=rep(0,n)
     }
     else{
-        if(age=="random") age=sample(0:85,n,replace=t)
+        if(age=="random") age=sample(0:85,n,replace=T)
     }
     if(is.null(cid))cid=rep(-1,n)
     if(is.null(community))community=rep(1,n)
@@ -33,8 +33,8 @@ newpop <- function(n,age=null,minid=0,cid=null,fid=null,community=null){
           "canrepro"=rep(0,n),
           "cid"=cid,
           "fid"=fid,
-	  "justmarried"=rep(0,n),
-          sex=sample(c(0,1),n,replace=t)
+	  "justMarried"=rep(0,n),
+          sex=sample(c(0,1),n,replace=T)
     )
 }
 ## Evaluatiting different sampling strategies:
