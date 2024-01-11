@@ -42,3 +42,14 @@ resetIds <- function(population){
     population[is.na(population[,"partner"]),"partner"]=-1
     population
 }
+
+getFixationOneTraits <- function(traits,v=1){
+    fixed=traits==v
+    if(sum(fixed)==0)return(NA)
+    else(min(which(fixed)))
+}
+
+matmean <- function(m)Reduce("+",m)/length(m)
+
+
+
