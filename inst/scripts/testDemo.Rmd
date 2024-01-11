@@ -22,9 +22,10 @@ neutraltraitsParam$s=c(0,0,1,1)
 ip=1:N
 names(ip)=ip
 population=lapply(ip,function(i) list( id=as.character(i), traits=sample(c(0,1),size=z,replace=T), age=sample.int(endrepro-5,1), community=sample.int(K,1), sex=sample(c("F","M"),1), repro=FALSE, partner=-1))
+                                      population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
 
-pos=random2Dgrid(K=K,Gx=100)
-initcomus=initialiseCommunities(traits=a,coordinates=pos)
+pos=random2Dgrid(K=K,Gx=2)
+initcomus=initialiseCommunities(traits=a,coordinates=pos,G=2,plot=T)
 size=table(sapply(population,"[[","community"))
 initcomus$size=size
 plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
@@ -32,7 +33,7 @@ plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,ce
 
 tstep=200
 
-quick=modelOOstyle( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population, comus=initcomus, tstep=tstep, neutraltraitsParam=neutraltraitsParam, logging=c("na"),ma=endrepro-maturity)
+quick=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=endrepro, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam, logging=c("na"),ma=1,F_Th=NULL)
 
 
 plot(quick$popsize)
@@ -141,3 +142,145 @@ for(mature_adjust in c(1,60)){
 
 
 ```
+
+
+```{r}
+m=1
+b=0.2
+r=0.05
+tstep=300
+d=0.001
+N=200
+ip=1:N
+names(ip)=ip
+z=4 #number of neutral traits
+neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam$s=c(0,0,1,1)
+population=lapply(ip,function(i) list( id=as.character(i), traits=sample(c(0,1),size=z,replace=T), age=sample.int(65,1), community=1, sex=sample(c("F","M"),1), repro=FALSE, partner=-1))
+
+
+
+
+neutraltraitsParam=initNeutralTraitsPathways(z = 2)
+traitsid=paste0("t",1:2)
+percomu=50
+K=2
+km=0
+ki=2
+N=100
+pos=random2Dgrid(K=K,Gx=2)
+a=initAdaptiveTraits(ki=ki,km=km,n=1 )
+initcomus=initialiseCommunities(ki=2,km=0,traits=a,coordinates=pos,G=2,plot=T,sizes=c(50,50))
+communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+quickV=modelVector(K=K, m=1, b=0.1, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=1000, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","deaths","popsize"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z))
+
+
+alldeath=replicate(100,length(modelVector(K=K, m=1, b=0, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=1000, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","deaths","popsize"),logging=NULL,ma=1,traitsid=paste0("t",1:z))$popsize))
+
+alldeath2=replicate(100,length(modelVector(K=K, m=1, b=0.1, r=0, rho=.5, d=0.04, maturity=18, endrepro=85, population=population, comus=initcomus, tstep=1000, tp=neutraltraitsParam,age.threshold=20, out=c("births","deaths","popsize"),logging=NULL,ma=1,traitsid=paste0("t",1:z))$popsize))
+boxplot(alldeath,alldeath2)
+
+modelVector(K=K, m=1, b=0.8, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=1000, tp=neutraltraitsParam,age.threshold=20, out=c("births","deaths","popsize"),logging=NULL,ma=1,traitsid=paste0("t",1:z))$births
+boxplot(alldeath,alldeath2)
+
+initcomus$occupation[,]=1
+testres=modelVector(K=K, m=1, b=0.8, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=800, tp=neutraltraitsParam,age.threshold=20, out=c("births","deaths","popsize","finalpop"),logging="time",ma=1,traitsid=paste0("t",1:z),F_Th=50)
+
+
+population=testres$population
+rmid=population[population[,"fid"]==-1,"id"]
+population=population[population[,"fid"]!=-1,]
+population=population[!(population[,"partner"]%in% rmid),]
+initcomus$size=unname(table(population[,"community"]))
+population=resetIds(population)
+
+nrow(population[validCouple(population, maturity=18, endrepro=65),])
+multirep=replicate(10,modelVector(K=K, m=1, b=10*0.04, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("births","deaths","popsize","finalpop","repros"),logging="time",ma=1,traitsid=paste0("t",1:z)))
+
+newtestres=modelVector(K=K, m=1, b=0.5, r=0, rho=.5, d=0.043, maturity=18, endrepro=65, population=testres$population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("repros","births","deaths","popsize","finalpop"),logging="time",ma=1,traitsid=paste0("t",1:z))
+plot(newtestres$deaths)
+par(mfrow=c(3,2))
+plot(newtestres$popsize,main="population size")
+plot(newtestres$repro,main="number of valid couple")
+plot(newtestres$popsize[-1],newtestres$deaths,xlab="population size",ylab="number of death",main="#death vs popsize")
+plot(newtestres$popsize[-1],newtestres$births,xlab="population size",ylab="number of birth",main="#birth vs popsize")
+plot(newtestres$popsize[-1],newtestres$repros,xlab="population size",ylab=,main="#parents vs popsize")
+plot(newtestres$repros/newtestres$popsize[-1],xlab="time",ylab="% people in valid couple",main="% parents",type="l",lwd=2)
+
+plot(newtestres$popsize[-1],newtestres$deaths,xlab="population size",ylab="number of death",main="#death vs popsize")
+for(repil in 1:ncol(multirep)) points(multirep[,repil]$popsize[-1],multirep[,repil]$deaths,xlab="population size",ylab="number of death",main="#death vs popsize")
+plot(newtestres$popsize[-1],newtestres$births,xlab="population size",ylab="number of birth",main="#birth vs popsize")
+
+par(mfrow=c(3,2))
+exp=newtestres
+plot(exp$popsize,main="population size",xlab="time",ylab="# number individual",log="y",ylim=c(1,10000),type="l",lwd=2)
+for(repil in 1:ncol(multirep)) lines(multirep[,repil]$popsize,,main="#death vs popsize",col=repil,lwd=2)
+plot(newtestres$repro,main="number of valid couple",type="l",log="y",lwd=2,ylim=c(1,2000))
+for(repil in 1:ncol(multirep)) 
+lines(multirep[,repil]$repro,main="number of valid couple",col=repil,type="l",lwd=2)
+plot(newtestres$popsize[-1],newtestres$deaths,xlab="population size",ylab="number of death",main="#death vs popsize")
+for(repil in 1:ncol(multirep)) 
+points(multirep[,repil]$popsize[-1],multirep[,repil]$deaths,xlab="population size",ylab="number of death",main="#death vs popsize",col=repil)
+plot(newtestres$popsize[-1],newtestres$births,xlab="population size",ylab="number of birth",main="#birth vs popsize")
+for(repil in 1:ncol(multirep)) 
+points(multirep[,repil]$popsize[-1],multirep[,repil]$births,xlab="population size",ylab="number of birth",main="#birth vs popsize",col=repil)
+plot(newtestres$popsize[-1],newtestres$repros,xlab="population size",ylab="number parents",main="#parents vs popsize")
+for(repil in 1:ncol(multirep)) 
+points(multirep[,repil]$popsize[-1],multirep[,repil]$repros,col=repil)
+plot(newtestres$repros/newtestres$popsize[-1],xlab="time",ylab="% people in valid couple",main="% parents",type="l",lwd=2,ylim=c(0,.5))
+for(repil in 1:ncol(multirep)) 
+lines(multirep[,repil]$repros/multirep[,repil]$popsize[-1],xlab="time",ylab="% people in valid couple",main="% parents",type="l",lwd=2,col=repil)
+
+multirep=sapply(,modelVector(K=K, m=1, b=10*0.04, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("births","deaths","popsize","finalpop","repros"),logging="time",ma=1,traitsid=paste0("t",1:z)))
+
+newtestres=modelVector(K=K, m=1, b=0.5, r=0, rho=.5, d=0.043, maturity=18, endrepro=65, population=testres$population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("repros","births","deaths","popsize","finalpop"),logging=c("time","visu"),ma=1,traitsid=paste0("t",1:z),F_Th = 60)
+
+neutraltraitsParam=initNeutralTraitsPathways(z = 2)
+traitsid=paste0("t",1:2)
+percomu=50
+K=2
+km=0
+ki=2
+N=100
+pos=random2Dgrid(K=K,Gx=5)
+a=initAdaptiveTraits(ki=ki,km=km,n=1 )
+initcomus=initialiseCommunities(ki=2,km=0,traits=a,coordinates=pos,G=5,plot=T,sizes=c(50,50))
+communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+initcomus$size=unname(table(smallpop[,"community"]))
+multrep=replicate(10,modelVector(K=K, m=1, b=0.39, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=smallpop, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","deaths","popsize","popfull","repros","births"),logging=c("time","fission"),ma=1,traitsid=paste0("t",1:z),F_Th=180))
+
+
+plot(quickV$popsize)
+plot(quickV$births)
+plot(quickV$deaths)
+plot(quickV$repros/quickV$popsize[-1],type="l")
+
+par(mfrow=c(3,2))
+plot(1,1,main="population size",xlab="time",ylab="# number individual",log="y",ylim=c(1,5000),type="l",lwd=2,xlim=c(0,501))
+for(repil in 1:ncol(multirep)) lines(multirep[,repil]$popsize,,main="#death vs popsize",col=repil,lwd=2)
+plot(1,1,main="number of valid couple",type="l",log="y",lwd=2,ylim=c(1,2000),xlim=c(0,501))
+for(repil in 1:ncol(multirep)) lines(multirep[,repil]$repro,main="number of valid couple",col=repil,type="l",lwd=2)
+plot(1,1,xlab="population size",ylab="number of death",main="#death vs popsize",ylim=c(1,100),xlim=c(0,500))
+for(repil in 1:ncol(multirep)) 
+points(multirep[,repil]$popsize[-1],multirep[,repil]$deaths,xlab="population size",ylab="number of death",main="#death vs popsize",col=repil)
+plot(newtestres$popsize[-1],newtestres$births,xlab="population size",ylab="number of birth",main="#birth vs popsize")
+for(repil in 1:ncol(multirep)) 
+points(multirep[,repil]$popsize[-1],multirep[,repil]$births,xlab="population size",ylab="number of birth",main="#birth vs popsize",col=repil)
+plot(newtestres$popsize[-1],newtestres$repros,xlab="population size",ylab="number parents",main="#parents vs popsize")
+for(repil in 1:ncol(multirep)) 
+points(multirep[,repil]$popsize[-1],multirep[,repil]$repros,col=repil)
+plot(newtestres$repros/newtestres$popsize[-1],xlab="time",ylab="% people in valid couple",main="% parents",type="l",lwd=2,ylim=c(0,.5))
+for(repil in 1:ncol(multirep)) 
+lines(multirep[,repil]$repros/multirep[,repil]$popsize[-1],xlab="time",ylab="% people in valid couple",main="% parents",type="l",lwd=2,col=repil)
+
+
+bs=round(runif(100,.35,.41),digit=2)
+library(parallel)
+cl<-makeCluster(10,type="FORK",outfile="log.txt")
+allpopsiz=parSapply(cl,bs,function(b){
+           res=modelVector(K=K, m=1, b=b, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=smallpop, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("popsize"),logging=c("done"),ma=1,traitsid=paste0("t",1:z),F_Th=180)
+           res$popsize[length(res$popsize)]
+})
+stopCluster(cl)
