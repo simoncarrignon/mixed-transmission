@@ -290,6 +290,6 @@ plot.comu <- function(comus,color_gradient=NULL,vidfile=NULL)
     }
 
     if(!is.null(vidfile)) png(paste0(vidfile,".png"),height = 800,width = 800,pointsize = 18)
-    plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)+1],cex=log(comus$size),ylim=c(1,nrow(comus$occupation)),xlim=c(1,ncol(comus$occupation)))
+    plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)+1],cex=log(comus$size+1),ylim=c(1,nrow(comus$occupation)),xlim=c(1,ncol(comus$occupation)))
     if(!is.null(vidfile)) dev.off()
 }
