@@ -30,6 +30,9 @@
 
 modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE){
 	if("popsize"%in%out) popsize=nrow(population)
+	if("deaths"%in%out) deaths=c()
+	if("births"%in%out) births=c()
+	if("repros"%in%out) repros=c()
 	if("weddings"%in%out) weddings=0
 	if("popsumary"%in%out){
 		popsum=list()
@@ -57,6 +60,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		comus$migrantscount=matrix(0,nrow=nrow(comus$adaptivetraits),nrow(comus$adaptivetraits))
 	}
 	if(is.null(vidfile)) stepfile=NULL
+	else stepfile=vidfile
     if("visu"%in% logging)plot.comu(comus,vidfile=stepfile)
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
@@ -165,7 +169,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
             stopifnot(table(families)[fcount>1] == 2)
             stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
         }
-		repro=population[,"age"]>=maturity & population[,"age"] < endrepro & population[,"partner"] > 0
+		repro=validCouple(population,maturity=maturity,endrepro=endrepro)
+		if("repros"%in%out) repros=c(repros,sum(repro))
 		if(sum(repro)>0){
 			reprofam=table(population[repro,"community"])
 			fam=population[repro,c("community","cid"),drop=F]
@@ -183,6 +188,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			lbd=lbd/ma
 			newborns=runif(nrow(fam))<lbd
 			nchilds=sum(newborns)
+			if("births"%in%out) births=c(births,nchilds)
 			if("demo"%in%logging )print(paste(nchilds,"new childs",paste(fam[newborns,"cid"],collapse=",")))
 			if(nchilds>0){
 				givbirth=fam[newborns,2]
@@ -201,9 +207,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 				offsprings=cbind(newpop(nchilds,minid=max(population[,"id"]),community=offcom,fid=offfid),offtraits)
 				birthpercom=table(factor(offsprings[,"community"],levels=1:length(comus$size)))
-				for(i in seq_along(birthpercom)){
-					comus$size[i]=comus$size[i]+birthpercom[i]
-				}
+				comus$size=comus$size+birthpercom
 
 				population=rbind(population,offsprings[,colnames(population)])
                 if(testdebug){
@@ -224,6 +228,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 		#handle deaths
 		dead=runif(nrow(population))<d
+		if("deaths"%in%out) deaths=c(deaths,sum(dead))
 
 		if(sum(dead)>0){
 			singled=population[dead,"partner"]
@@ -236,9 +241,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			if(remarriage & sum(singled>0)>0){
 				population[population[,"id"] %in%  singled[singled>0],c("partner","cid")]=-1
 			}
-			for(i in seq_along(deathpercom)){
-				comus$size[i]=comus$size[i]-deathpercom[i]
-			}
+			comus$size=comus$size-deathpercom
 			population=population[!dead,,drop=F]
 
             if(testdebug){
@@ -258,14 +261,14 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			overloaded=comus$size>F_Th
 			if(sum(overloaded)>0){
                 if("fission"%in%logging)print(paste("fission starting"))
-                if("fission"%in%logging)paste0(table(population[,"community"]),collapse=" ")
+                if("fission"%in%logging)print(table(population[,"community"]))
 				for(ol in which(overloaded)){
                     new.com.id=-1
                     new.comus=fissionCommunity(comus,ol)
                     if(nrow(new.comus$coordinates)>nrow(comus$coordinates)){
                         new.com.id=nrow(new.comus$coordinates)
                     }
-                    newsize=min(F_Th,comus$size[ol]-F_Th) #how many people should leave  _ol_
+                    newsize=comus$size[ol]/2 #how many people should leave  _ol_
                     population=reassignFamiliesToNewCommunityNoFIDs(ol,population,newsize,new.com.id)
                     oldol=comus$size[ol]
                     new.comus$size=table(factor(population[,"community"],levels=1:nrow(new.comus$coordinates)))
@@ -274,14 +277,14 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
                         comus$size=table(factor(population[,"community"],levels=1:nrow(new.comus$coordinates)))
                         if("fission"%in%logging)print(paste("splitting community",ol,",",newsize,"should leave",oldol-comus$size[ol],"actually did"))
                     }
-                    if(new.com.id != -1){
-                        if(new.comus$size[new.com.id]>0){
-                            comus=new.comus
-                            if("fission"%in%logging)print(paste0("splitting community ",ol," ( of size ",comus$size[ol],", was ",oldol,") in comu: ",new.com.id," ( of size ",comus$size[new.com.id],"); expected migrant:",newsize,""))
-                    }
-                        else
-                            if("fission"%in%logging)print(paste0("failed splitting community ",ol," (of size ",comus$size[ol],", was ",oldol,") in comu: ",new.com.id," (of size ",new.comus$size[new.com.id],"); expected migrant:",newsize,""))
-                    }
+					if(new.com.id != -1){
+						if(new.comus$size[new.com.id]>0){
+							comus=new.comus
+							if("fission"%in%logging)print(paste0("splitting community ",ol," ( of size ",comus$size[ol],", was ",oldol,") in comu: ",new.com.id," ( of size ",comus$size[new.com.id],"); expected migrant:",newsize,""))
+						}
+						else
+							if("fission"%in%logging)print(paste0("failed splitting community ",ol," (of size ",comus$size[ol],", was ",oldol,") in comu: ",new.com.id," (of size ",new.comus$size[new.com.id],"); expected migrant:",newsize,""))
+					}
 				}
 
 			}
@@ -298,6 +301,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		##
 		if(!is.null(vidfile))stepfile=sprintf(paste0(vidfile,"%05d"),time)
 		if("visu"%in% logging)plot.comu(comus,vidfile=stepfile)
+		if("visu"%in% logging)mtext(time,3,1)
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 
 		if(testdebug){
@@ -308,6 +312,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	}
 	finalres=list()
 	if("popsize"%in%out)finalres[["popsize"]]=popsize
+	if("deaths"%in%out)finalres[["deaths"]]=deaths
+	if("births"%in%out)finalres[["births"]]=births
+	if("repros"%in%out)finalres[["repros"]]=repros
 	if("popsumary"%in%out)finalres[["popsumary"]]=popsum
 	if("traitsumary"%in%out)finalres[["traitsumary"]]=do.call("rbind",traitsum)
 	if("finalpop"%in%out)finalres[["population"]]=population
