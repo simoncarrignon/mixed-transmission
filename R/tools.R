@@ -31,7 +31,6 @@ print.pathways.latex<- function(pathways){
 #for(tm in c("pre","post"))
 #  paste(tm,colnames(neutraltraitsParam[[tm]])[neutraltraitsParam[[tm]][i,]==1],sep=":")
 #}
-}
 
 resetIds <- function(population){
     population[population[,"cid"]!= -1 ,"cid"] = as.numeric(as.factor(as.character(population[population[,"cid"]!= -1 ,"cid"])))
