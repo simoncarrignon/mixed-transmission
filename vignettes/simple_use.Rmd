@@ -25,7 +25,7 @@ We have $z$ neutral traits, specifc for each community, with no sexual biases an
 
 ```{r}
 z=4
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$pre[,"h"]=1
 neutraltraitsParam$s=rep(.5,z)
 traitsid=paste0("t",1:z)
@@ -70,7 +70,7 @@ text(initcomus$coordinates[,1],initcomus$coordinates[,2],labels=1:nrow(initcomus
 We then initialise a random population based on these communities:
 ```{r randompop}
 communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
+population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),generateTraitsMatrix(sum(initcomus$size),z))
 ```
 
 
@@ -83,7 +83,7 @@ burnin=modelVector(
    population=population, 
    comus=initcomus, 
    tstep=tstep, 
-   tp=initNeutralTraitsPathways(z = z) , #we recreate a temporary neutral trait table with no neutral transmission
+   tp=generatePathways(z = z) , #we recreate a temporary neutral trait table with no neutral transmission
    age.threshold=20, 
    out=c("finalpop","finalcomus"),   #we only want the final population
    logging=c("done"),ma=1,traitsid=paste0("t",1:z),F_Th = 150

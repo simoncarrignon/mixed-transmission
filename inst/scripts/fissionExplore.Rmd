@@ -17,7 +17,7 @@ z=5
 
 
 
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$s=c(0,0,1,1)
 neutraltraitsParam$pre[,"v"]=c(1,1,1,0,0)
 
@@ -43,7 +43,7 @@ if(sum(initcomus$size) != N){
 plot(initcomus$coordinates,pch=21,bg=apply(initcomus$adaptivetraits,1,mean)+1,cex=log(initcomus$size))
 
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
 
 quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=10, tp=neutraltraitsParam, logging=c("time"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=10800,out=c("finalpop","popsize","weddings"))
 hist(quickV$population[,"age"])
@@ -119,7 +119,7 @@ km <- 1
 K  <-  ki+km
 z=5
 
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$s=c(0,0,1,1)
 neutraltraitsParam$pre[,"v"]=c(1,1,1,0,0)
 
@@ -129,6 +129,6 @@ initcomus=initialiseCommunities(traits=a,coordinates=pos)
 initcomus$size=rep(round(N/K),K)
 
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
 quickV=modelVector(m=1, b=0.03*6, r=0.012, rho=.5, d=0.03, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam, logging=c("time","visu","fissionsize"),ma=1,traitsid=paste0("t",1:z),out=c("popsumary","finalpop","popsize","weddings"),F_Th=200)
 ```

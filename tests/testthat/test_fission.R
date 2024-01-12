@@ -65,7 +65,7 @@ testthat::test_that("test randomly adding element to the grid", {
 testthat::test_that("test reassignFamiliesToNewCommunityNoFIDs", {
                         replicate(20,{
                                       z=5
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 percomu=sample(1:100,1)
 km=sample(1:8,1)
 ki=km*3
@@ -76,7 +76,7 @@ a=initAdaptiveTraits(ki=ki,km=km,n=20)
 initcomus=initialiseCommunities(traits=a,coordinates=pos,G=10)
 initcomus$size=rep(percomu,K)
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
 testthat::expect_true(length(table(reassignFamiliesToNewCommunityNoFIDs(2,population,200,-1)[,"community"]))>0)
 })
                     })

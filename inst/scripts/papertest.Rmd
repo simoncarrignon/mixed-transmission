@@ -5,7 +5,7 @@ Attempt on realising the experiment on the paper:
 
 ```{r}
 z=24
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 
 pw=1
 for(sb in c(.5,1)){
@@ -32,11 +32,11 @@ print.pathways(neutraltraitsParam,verb=F)
 
 adaptive traits and communities:
 ```{r}
-km=1
-ki=4
+km=2
+ki=8
 traits=initAdaptiveTraits(ki=ki,km=km,n=3) # this generate a table for 3 adaptive traits, with ki communities of full hunter-gathere and km of farmers
 traits[1:ki,]=0
-traits[5,]=1
+traits[(ki+1):(ki+km),]=1
 
 G=5 #limits/numer of row & column of the world grid
 coordinates=random2Dgrid(K=ki+km,Gx=G) #random coordinated on the grid
@@ -47,7 +47,7 @@ coordinates[5,]=c(1,1)
 initcomus=initialiseCommunities(traits=traits,coordinates=coordinates,G=G,sizes=100,plot=T)
 
 communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
+population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),generateTraitsMatrix(sum(initcomus$size),z))
 ```
 
 
@@ -58,15 +58,15 @@ tstep=500
 tpcomu=initcomus
 tpcomu$occupation[,]=1
 burnin=modelVector(
-   K=ki, m=1, b=0.2, r=0, rho=0, d=0.01, maturity=18, endrepro=65, 
+   K=ki, m=1, b=0.2, r=0, rho=0, d=0.04, maturity=18, endrepro=65, 
    population=population, 
    comus=tpcomu, 
    tstep=tstep, 
-   tp=initNeutralTraitsPathways(z = z) , #we recreate a temporary neutral trait table with no neutral transmission
+   tp=generatePathways(z = z) , #we recreate a temporary neutral trait table with no neutral transmission
    age.threshold=20, 
    out=c("finalpop","finalcomus"),   #we only want the final population
    beta=-1,
-   logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 50
+   logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 100
 )
 population=resetIds(burnin$population)
 initcomus$size=burnin$finalcomus$size
@@ -81,10 +81,10 @@ knitr::kable(aggregate(population[,traitsid],by=list(population[,"community"]),s
 
 
 ```{r runpropersimu}
-tstep=1000
+tstep=2500
 a=Sys.time()
 simuTest=modelVector(
-    K=ki, m=1, b=0.2, r=0.01, rho=0, d=0.01, 
+    K=ki, m=1, b=0.02, r=0.01, rho=0, d=0.001, 
     maturity=18, endrepro=65, 
     population=population, 
     comus=initcomus, 
@@ -92,8 +92,9 @@ simuTest=modelVector(
     tp=neutraltraitsParam,
     age.threshold=20, 
     out=c("finalpop","finalcomus","traitsumary","popsize"), #this time we keep track of more things
-    logging=c("time","done","visu"),
+    logging=c("time","done","visu","popsize"),
     beta=-1,
+    vidfile="test",
     ma=1,traitsid=paste0("t",1:z),F_Th = 100
 )
 print(Sys.time()-a)
@@ -132,10 +133,10 @@ We can track the frequencie of each traits using "traitsumary"
 
 ```{r track-traits,warnings=FALSE,results=FALSE,results='hold'}
 
-traitsfreq=simuTest$traitsumary/simuTest$popsize
+traitsfreq=quickV$traitsumary
 
 pathways= c("in-law","horiz before","horiz after")
-plot(1,1,ylim=c(0,1),xlim=c(0,1000),type="n",xlab="time",ylab="freq")
+plot(1,1,ylim=c(0,400),xlim=c(0,2500),type="n",xlab="time",ylab="freq")
 sapply(1:24,function(tr)lines(traitsfreq[,tr],col=tr))
 par(xpd=NA)
 legend(x=-9,y=1.5,lwd=4,col=1:4,legend=paste0("t",1:4),cex=1,bty="n")
@@ -434,7 +435,7 @@ stopCluster(cl)
 ```{r}
 devtools::load_all(".")
 z=4
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$post[,"i"]=1
 neutraltraitsParam$s=c(0,1)
 traitsid=paste0("t",1:z)
