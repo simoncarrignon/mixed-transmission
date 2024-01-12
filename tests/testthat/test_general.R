@@ -116,7 +116,6 @@ testthat::test_that("model when only social learning changes but no grow",{
                                       N=200
                                       population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
                                       population[1:50,"age"]=0
-                                      quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=sample(100,1), endrepro=sample(100,1), population=population, comus=initcomus, tstep=sample(10:120,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging=c("",""),ma=1,traitsid=paste0("t",1:z))
                                       quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=1, endrepro=50, population=population, comus=initcomus, tstep=10, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop"),logging=c("",""),ma=1,traitsid=paste0("t",1:z))
                                       traitsid=paste0("t",1:z)
                                       testthat::expect_false(all(apply(quickV$population[,traitsid],2,sum)== apply(population[,traitsid],2,sum) ))
