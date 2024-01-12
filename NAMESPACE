@@ -3,6 +3,7 @@
 export(commuConsistency)
 export(generatePathways)
 export(generateTraitsMatrix)
+export(getRatio)
 export(initAdaptiveTraits)
 export(initialiseCommunities)
 export(lambda)
