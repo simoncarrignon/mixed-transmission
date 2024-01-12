@@ -6,6 +6,9 @@
 \usage{
 getRatio(listtraits)
 }
+\arguments{
+\item{listtraits}{a vector of traits 0 or 1}
+}
 \value{
 the frequencie of 1 over 0 in listtraits
 }

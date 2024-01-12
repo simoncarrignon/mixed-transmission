@@ -108,7 +108,7 @@ generateTraitsMatrix <- function(N,z=9,traitnames="t",nastart=NULL){
 
 #' ratio of traits equal to 1 other the total number of trait
 #'
-#' @param listtraits
+#' @param listtraits a vector of traits 0 or 1
 #' @return the frequencie of 1 over 0 in listtraits 
 #'
 #' @export
