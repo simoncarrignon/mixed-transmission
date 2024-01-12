@@ -17,7 +17,7 @@ endrepro=20
 
 a=initAdaptiveTraits(ki=ki,km=km)
 z=4 #number of neutral traits
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$s=c(0,0,1,1)
 
 ip=1:N
@@ -84,7 +84,7 @@ N=200
 ip=1:N
 names(ip)=ip
 z=4 #number of neutral traits
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$s=c(0,0,1,1)
 populationOO=lapply(ip,function(i) list( id=as.character(i), traits=sample(c(0,1),size=z,replace=T), age=sample.int(65,1), community=1, sex=sample(c("F","M"),1), repro=FALSE, partner=-1))
 

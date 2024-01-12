@@ -1,6 +1,6 @@
 devtools::load_all(".")
 z=2
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$post[,"i"]=1
 neutraltraitsParam$s=c(0,1)
 traitsid=paste0("t",1:z)

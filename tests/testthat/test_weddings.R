@@ -18,7 +18,7 @@ testthat::test_that("test group sex and communities",
 )
 
 z=4
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 percomu=sample(1:100,1)
 K=sample(2:8,1)
 km=round(K/3)
@@ -30,11 +30,11 @@ initcomus=initialiseCommunities(traits=a,coordinates=pos,G=100)
 initcomus$size=rep(percomu,K)
 testthat::expect_named(initcomus)
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
 testthat::expect_vector(population)
 
 
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 percomu=sample(1:100,1)
 K=sample(2:8,1)
 km=round(K/3)
@@ -45,7 +45,7 @@ a=initAdaptiveTraits(ki=ki,km=km,n=20 )
 initcomus=initialiseCommunities(traits=a,coordinates=pos,G=100)
 initcomus$size=rep(percomu,K)
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
 quickV=modelVector( K=K, m=1, b=0.08, r=0.005, rho=1, d=0.01, maturity=18, endrepro=60, population=population, comus=initcomus, tstep=200, tp=neutraltraitsParam,age.threshold=generation.threshold, logging=c(""),out="finalpop",ma=1,traitsid=paste0("t",1:z))
 population=quickV$population
 

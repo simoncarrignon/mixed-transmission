@@ -10,7 +10,7 @@ We have z neutral traits, specifc for each community.
 
 ```{r}
 z=4
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$post[,"i"]=1
 neutraltraitsParam$s=rep(.5,z)
 traitsid=paste0("t",1:z)
@@ -32,7 +32,7 @@ text(initcomus$coordinates[,1],initcomus$coordinates[,2],labels=1:nrow(initcomus
 Age of people is initially random
 ```{r randompop}
 communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
+population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),generateTraitsMatrix(sum(initcomus$size),z))
 ```
 
 Each community will has a one specific neutral traits
@@ -382,7 +382,7 @@ stopCluster(cl)
 ```{r}
 devtools::load_all(".")
 z=4
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$post[,"i"]=1
 neutraltraitsParam$s=c(0,1)
 traitsid=paste0("t",1:z)

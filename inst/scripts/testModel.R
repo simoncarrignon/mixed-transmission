@@ -18,7 +18,7 @@ z=5
 
 
 
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$s=c(0,1,0,1,0)
 neutraltraitsParam$pre[,"v"]=c(1,1,1,1,1) #this needs to be always like this otherwise there are NA traits
 neutraltraitsParam$pre[,"o"]=c(0,0,0,1,1)
@@ -59,7 +59,7 @@ tstep=800
 #stopCluster(cl)
 z=sample(2:20,1)
 
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
 neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
 neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
