@@ -44,7 +44,7 @@ farmers=expand.grid(3:5, 3:5)
 coordinates[1:ki,]=as.matrix(farmers[sample(1:nrow(farmers),ki),])
 coordinates[5,]=c(1,1)
 
-initcomus=initialiseCommunities(traits=traits,coordinates=coordinates,G=G,sizes=100,plot=T)
+initcomus=initialiseCommunities(traits=traits,coordinates=coordinates,G=G,sizes=50,plot=T)
 
 communities=unlist(lapply(seq_along(initcomus$size),function(i)rep(i,initcomus$size[i])))
 population=cbind(newpop(n=sum(initcomus$size),age="random",community = communities),initNeutralTraits(sum(initcomus$size),z))
@@ -70,6 +70,7 @@ burnin=modelVector(
 )
 population=resetIds(burnin$population)
 initcomus$size=burnin$finalcomus$size
+traitsid=paste0("t",1:z)
 ```
 
 ```{r setuppopulation}
@@ -147,47 +148,36 @@ legend(x=-9,y=1.5,lwd=4,col=1:4,legend=paste0("t",1:4),cex=1,bty="n")
 replicate experiments
 
 ```{r,eval=F}
+library(parallel)
 tstep=20000
-repli=50
-neutraltraitsParam$s=c(.5,.5,.5,.5)
-rhodep=lapply(c(0,1),function(rho){
-           neutraltraitsParam$post[,]=0
-           neutraltraitsParam$pre[,]=0
-           neutraltraitsParam$post[,"i"]=1
-           allinlaw=replicate(repli,
-                              {
-                                  quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
-                                  pop=quickV$population
-                                  sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
-                              },simplify=F)
+repli=20
+cl <- makeCluster(20,type="FORK",outfile="log.txt")
+rhodep=lapply(c(.5,1),function(rho){
+                  parSapply(cl,1:repli,function(i)
+                                     {
+                                         set.seed(as.numeric(Sys.time())+i)
+                                         modelVector(
+                                                          K=ki+km, m=1, b=0.2, r=0.01, rho=rho, d=0.01, 
+                                                          maturity=18, endrepro=65, 
+                                                          population=population, 
+                                                          comus=initcomus, 
+                                                          tstep=tstep, 
+                                                          tp=neutraltraitsParam,
+                                                          age.threshold=20, 
+                                                          out=c("finalpop","finalcomus","traitsumary","popsize"), #this time we keep track of more things
+                                                          logging=c("done"),
+                                                          beta=-1,
+                                                          ma=1,traitsid=paste0("t",1:z),F_Th = 100
+                                         )
+                                     })
 
-           neutraltraitsParam$post[,"i"]=0
-           neutraltraitsParam$post[,"h"]=1
-           allposthoriz=replicate(repli,{
-                                  set.seed(as.numeric(Sys.time())+r)
-                                      quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
-                                      pop=quickV$population
-                                      sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
-                              },simplify=F)
-
-
-           neutraltraitsParam$post[,"h"]=0
-           neutraltraitsParam$pre[,"h"]=1
-           allprehoriz=replicate(repli,{
-                                  set.seed(as.numeric(Sys.time())+r)
-                                     quickV=modelVector(K=K, m=1, b=0.2, r=0.01, rho=rho, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=tstep, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop","finalcomus","popsize"),logging=c("time"),ma=1,traitsid=paste0("t",1:z),F_Th = 150,vidfile=NULL)
-                                     pop=quickV$population
-                                     sapply(1:z,function(i)apply(pop[pop[,"community"]==i,traitsid],2,sum))
-                              },simplify=F)
-
-           list(allinlaw=allinlaw,allposthoriz=allposthoriz,allprehoriz=allprehoriz)
-}
-)
-
+})
+stopCluster(cl)
+saveRDS(file="test.RDS",rhodep)
 ```
 
 ```{r,out.width="30%"}
-rhodep=readRDS("precomp.RDS")
+saveRDS(file="testShort.RDS",rhodep)
 
 matmean <- function(m)Reduce("+",m)/length(m)
 
