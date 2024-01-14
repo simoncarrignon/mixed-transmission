@@ -40,7 +40,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 	}
 	if("traitsumary"%in%out){
 		traitsum=list()
-		traitsum[[1]]=apply(population[,traitsid],2,sum)
+		traitsum[[1]]=apply(population[,traitsid,drop=F],2,sum)
     }
 	if("migrsum"%in%out){
 		migrsum=list()
@@ -171,6 +171,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
         }
 		repro=validCouple(population,maturity=maturity,endrepro=endrepro)
 		if("repros"%in%out) repros=c(repros,sum(repro))
+        nchilds=0
 		if(sum(repro)>0){
 			reprofam=table(population[repro,"community"])
 			fam=population[repro,c("community","cid"),drop=F]
@@ -188,7 +189,6 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			lbd=lbd/ma
 			newborns=runif(nrow(fam))<lbd
 			nchilds=sum(newborns)
-			if("births"%in%out) births=c(births,nchilds)
 			if("demo"%in%logging )print(paste(nchilds,"new childs",paste(fam[newborns,"cid"],collapse=",")))
 			if(nchilds>0){
 				givbirth=fam[newborns,2]
@@ -218,6 +218,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 			## Pre-Marital Horizontal and Oblique Transmission
 			population  <- social.learning(population,when='pre',pathways=tp,threshold=age.threshold)
 		}
+        if("births"%in%out) births=c(births,nchilds)
 
 
 		## For all community where migrants here
@@ -294,7 +295,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 
 		#quick summary of population at time 
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
-		if("traitsumary"%in%out)traitsum[[time]]=apply(population[,traitsid],2,sum)
+		if("traitsumary"%in%out)traitsum[[time]]=apply(population[,traitsid,drop=F],2,sum)
 		if("comufull"%in%out)comufull[[time]]=comus
 		if("popfull"%in%out) popfull[[time]]=population
 
