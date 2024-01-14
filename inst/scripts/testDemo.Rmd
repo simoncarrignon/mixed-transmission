@@ -246,6 +246,7 @@ N=100
 pos=random2Dgrid(K=K,Gx=5)
 a=initAdaptiveTraits(ki=ki,km=km,n=1 )
 initcomus=initialiseCommunities(ki=2,km=0,traits=a,coordinates=pos,G=5,plot=T,sizes=c(50,50))
+
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
 population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
 initcomus$size=unname(table(smallpop[,"community"]))
@@ -256,6 +257,18 @@ plot(quickV$popsize)
 plot(quickV$births)
 plot(quickV$deaths)
 plot(quickV$repros/quickV$popsize[-1],type="l")
+initcomus$occupation[,]=1
+communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(K*50,age="random",community = communities),initNeutralTraits(K*50,2))
+newtestres=modelVector(K=K, m=1, b=0.5, r=0, rho=.5, d=0.03, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("repros","births","deaths","popsize","finalpop"),logging=c("time"),ma=1,traitsid=paste0("t",1:2),F_Th = 55)
+
+table(newtestres$population[,"community"])
+population=newtestres$population
+
+rmid=population[population[,"fid"]==-1,"id"]
+population=population[population[,"fid"]!=-1,]
+population=population[!(population[,"partner"]%in% rmid),]
+initcomus$size=unname(table(population[,"community"]))
 
 par(mfrow=c(3,2))
 plot(1,1,main="population size",xlab="time",ylab="# number individual",log="y",ylim=c(1,5000),type="l",lwd=2,xlim=c(0,501))
@@ -277,6 +290,143 @@ lines(multirep[,repil]$repros/multirep[,repil]$popsize[-1],xlab="time",ylab="% p
 
 
 bs=round(runif(100,.35,.41),digit=2)
+devtools::load_all(".")
+bs=round(runif(500,.34,.38),digit=3)
+data(smallpop)
+traitsid=paste0("t",1:4)
+K=10
+km=0
+ki=10
+pos=random2Dgrid(K=K,Gx=100)
+a=initAdaptiveTraits(ki=ki,km=km,n=1 )
+initcomus=initialiseCommunities(ki=2,km=0,traits=a,coordinates=pos,G=100,plot=T,sizes=50)
+initcomus$size=unname(table(smallpop[,"community"]))
+library(parallel)
+cl<-makeCluster(10,type="FORK",outfile="log.txt")
+allpopsiz=parSapply(cl,bs,function(b){
+           res=modelVector(K=K, m=1, b=b, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=smallpop, comus=initcomus, tstep=500, tp=initNeutralTraitsPathways(z=4),age.threshold=20, out=c("popsize"),logging=c("done"),ma=1,traitsid=traitsid,F_Th=100)$popsize
+})
+stopCluster(cl)
+par(mfrow=c(1,3))
+boxplot(lengths(allpopsiz)~bs,ylab="simu length vs birth rate ",xlab="birth rate",main="extinctions")
+finished=allpopsiz[lengths(allpopsiz)==500]
+finsize=sapply(finished,"[",500)
+boxplot(finsize~bs[lengths(allpopsiz)==500],ylab="population size at the end of simulation for simulation who finised",xlab="birth rate ",main="pop at end without extinctions")
+abline(h=nrow(smallpop),col="red")
+boxplot(finsize~bs[lengths(allpopsiz)==500],ylab="population size at the end of simulation for simulation who finised",xlab="birth rate ",ylim=c(1,1500),log="y",main="pop at end without extinctions")
+
+allfinal=sapply(allpopsiz,function(i)i[length(i)])
+boxplot(allfinal~bs,ylab="population size at the end of simulation for simulation who finised",xlab="birth rate ",main="pop at end ")
+abline(h=nrow(smallpop),col="red")
+
+
+boxplot(log(allfinal+1))
+
+neutraltraitsParam=generatePathways(z = 2)
+traitsid=paste0("t",1:2)
+percomu=50
+K=10
+km=0
+ki=10
+pos=random2Dgrid(K=K,Gx=100)
+a=initAdaptiveTraits(ki=ki,km=km,n=1 )
+initcomus=initialiseCommunities(ki=ki,km=km,traits=a,coordinates=pos,G=100,plot=T,sizes=c(50))
+initcomus$occupation[,]=1
+communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
+population=cbind(newpop(K*50,age="random",community = communities),(K*50,2))
+newtestres=modelVector(K=K, m=1, b=0.8, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=neutraltraitsParam,age.threshold=20, out=c("repros","births","deaths","popsize","finalpop"),logging=c("time"),ma=1,traitsid=paste0("t",1:2),F_Th = 70)
+table(newtestres$population[,"community"])
+population=newtestres$population
+rmid=population[population[,"fid"]==-1,"id"]
+population=population[population[,"fid"]!=-1,]
+population=population[!(population[,"partner"]%in% rmid),]
+initcomus$size=unname(table(population[,"community"]))
+population=resetIds(population)
+
+traitsid=paste0("t",1:2)
+K=10
+km=0
+ki=10
+pos=random2Dgrid(K=K,Gx=100)
+a=initAdaptiveTraits(ki=ki,km=km,n=1 )
+initcomus=initialiseCommunities(ki=2,km=0,traits=a,coordinates=pos,G=100,plot=T)
+initcomus$size=unname(table(population[,"community"]))
+library(parallel)
+bs=round(runif(200,.3,.44),digit=3)
+cl<-makeCluster(10,type="FORK",outfile="log.txt")
+allpopsizesonly=parSapply(cl,bs,function(b){
+           modelVector(K=K, m=1, b=b, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=1000, tp=generatePathways(z=2),age.threshold=20, out=c("popsize"),logging=c("done"),ma=1,traitsid=traitsid,F_Th=100,testdebug=F)$popsize
+})
+stopCluster(cl)
+saveRDS(file="pposizeLargerTh.RDS",allpopsizesonly)
+par(mfrow=c(1,3))
+boxplot(lengths(allpopsiz)~bs,ylab="simu length vs birth rate ",xlab="birth rate",main="extinctions")
+finished=allpopsiz[lengths(allpopsiz)==500]
+finsize=sapply(finished,"[",500)
+boxplot(finsize~bs[lengths(allpopsiz)==500],ylab="population size at the end of simulation for simulation who finised",xlab="birth rate ",main="pop at end without extinctions")
+abline(h=nrow(smallpop),col="red")
+
+allfinal=sapply(allpopsiz,function(i)i[length(i)])
+boxplot(allfinal~bs,ylab="population size at the end of simulation for simulation who finised",xlab="birth rate ",main="pop at end ")
+abline(h=nrow(population),col="red")
+
+
+plot(allpopsiz[[1]],xlim=c(0,500),ylim=c(0,800))
+compressedts=sapply(1:500,function(t)sapply(allpopsiz,function(i)i[t]))
+getdist=apply(compressedts,2,quantile)
+
+compressedts=sapply(1:500,function(t)sapply(allpopsiz,function(i)i[t]))
+
+uniqutest=modelVector(K=K, m=1, b=b, r=0, rho=.5, d=0.04, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=initNeutralTraitsPathways(z=2),age.threshold=20, out=c("popsize","births","deaths","repros","finalcomus","finalpop","popfull"),logging=c("done","time"),ma=1,traitsid=traitsid,F_Th=50,testdebug=F)
+
+allpopu=sapply(uniqutest$popfull,function(population){
+sapply(1:25,function(c){
+           print(c)
+           subpop=population[population[,"community"]==c,,drop=F]
+           if(length(subpop)!=0){
+               sum(validCouple(subpop,maturity=18,endrepro=65))
+           }
+           else
+               NA
+})
+})
+plot(1,1,type="n",ylim=c(0,1),xlim=c(0,500))
+for(co in 1:25){
+    lines(allpopu[co,],lwd=2,col=co)
+}
+
+allsize=sapply(uniqutest$popfull,function(population){
+sapply(1:25,function(c){
+           print(c)
+           subpop=population[population[,"community"]==c,,drop=F]
+           if(length(subpop)!=0){
+           nrow(subpop)
+           }
+           else
+               NA
+})
+})
+simuresu=readRDS("fullout.RDS") 
+
+repros=apply(sapply(1:500,function(t)apply(simuresu,2,function(i)i$repros[t])),2,quantile,na.rm=T)
+popsizes=apply(sapply(1:500,function(t)apply(simuresu,2,function(i)i$popsize[t])),2,quantile,na.rm=T)
+popsizes=apply(sapply(1:500,function(t)apply(simuresu,2,function(i)i$popsize[t])),2,quantile,na.rm=T)
+
+
+allpopsiz=sapply(1:500,function(t)apply(simuresu,2,function(i)i$popsize[t]))
+allrepros=sapply(1:500,function(t)apply(simuresu,2,function(i)i$repros[t]))
+alldeaths=sapply(1:500,function(t)apply(simuresu,2,function(i)i$deaths[t]))
+allbirths=sapply(1:500,function(t)apply(simuresu,2,function(i)i$births[t]))
+deaths=apply(alldeaths,2,quantile,na.rm=T)
+births=apply(allbirths,2,quantile,na.rm=T)
+plot(allpopsiz,allrepros)
+hist(allrepros/allpopsiz)
+plot(popsizes[1,],deaths[1,])
+points(popsizes[1,],deaths[1,])
+abline(0,0.04,col="red")
+plot(popsizes[3,],births[3,])
+abline(0,0.04,col="red")
+text(450,15,expression(y==0.04*x),col="red") 
 library(parallel)
 cl<-makeCluster(10,type="FORK",outfile="log.txt")
 allpopsiz=parSapply(cl,bs,function(b){
