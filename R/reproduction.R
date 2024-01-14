@@ -122,3 +122,27 @@ secondop=function(n=10){
 
 ##microbenchmark::microbenchmark(t(replicate(20,firstop())),secondop(20),times=50000)
 
+
+#' Check Validity of Couples Based on Age and Partner Status
+#'
+#' This function determines if individuals in a population are part of a valid couple 
+#' based on age and partner status. A valid couple is defined as individuals whose 
+#' age is greater than or equal to the 'maturity' age and less than the 'endrepro' 
+#' age, and who have a partner (indicated by a 'partner' value greater than 0).
+#'
+#' @param population A data frame representing the population. 
+#'                   It must contain the columns 'age' and 'partner'.
+#' @param maturity An integer representing the minimum age for reproductive maturity.
+#' @param endrepro An integer representing the maximum age for reproduction.
+#'
+#' @return A logical vector indicating whether each individual in the population 
+#'         is part of a valid couple.
+#'
+#' @examples
+#' # maturity and endrepro ages are defined
+#' valid_couples <- validCouple(population, maturity=1, endrepro=65)
+#'
+#' @export
+validCouple <- function(population,maturity, endrepro){
+		population[,"age"]>=maturity & population[,"age"] < endrepro & population[,"partner"] > 0
+}

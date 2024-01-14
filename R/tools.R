@@ -31,7 +31,6 @@ print.pathways.latex<- function(pathways){
 #for(tm in c("pre","post"))
 #  paste(tm,colnames(neutraltraitsParam[[tm]])[neutraltraitsParam[[tm]][i,]==1],sep=":")
 #}
-}
 
 resetIds <- function(population){
     population[population[,"cid"]!= -1 ,"cid"] = as.numeric(as.factor(as.character(population[population[,"cid"]!= -1 ,"cid"])))
@@ -43,3 +42,14 @@ resetIds <- function(population){
     population[is.na(population[,"partner"]),"partner"]=-1
     population
 }
+
+getFixationOneTraits <- function(traits,v=1){
+    fixed=traits==v
+    if(sum(fixed)==0)return(NA)
+    else(min(which(fixed)))
+}
+
+matmean <- function(m)Reduce("+",m)/length(m)
+
+
+

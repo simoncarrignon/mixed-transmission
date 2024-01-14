@@ -15,7 +15,7 @@ traitsid=paste0("t",1:z)
 
 
 
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$s=c(0,1,0,1,0)
 neutraltraitsParam$pre[,"v"]=c(1,1,1,1,1) #this needs to be always like this otherwise there are NA traits
 neutraltraitsParam$pre[,"o"]=c(0,0,0,1,1)
@@ -30,7 +30,7 @@ initcomus=initialiseCommunities(traits=a,coordinates=pos,G=100)
 initcomus$size=rep(N/K,K)
 
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
 
 testthat::test_that('Quick general test',{
                         suppressWarnings(
@@ -56,7 +56,7 @@ testthat::test_that('Testing popsize hasnt changed',{
 testthat::test_that("Testing when all pathways at 0 that traits distribution hasn't changed",
                     {
                         suppressWarnings({
-                            quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=50, tp=initNeutralTraitsPathways(z = z),age.threshold=generation.threshold, out="finalpop",logging=NULL,ma=1,traitsid=paste0("t",1:z))
+                            quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=50, endrepro=60, population=population, comus=initcomus, tstep=50, tp=generatePathways(z = z),age.threshold=generation.threshold, out="finalpop",logging=NULL,ma=1,traitsid=paste0("t",1:z))
 testthat::expect_true(all( apply(quickV$population[,traitsid],2,sum)[1:2]== apply(population[,traitsid],2,sum)[1:2]))
                         }
 )
@@ -104,7 +104,7 @@ testthat::test_that("model when only social learning changes but no grow",{
                                   {
                                       z=sample(2:20,1)
 
-                                      neutraltraitsParam=initNeutralTraitsPathways(z = z)
+                                      neutraltraitsParam=generatePathways(z = z)
                                       neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
                                       neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
                                       neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
@@ -114,9 +114,8 @@ testthat::test_that("model when only social learning changes but no grow",{
                                       neutraltraitsParam$s=rbinom(z,1,.5)
 
                                       N=200
-                                      population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+                                      population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
                                       population[1:50,"age"]=0
-                                      quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=sample(100,1), endrepro=sample(100,1), population=population, comus=initcomus, tstep=sample(10:120,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging=c("",""),ma=1,traitsid=paste0("t",1:z))
                                       quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=1, endrepro=50, population=population, comus=initcomus, tstep=10, tp=neutraltraitsParam,age.threshold=20, out=c("finalpop"),logging=c("",""),ma=1,traitsid=paste0("t",1:z))
                                       traitsid=paste0("t",1:z)
                                       testthat::expect_false(all(apply(quickV$population[,traitsid],2,sum)== apply(population[,traitsid],2,sum) ))
@@ -126,7 +125,7 @@ testthat::test_that("model when only social learning changes but no grow",{
 
 
 z=sample(2:20,1)
-neutraltraitsParam=initNeutralTraitsPathways(z = z)
+neutraltraitsParam=generatePathways(z = z)
 neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
 neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
 neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
@@ -135,7 +134,7 @@ neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
 neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
 neutraltraitsParam$s=rbinom(z,1,.5)
 N=200
-population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
 quickV=modelVector(K=K, m=1, b=0.01, r=0.005, rho=1, d=0.01, maturity=10, endrepro=65, population=population, comus=initcomus, tstep=200, tp=neutraltraitsParam,age.threshold=10, out=c("finalpop"),logging=NULL,ma=1,traitsid=paste0("t",1:z))
 traitsid=paste0("t",1:z)
 
@@ -147,7 +146,7 @@ testthat::test_that("model when random social learning, steady grow/decrease",{
                                   {
                                       z=sample(2:20,1)
 
-                                      neutraltraitsParam=initNeutralTraitsPathways(z = z)
+                                      neutraltraitsParam=generatePathways(z = z)
                                       neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
                                       neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
                                       neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
@@ -167,7 +166,7 @@ testthat::test_that("model when random social learning, steady grow/decrease",{
                                       initcomus=initialiseCommunities(traits=a,coordinates=pos,G=100)
                                       initcomus$size=rep(percomu,K)
                                       communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-                                      population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+                                      population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
                                       quickV=suppressWarnings(modelVector(K=K, m=1, b=0.07, r=0, rho=1, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(50:60,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging="",ma=1,traitsid=paste0("t",1:z)))
 
                                       testthat::expect_named(quickV)
@@ -180,7 +179,7 @@ testthat::test_that("model everything, everything random: social learning,adapti
                                   {
                                       z=sample(2:20,1)
 
-                                      neutraltraitsParam=initNeutralTraitsPathways(z = z)
+                                      neutraltraitsParam=generatePathways(z = z)
                                       neutraltraitsParam$post[,"o"]=rbinom(z,1,.5)
                                       neutraltraitsParam$post[,"i"]=rbinom(z,1,.5)
                                       neutraltraitsParam$post[,"h"]=rbinom(z,1,.5)
@@ -199,7 +198,7 @@ testthat::test_that("model everything, everything random: social learning,adapti
                                       initcomus=initialiseCommunities(traits=a,coordinates=pos,G=100)
                                       initcomus$size=rep(percomu,K)
                                       communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
-                                      population=cbind(newpop(N,age="random",community = communities),initNeutralTraits(N,z))
+                                      population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
                                       quickV=suppressWarnings(modelVector(K=K, m=1, b=0.07, r=0.005, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(50:60,1), tp=neutraltraitsParam,age.threshold=20, out=c("finalpop"),logging=c(""),ma=1,traitsid=paste0("t",1:z)))
                                       testthat::expect_named(quickV)
                                   })

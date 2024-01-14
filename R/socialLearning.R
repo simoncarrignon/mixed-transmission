@@ -42,8 +42,8 @@ vertical <- function(p1,p2=NULL,tp,tid){
 #' @param t_post pathway post marital
 #'
 #' @examples
-#' initNeutralTraitsPathways(1, 5)
-initNeutralTraitsPathways <- function(z=9,t_pre=c('v','h','o'),t_post=c('h','o','i')){
+#' generatePathways(1, 5)
+generatePathways <- function(z=9,t_pre=c('v','h','o'),t_post=c('h','o','i')){
     pre = array(0,dim=c(z,length(t_pre)))
     colnames(pre)=t_pre
     post = array(0,dim=c(z,length(t_post)))
@@ -78,7 +78,27 @@ initAdaptiveTraits <- function(km,ki,aval=c("i"=0,"m"=1),n=3){
     return(traits)
 }
 
-initNeutralTraits <- function(N,z=9,traitnames="t",nastart=NULL){
+
+#' Generate a Matrix of Traits for a Population
+#'
+#' This function creates a matrix representing various traits for a population. 
+#' Each row in the matrix represents an individual, and each column represents a different trait. 
+#' The traits are initialized either to a sample from c(0,1) or to NA, depending on whether 'nastart' is NULL or not.
+#'
+#' @param N An integer representing the number of individuals in the population.
+#' @param z An optional integer representing the number of traits per individual, defaulting to 9.
+#' @param traitnames A string representing the base name for the traits, which will be concatenated with their index.
+#' @param nastart An optional parameter; if non-NULL, all trait values are initialized to NA.
+#'
+#' @return A matrix of size N x z, where each row represents an individual and each column a trait.
+#'         The traits are named according to 'traitnames' and their index.
+#'
+#' @examples
+#' # Generate a 5 traits matrix for a population of 100 individuals
+#' traits_matrix <- generateTraitsMatrix(100, z=5)
+#'
+#' @export
+generateTraitsMatrix <- function(N,z=9,traitnames="t",nastart=NULL){
     if(is.null(nastart))initval=c(0,1)
     else initval=rep(NA,z)
     traits= t(replicate(N,sample(initval,z,replace=T)))
@@ -86,6 +106,12 @@ initNeutralTraits <- function(N,z=9,traitnames="t",nastart=NULL){
     return(traits)
 }
 
+#' ratio of traits equal to 1 other the total number of trait
+#'
+#' @param listtraits
+#' @return the frequencie of 1 over 0 in listtraits 
+#'
+#' @export
 getRatio <- function(listtraits) sum(listtraits)/length(listtraits)
 
 
@@ -131,10 +157,10 @@ drawFromPool <- function(pool.traits, pool.sex, sexbiases) {
     # Pre-calculate dimensions
     ncolTraits = ncol(pool.traits)
 
-    # Efficient aggregation and subsetting
     es = aggregate(pool.traits, by = list(factor(pool.sex, levels = c(0, 1))), FUN = getRatio, drop = FALSE)
     es = es[, -1, drop = FALSE]
-    es[is.na(es)] = 0
+
+    es[is.na(es)] = 0 #if ratio are na it means that no-one from with this sex possed the traits, thus there is no-one to copy from.
 
     # Vectorized operation for final calculation
     ratios = (1 - sexbiases) * es[1, ] + sexbiases * es[2, ]
@@ -145,7 +171,7 @@ drawFromPool <- function(pool.traits, pool.sex, sexbiases) {
 #' @description Core social learning routine
 #' @param x matrix containing population of agents
 #' @param when character defining whether the transmission is pre-marial ('pre') or post-marital ('post')
-#' @param pathways list containing the transmission pathways for each trait (generated using \code{initNeutralTraitsPathways()})
+#' @param pathways list containing the transmission pathways for each trait (generated using \code{generatePathways()})
 #' @param threshold integer defining age tresholds for distinguishing horrizontal and oblique transmission.
 #' @param traitsid a vector with the name/index of the traits of the traits 
 #'
