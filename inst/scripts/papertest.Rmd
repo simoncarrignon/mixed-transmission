@@ -10,9 +10,9 @@ neutraltraitsParam=generatePathways(z = z)
 pw=1
 for(sb in c(.5,1)){
     print(pw)
-    neutraltraitsParam$s[pw]=sb
     for(pre in c("v","h","o")){
         neutraltraitsParam$pre[pw:(pw+3),pre]=1
+        neutraltraitsParam$s[pw:(pw+3)]=sb
         pw=pw+1
         print(pw)
         neutraltraitsParam$s[pw]=sb
