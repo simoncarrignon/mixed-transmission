@@ -32,7 +32,8 @@ modelVector(
   vidfile = NULL,
   warn = FALSE,
   testdebug = FALSE,
-  remarriage = FALSE
+  remarriage = FALSE,
+  popcapsize = NULL
 )
 }
 \arguments{
@@ -57,6 +58,8 @@ modelVector(
 \item{testdebug}{Logical flag to control stop test for debugging}
 
 \item{remarriage}{Logical flag to control if widower can remarry or not}
+
+\item{popcapsize}{Stop the population if it reach a certain size}
 }
 \value{
 A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
