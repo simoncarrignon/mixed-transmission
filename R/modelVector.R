@@ -15,6 +15,7 @@
 #' @param warn Logical flag to control the display of warnings.
 #' @param testdebug Logical flag to control stop test for debugging
 #' @param remarriage Logical flag to control if widower can remarry or not
+#' @param popcapsize Stop the population if it reach a certain size
 #' 
 #' @return A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
 #'
@@ -28,7 +29,7 @@
 #' @importFrom stats runif   
 #' @export
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,85),mortality=c(0.15,0.01,0.01,0.02,0.05,1),rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE,popcapsize=NULL){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("deaths"%in%out) deaths=c()
 	if("births"%in%out) births=c()
@@ -228,7 +229,8 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
 		}
 
 		#handle deaths
-		dead=runif(nrow(population))<d
+# 		dead=runif(nrow(population))<d
+		dead=ageDeath(population[,'age'],b=deathage,m=mortality)
 		if("deaths"%in%out) deaths=c(deaths,sum(dead))
 
 		if(sum(dead)>0){
@@ -310,6 +312,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, rho=.5, d, maturity, endr
             stopifnot(coms == comus$size[as.numeric(names(coms))])
         }
         if(nrow(population)==0){print("extinction");break}
+        if(!is.null(popcapsize))if(nrow(population)>popcapsize){print("pop cap reached");break}
 	}
 	finalres=list()
 	if("popsize"%in%out)finalres[["popsize"]]=popsize
