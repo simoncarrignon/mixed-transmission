@@ -13,6 +13,7 @@ modelVector(
   m,
   b,
   r,
+  deathage = c(0, 5, 18, 40, 65, 85),
   rho = 0.5,
   d,
   maturity,
@@ -33,7 +34,8 @@ modelVector(
   warn = FALSE,
   testdebug = FALSE,
   remarriage = FALSE,
-  popcapsize = NULL
+  popcapsize = NULL,
+  fracfiss = 0.5
 )
 }
 \arguments{
@@ -60,6 +62,8 @@ modelVector(
 \item{remarriage}{Logical flag to control if widower can remarry or not}
 
 \item{popcapsize}{Stop the population if it reach a certain size}
+
+\item{fracfiss}{fraction of individual leaving}
 }
 \value{
 A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
@@ -74,5 +78,5 @@ It models various aspects such as marriages, migrations, community changes, and 
 #                     maturity = 18, endrepro = 50, a = 1, tp = tp_param, age.threshold = 20, 
 #                     population = initial_population, comus = initial_comus, tstep = 10, 
 #                     ma = 1, traitsid = 1:5, getfinalpop = TRUE, out = c("popsize", "popsumary"))
-
+#mortality=c(0.15,0.01,0.01,0.02,0.05,1)'
 }
