@@ -248,6 +248,8 @@ probaAdoptionAdaptiveTraits <- function(beta,migrants,N,adaptivetraits){
             ks^(1-beta)/(ks^(1-beta)+(N-ks)^(1-beta))
 }
 
+conf <- function(ks,beta,N) ks^(1-beta)/(ks^(1-beta)+(N-ks)^(1-beta))
+
 #We assume here than k.size includes allready all migrants. Thus whencomputing the probability to adopt the trait no present in the population we compare the percentage of people who have _the other_ traits to all those who have the original traits, including the poulation that migrated from other communities with the same traits.
 updateTraits <- function(k,k.size,alltraits,migrantscount,beta){
 	k.traits=alltraits[k,]
