@@ -293,3 +293,11 @@ plot.comu <- function(comus,color_gradient=NULL,vidfile=NULL)
     plot(comus$coordinates,pch=21,bg=color_gradient[apply(comus$adaptivetraits,1,sum)+1],cex=log(comus$size+1),ylim=c(1,nrow(comus$occupation)),xlim=c(1,ncol(comus$occupation)))
     if(!is.null(vidfile)) dev.off()
 }
+
+countTraitsPerComu <- function(population,communities,traitsid){
+    neutrals=aggregate(population[,traitsid],by=list(factor(population[,"community"],levels=seq_along(communities$size))),FUN=sum)
+    adap=communities$adaptivetraits*as.vector(communities$size)
+    return(cbind(neutrals[,-1],adap))
+}
+
+

@@ -44,6 +44,11 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 		traitsum=list()
 		traitsum[[1]]=apply(population[,traitsid,drop=F],2,sum)
     }
+	if("traitpercomu"%in%out){
+
+		traitpercomu=list()
+		traitpercomu[[1]]=countTraitsPerComu(population,comus,traitsid)
+    }
 	if("migrsum"%in%out){
 		migrsum=list()
 		migrsum[[1]]=rep(0,K)
@@ -56,6 +61,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
     if("comufull"%in%out){
         comufull=list()
         comufull[[1]]=comus
+    }
+    if("comusize"%in%out){
+        comusize=list()
+        comusize[[1]]=comus$size
     }
 	if(is.null(comus$migrants) ){
 		#We nee a K x K  to store after migration from where are comming 
@@ -298,7 +307,9 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 		#quick summary of population at time 
 		if("popsumary"%in%out)popsum[[time]]=apply(population,2,table)
 		if("traitsumary"%in%out)traitsum[[time]]=apply(population[,traitsid,drop=F],2,sum)
+		if("traitpercomu"%in%out)traitpercomu[[time]]=countTraitsPerComu(population,comus,traitsid)
 		if("comufull"%in%out)comufull[[time]]=comus
+		if("comusize"%in%out)comusize[[time]]=comus$size
 		if("popfull"%in%out) popfull[[time]]=population
 
 		##
@@ -321,12 +332,14 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 	if("repros"%in%out)finalres[["repros"]]=repros
 	if("popsumary"%in%out)finalres[["popsumary"]]=popsum
 	if("traitsumary"%in%out)finalres[["traitsumary"]]=do.call("rbind",traitsum)
+	if("traitpercomu"%in%out)finalres[["traitpercomu"]]=traitpercomu
 	if("finalpop"%in%out)finalres[["population"]]=population
 	if("weddings"%in%out)finalres[["weddings"]]=weddings
 	if("finalmigrants"%in%out)finalres[["finalmigrants"]]=comus$migrantscount
 	if("migrsum"%in%out)finalres[["migrsum"]]=migrsum
 	if("finalcomus"%in%out)finalres[["finalcomus"]]=comus
     if("comufull"%in%out)finalres[["comufull"]]=comufull
+    if("comusize"%in%out)finalres[["comusize"]]=comusize
     if("popfull"%in%out)finalres[["popfull"]]=popfull
 	if("done"%in%logging)print("done")
 	return(finalres)
