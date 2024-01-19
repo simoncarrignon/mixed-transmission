@@ -44,7 +44,8 @@ for(sb in c(0,.5,1)){
     }
 }
 
-expname="NeutrEvoLSingleBR500kRHO_1_G10"
+beta=-1
+expname="NeutrEvoLSingleBR500kRHO_1_G10_beta_-1"
 dir.create(expname)
 traitsid=paste0("t",1:z)
 alltraits=generateTraitsMatrix(nrow(population),z)
@@ -56,7 +57,7 @@ cl<-makeCluster(40,type="FORK",outfile=file.path(expname,"log.txt"))
 allpopsizesonly=parSapply(cl,1:200,function(b){
                               set.seed(as.numeric(Sys.time())+b)
                               tryCatch({
-           singlesimu=modelVector(K=K, m=1, b=0.216, r=0, rho=1, d=mortality, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=fullpathways,age.threshold=20, out=c("popsize","finalpop","finalcomus","traitsumary","popsumary","deaths","births","repros"),logging=c("done"),ma=1,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5)
+           singlesimu=modelVector(K=K, m=1, b=0.216, r=0, rho=1, d=mortality, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=fullpathways,age.threshold=20, out=c("popsize","finalpop","finalcomus","traitsumary","popsumary","deaths","births","repros"),logging=c("done"),ma=1,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5,beta=beta)
            saveRDS(file=file.path(expname,paste0("singlesimu_s_",b,".RDS")),singlesimu)
            singlesimu$popsize
                               },error=function(e){ print("problem ======");print(e)})
@@ -64,19 +65,21 @@ allpopsizesonly=parSapply(cl,1:200,function(b){
 stopCluster(cl)
 saveRDS(file=file.path(expname,"neutralTraits_longer.RDS"),allpopsizesonly)
 
-for(bonus in 2:3){
-expname=paste0("AdapEvoLSingleBR500kRHO_1_G10_bonus_",bonus)
-dir.create(expname)
-initcomus$adaptivetraits[c(1,2),]=1
-cl<-makeCluster(40,type="FORK",outfile=file.path(expname,"log.txt"))
-allpopsizesonly=parSapply(cl,1:200,function(b){
-                              set.seed(as.numeric(Sys.time())+b)
-                              tryCatch({
-           singlesimu=modelVector(K=K, m=1, b=0.216, r=0.005*bonus, rho=1, d=mortality, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=fullpathways,age.threshold=20, out=c("popsize","finalpop","finalcomus","traitsumary","popsumary","deaths","births","repros"),logging=c("done"),ma=1,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5)
-           saveRDS(file=file.path(expname,paste0("singlesimu_s_",b,".RDS")),singlesimu)
-           singlesimu$popsize
-                              },error=function(e){ print("problem ======");print(e)})
+for(beta in c(-10,0,.1)){
+    for(bonus in 0:3){
+        expname=paste0("AdapEvoLSingleBR500kRHO_1_G10_bonus_",bonus,"_beta_",beta)
+        dir.create(expname)
+        initcomus$adaptivetraits[c(1,2),]=1
+        cl<-makeCluster(40,type="FORK",outfile=file.path(expname,"log.txt"))
+        allpopsizesonly=parSapply(cl,1:200,function(b){
+                                      set.seed(as.numeric(Sys.time())+b)
+                                      tryCatch({
+                                          singlesimu=modelVector(K=K, m=1, b=0.216, r=0.005*bonus, rho=1, d=mortality, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=fullpathways,age.threshold=20, out=c("popsize","finalpop","finalcomus","traitsumary"),logging=c("done"),ma=1,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5,beta=beta)
+                                          saveRDS(file=file.path(expname,paste0("singlesimu_s_",b,".RDS")),singlesimu)
+                                          singlesimu$popsize
+                                      },error=function(e){ print("problem ======");print(e)})
 })
-stopCluster(cl)
-saveRDS(file=file.path(expname,"neutralTraits_longer.RDS"),allpopsizesonly)
+        stopCluster(cl)
+        saveRDS(file=file.path(expname,"neutralTraits_longer.RDS"),allpopsizesonly)
+    }
 }
