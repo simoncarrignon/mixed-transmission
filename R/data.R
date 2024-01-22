@@ -43,7 +43,7 @@
 #' This population has 10 communities ; 500 individual and mean of exactly 50 people per community. This happened by chance. so better keep it
 #' Report ...
 #'
-#' @format ## `population`
+#' @format ## `paperpopulation`
 #' A fake populaiton with valid structure (couple, families and ages)
 #' 500 row (individuals)  and 13 columns
 #' \describe{
@@ -58,3 +58,13 @@
 #' }
 "paperpopulation"
 
+
+
+#'  mortality rate by ages
+#'
+#' a vector describing mortality rate by age
+#' Report ...
+#'
+#' @format ## `mortality`
+
+"mortality"
