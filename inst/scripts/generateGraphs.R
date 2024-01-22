@@ -307,20 +307,31 @@ three.expe=sapply(expnames,function(expname){
 list(popsizes,traitfreq)
 })
 
-for(ide in names(expnames)){
-    traitfreq=three.expe[[ide]]
+
+par(mfrow=c(2,3))
+for(beta in c(-10,0.1,0)){
+for(bonus in 0:3){
+    expname=paste0("TraitTraj_500t_RHO_1_G10_bonus",bonus,"_beta_",beta)
+    allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
+    traitsfreq=sapply(allsingle.exp,function(expfname){
+                          one=readRDS(expfname)
+                          end=length(one$popsize)
+                          one$traitsumary[end,]/one$popsize[end]
+    })
+    traitfreq=t(traitsfreq)
+    colnames(traitfreq)=rep(c("-","h","o","i"),9)
     cols=1:3
     names(cols)=c(0,.5,1)
-    par(mfrow=c(1,3))
     par(xpd=F)
-    boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1))
+    boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1),main=paste0("rho:1, br:0.216 bonus:",0.005*bonus,", beta:",beta))
     bns=as.numeric(sub(".*_","",expname))
     bns=ifelse(is.na(bns),bns,1)
-    mtext(side=1,line=3,text=paste0("frequencies at the end with rho=1, base br=0.216 max bonus=",0.005*2,", beta ",ide),cex=1.5)
+    #mtext(side=1,line=3,text=paste0("freq. at end rho=1, br=0.216 maxbonus=",0.005*bonus,", beta ",beta),cex=1.5)
     par(xpd=NA)
     arrows(x0=seq(1,36,4),y0=rep(max(traitfreq),9),x1=seq(1,36,4)+3,y1=rep(max(traitfreq),9),lwd=2,angle=90,code=3,length=.1)
     text(((seq(1,36,4)+3)+seq(1,36,4))/2,max(traitfreq),c("v","h","o"),pos=3)
     text(0,max(traitfreq),"pre-marital\n social learning",pos=2)
     text(0,-.1,"post-marital\n social learnin",pos=2)
     legend("topright",fill=1:3,legend=c(0,.5,1),title="sex bias")
+}
 }
