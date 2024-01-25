@@ -5,7 +5,7 @@
 \alias{paperpopulation}
 \title{Population used for the paper}
 \format{
-\subsection{\code{population}}{
+\subsection{\code{paperpopulation}}{
 
 A fake populaiton with valid structure (couple, families and ages)
 500 row (individuals)  and 13 columns
