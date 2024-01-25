@@ -335,3 +335,31 @@ for(bonus in 0:3){
     legend("topright",fill=1:3,legend=c(0,.5,1),title="sex bias")
 }
 }
+
+
+
+allpopsizesonly=readRDS("../../ExploringBonusOnGrowth_1000replicate_big2.RDS")
+plot(expl["slope.x",],expl["effect",])
+
+png(file="SlopeVsEffect.png",height=850,width=850,pointsize=22)
+plot(allpopsizesonly["effect",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear fit" ,xlab="")
+mtext(expression(frac(N[t+1]-N[t],N[t])),1,4,)
+dev.off()
+
+png(file="SlopeWRTbonus.png",height=850,width=850,pointsize=22)
+plot(allpopsizesonly["bonus",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="bonus for 1 traits",pch=20,cex=2,col=adjustcolor("blue",.6))
+dev.off()
+
+library(RColorBrewer)
+library(scales)
+
+# Create a sample vector
+# Define a diverging color palette
+palette <- colorRampPalette(brewer.pal(11, "RdBu"))
+
+# Get colors based on the values in v
+# Rescale v to be between 0 and 1 for color mapping
+colors <- palette(100)[rescale(allpopsizesonly["beta",], c(1, 100))]
+
+plot(allpopsizesonly["bonus",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="bonus for 1 traits",pch=21,bg=colors)
+plot(allpopsizesonly["beta",],allpopsizesonly["",],ylab="slope of log transfrom linear " )
