@@ -573,6 +573,23 @@ colors <- palette(100)[rescale(allpopsizesonly["beta",], c(1, 100))]
 plot(allpopsizesonly["bonus",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="bonus for 1 traits",pch=21,bg=colors)
 plot(allpopsizesonly["beta",],allpopsizesonly["",],ylab="slope of log transfrom linear " )
 
+<<<<<<< HEAD
+
+onesime=readRDS("exploAp/singlesimu_s_107.RDS")
+highb=readRDS("exploAp/singlesimu_s_117.RDS")
+lowb=readRDS("exploAp/singlesimu_s_31.RDS")
+u=lowb$traitpercomu[[1]]
+freqAdap <- function(expe){
+    bytim=sapply(expe$traitpercomu,function(u){
+                     totadap=apply(u[,paste0("a",1:3)],2,sum)
+    })
+    apply(bytim,1,"/",expe$popsize)
+}
+
+plot(bytim[3,]/lowb$popsize)
+
+params=readRDS("exploAp/ExploringAdaptiveTratis_120replicate_small.RDS")
+
 allpopsizesonly=readRDS("../../ExploringBonusOnGrowth_1000replicate_big2.RDS")
 plot(expl["slope.x",],expl["effect",])
 
