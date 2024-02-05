@@ -295,7 +295,7 @@ plot.comu <- function(comus,color_gradient=NULL,vidfile=NULL)
 }
 
 countTraitsPerComu <- function(population,communities,traitsid){
-    neutrals=aggregate(population[,traitsid],by=list(factor(population[,"community"],levels=seq_along(communities$size))),FUN=sum)
+    neutrals=aggregate(population[,traitsid],by=list(factor(population[,"community"],levels=seq_along(communities$size))),FUN=sum,drop=F)
     adap=communities$adaptivetraits*as.vector(communities$size)
     return(cbind(neutrals[,-1],adap))
 }
