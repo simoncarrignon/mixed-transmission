@@ -162,7 +162,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 				if("pairing"%in% logging)print(paste("marriage",c1,c2,"moving all to",jc," and leaving",lc, ",new:" ,population[c2,"community"],population[c1,"community"]))
             }
             if(testdebug){
-                stopifnot(table(population[population[,"cid"]>-1,"cid"])==2)
+                if(remarriage)stopifnot(table(population[population[,"cid"]>-1,"cid"])==2) #this is tru only if individual become single
                 coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
                 stopifnot(coms == comus$size[as.numeric(names(coms))])
             }
@@ -178,7 +178,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 		fcount=table(families)
         if(testdebug){
             stopifnot(table(families)[fcount>1] == 2)
-            stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
+            if(remarriage)stopifnot(population[population[,"cid"] %in% names(fcount)[fcount==1] ,"partner"]==-1)
         }
 		repro=validCouple(population,maturity=maturity,endrepro=endrepro)
 		if("repros"%in%out) repros=c(repros,sum(repro))
@@ -191,7 +191,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 			fam=fam[noncelib,,drop=F]
             if(testdebug){
                 stopifnot(nrow(fam[,"cid"])%%2 == 0) #if not even then we have someone that can autoroproduce
-                stopifnot(table(families) == 2) #families should be made of 2 individual
+                #stopifnot(table(families) == 2) #families should be made of 2 individual/ this test isn't true andymore, and it's doen above
             }
 
 			fam=unique(fam)
