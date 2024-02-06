@@ -48,9 +48,10 @@ generatePathways <- function(z=9,t_pre=c('v','h','o'),t_post=c('h','o','i')){
     colnames(pre)=t_pre
     post = array(0,dim=c(z,length(t_post)))
     colnames(post)=t_post
-    s = rep(0,z)
+    s = rep(.5,z) #no sex bias by defaul
+    tr = rep(1,z) #resocialisaiton by default
     colnames(post)=t_post
-    list(pre=pre,post=post,s=s)
+    list(pre=pre,post=post,s=s,tr=tr)
 }
 
 #' Initialize Adaptive Traits for Communities
