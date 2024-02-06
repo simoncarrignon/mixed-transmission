@@ -80,12 +80,11 @@ testthat::test_that("test when pure resocialisation of younger by different sex"
 
 testthat::test_that("test when non deterministic resocialisation ",{
                         replicate(5,{
-                        z = 2
+                        z = sample(2:10,1)
                         neutraltraitsParam=generatePathways(z)
                         frac=sort(round(runif(z),1))
                         frac=rep(ul,z)
                         neutraltraitsParam$tr=frac
-                        neutraltraitsParam$s=0
                         neutraltraitsParam$post[,"o"]=rep(1,z)
                         traitsid=paste0("t",1:z)
                         N=2000
