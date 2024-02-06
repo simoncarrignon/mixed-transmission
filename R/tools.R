@@ -10,6 +10,8 @@ print.pathways <- function(pathways,verb=T){
         }
         if(verb)it=paste0(it," sex:",pathways$s[i])
         else it=paste0(it," ",pathways$s[i])
+        if(verb)it=paste0(it," p_tr:",pathways$tr[i])
+        else it=paste0(it," ",pathways$tr[i])
         print(it)
     }
 
