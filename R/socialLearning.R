@@ -104,6 +104,7 @@ generateTraitsMatrix <- function(N,z=9,traitnames="t",nastart=NULL,initval=c(0,1
         traits= t(replicate(N,rep(initval,z,replace=T)))
     else
         traits= t(replicate(N,sample(initval,z,replace=T)))
+    if(z==1)traits=t(traits)
     colnames(traits)=paste0(traitnames,1:z)
     return(traits)
 }
