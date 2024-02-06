@@ -69,7 +69,7 @@
 #' A vector for probability of death for different age catgory
 #' 6 values
 #' \describe{
-#'   \item{6 categories of age}
+#'   6 categories of ages that need to be complated by deathage
 #' }
 
 "mortality"
