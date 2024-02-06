@@ -108,29 +108,32 @@ for(sb in c(0,.5,1)){
     }
 }
 
-expname=paste0("BonusExploBig2")
+expname=paste0("BonusExploNewAges_5000_500ts")
 dir.create(expname)
 traitsid=paste0("t",1:z)
 alltraits=generateTraitsMatrix(nrow(population),z)
 population=cbind(population[,-c(10,11)],alltraits)
 beta=-1
-bonus=runif(1000,0.0005,0.02)
-beta=runif(1000,-10,0.2)
-                                  electedpop=sample(nrow(initcomus$adaptivetraits),2)
+set.seed(1234)
+bonus=runif(5000,0.0005,0.02)
+beta=runif(5000,-10,0.2)
+params=cbind(bonus,beta)
+saveRDS(file="NewAges_ExploringBonusOnGrowth_5000_500ts_params.RDS",params)
+electedpop=sample(nrow(initcomus$adaptivetraits),2)
 electedpop=1:2
-                                  initcomus$adaptivetraits[,]=0
-                                  population[,traitsid]=0
-                                  population[population[,"community"]==electedpop[1],traitsid]=1
-                                  population[population[,"community"]==electedpop[2],traitsid]=1
-                                  initcomus$adaptivetraits[,]=0
-                                  initcomus$adaptivetraits[electedpop,]=1
+initcomus$adaptivetraits[,]=0
+population[,traitsid]=0
+population[population[,"community"]==electedpop[1],traitsid]=1
+population[population[,"community"]==electedpop[2],traitsid]=1
+initcomus$adaptivetraits[,]=0
+initcomus$adaptivetraits[electedpop,]=1
 
 cl<-makeCluster(60,type="FORK",outfile=file.path(expname,"log.txt"))
 allpopsizesonly=parSapply(cl,1:1000,function(b){
                               set.seed(as.numeric(Sys.time())+b)
                               tryCatch({
                                   a=Sys.time()
-                                  singlesimu=modelVector(K=K, m=1, b=0.216, r=bonus[b], rho=1, d=mortality, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=fullpathways,age.threshold=20, out=c("popsize","comusize"),logging=c("done"),ma=1,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5,beta=beta[b])
+                                  singlesimu=modelVector(K=K, m=1, b=0.216, r=bonus[b], rho=1, d=mortality, maturity=18, endrepro=45, population=population, comus=initcomus, tstep=500, tp=fullpathways,age.threshold=20, out=c("popsize","comusize"),logging=c("done"),ma=.67,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5,beta=beta[b])
                                   print(Sys.time()-a)
                                   full=which(lengths(singlesimu$comusize)==100)
                                   pop=singlesimu$popsize
@@ -144,8 +147,8 @@ allpopsizesonly=parSapply(cl,1:1000,function(b){
 })
 stopCluster(cl)
 
-saveRDS(file="ExploringBonusOnGrowth_1000replicate_big2.RDS",allpopsizesonly)
-readRDS(file="ExploringBonusOnGrowth_60replicate_small.RDS",allpopsizesonly)
+saveRDS(file="NewAges_ExploringBonusOnGrowth_5000_500ts.RDS",allpopsizesonly)
+readRDS(file="BExploringBonusOnGrowth_60replicate_small.RDS",allpopsizesonly)
 
 png(file="SlopeVsEffect.png",height=850,width=850,pointsize=22)
 plot(allpopsizesonly["effect",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear fit" ,xlab="")
