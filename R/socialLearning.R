@@ -237,13 +237,31 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
                             newtraits[,noresocial]=x[index.learners,pw.trait.names[noresocial]]
                         }
                         probaresocial=(pathways$tr[pw.id]>0 & pathways$tr[pw.id] < 1 )
+                        #print(pw.id)
+                        #print(probaresocial)
+                        #print(pw.trait.names)
                         if(any(probaresocial)){
-                            p_tr=pathways$tr[probaresocial]
+                            p_tr=pathways$tr[pw.id][probaresocial]
+                            #print(p_tr)
+                            #print(pw.id[probaresocial])
                             transmit=sapply(p_tr,rbinom,n=length(index.learners),size=1)
-                            newtraits[,probaresocial]=ifelse(transmit,newtraits[,probaresocial],x[index.learners,pw.trait.names[probaresocial]])
+                            #print(dim(transmit))
+                            #print(dim(newtraits))
+                            #print(dim(newtraits[,probaresocial]))
+                            #print(dim(ifelse(transmit,newtraits[,probaresocial],x[index.learners,pw.id[probaresocial]])))
+                            logfail=F
+
+                            if(logfail){
+                                if(length(dim)<1)
+                                    print(sum(transmit==0))
+                                else
+                                    print(apply(transmit,2,function(i)sum(i==0)))
+                            }
+                            newtraits[,probaresocial]=ifelse(transmit,newtraits[,probaresocial],x[index.learners,pw.id[probaresocial]])
                         }
 
                         x[index.learners,pw.trait.names] =newtraits
+                        #print(colnames(x))
                     }
                 }
             }
