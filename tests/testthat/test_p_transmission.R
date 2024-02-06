@@ -83,7 +83,6 @@ testthat::test_that("test when non deterministic resocialisation ",{
                         z = sample(2:10,1)
                         neutraltraitsParam=generatePathways(z)
                         frac=sort(round(runif(z),1))
-                        frac=rep(ul,z)
                         neutraltraitsParam$tr=frac
                         neutraltraitsParam$post[,"o"]=rep(1,z)
                         traitsid=paste0("t",1:z)
