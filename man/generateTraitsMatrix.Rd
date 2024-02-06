@@ -4,7 +4,13 @@
 \alias{generateTraitsMatrix}
 \title{Generate a Matrix of Traits for a Population}
 \usage{
-generateTraitsMatrix(N, z = 9, traitnames = "t", nastart = NULL)
+generateTraitsMatrix(
+  N,
+  z = 9,
+  traitnames = "t",
+  nastart = NULL,
+  initval = c(0, 1)
+)
 }
 \arguments{
 \item{N}{An integer representing the number of individuals in the population.}
@@ -13,7 +19,7 @@ generateTraitsMatrix(N, z = 9, traitnames = "t", nastart = NULL)
 
 \item{traitnames}{A string representing the base name for the traits, which will be concatenated with their index.}
 
-\item{nastart}{An optional parameter; if non-NULL, all trait values are initialized to NA.}
+\item{initval}{An optional parameter; if a signle number all traits are initialised with this value, if vector of length > 1 values are sampled from the vector}
 }
 \value{
 A matrix of size N x z, where each row represents an individual and each column a trait.

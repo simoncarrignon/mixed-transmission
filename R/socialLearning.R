@@ -88,7 +88,7 @@ initAdaptiveTraits <- function(km,ki,aval=c("i"=0,"m"=1),n=3){
 #' @param N An integer representing the number of individuals in the population.
 #' @param z An optional integer representing the number of traits per individual, defaulting to 9.
 #' @param traitnames A string representing the base name for the traits, which will be concatenated with their index.
-#' @param nastart An optional parameter; if non-NULL, all trait values are initialized to NA.
+#' @param initval An optional parameter; if a signle number all traits are initialised with this value, if vector of length > 1 values are sampled from the vector 
 #'
 #' @return A matrix of size N x z, where each row represents an individual and each column a trait.
 #'         The traits are named according to 'traitnames' and their index.
@@ -98,10 +98,11 @@ initAdaptiveTraits <- function(km,ki,aval=c("i"=0,"m"=1),n=3){
 #' traits_matrix <- generateTraitsMatrix(100, z=5)
 #'
 #' @export
-generateTraitsMatrix <- function(N,z=9,traitnames="t",nastart=NULL){
-    if(is.null(nastart))initval=c(0,1)
-    else initval=rep(NA,z)
-    traits= t(replicate(N,sample(initval,z,replace=T)))
+generateTraitsMatrix <- function(N,z=9,traitnames="t",nastart=NULL,initval=c(0,1)){
+    if(length(initval)==1)
+        traits= t(replicate(N,rep(initval,z,replace=T)))
+    else
+        traits= t(replicate(N,sample(initval,z,replace=T)))
     colnames(traits)=paste0(traitnames,1:z)
     return(traits)
 }

@@ -212,7 +212,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
                 famids=t(sapply(newparents,function(i)unique(i[,c("community","cid")])))
                 offcom=famids[,1] ##offsprings community id
                 offfid=famids[,2]  ##parents "cid" will be used  as offfspsrings family id `fid`
-                offtraits=generateTraitsMatrix(nchilds,z=length(traitsid),nastart = T )
+                offtraits=generateTraitsMatrix(nchilds,z=length(traitsid),initval = NA )
                 ##Vertical Transmission
                 offtraits[,traitsid]=t(sapply(newparents,function(parents)drawFromPool(pool.traits=parents[,traitsid],pool.sex=parents[,"sex"],sexbiases=tp$s)))
 
