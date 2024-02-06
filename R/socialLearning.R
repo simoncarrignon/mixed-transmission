@@ -197,7 +197,8 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
         used.pathway=colnames(pathways[[when]])[apply(pathways[[when]],2,sum)>0]
         for(pw in used.pathway )
         {
-            pw.traits=traitsid[which(pathways[[when]][,pw]==1)]   #select all traits that goes throught this pathway
+            pw.id=which(pathways[[when]][,pw]==1)
+            pw.trait.names=traitsid[pw.id]   #select all traits that goes throught this pathway
             pool.teacher.age= NULL
             if(length(unique(x[index.learners,"age"]))==1)ages=unique(x[index.learners,"age"])
             else ages=x[index.learners,"age"]
@@ -227,11 +228,22 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
 
                 if(length(index.learners)>0 && sum(n.teachers)>0)
                 {
-                    pools=apply(pool.teacher.age.commu,2,function(pool)x[pool,c("sex",pw.traits),drop=F],simplify=F)
+                    pools=apply(pool.teacher.age.commu,2,function(pool)x[pool,c("sex",pw.trait.names),drop=F],simplify=F)
                     stopifnot(length(dim(pool.teacher.age.commu))>0)
                     if(length(index.learners)>0){
-                        newtraits=t(sapply(pools,function(pool)drawFromPool(pool.traits=pool[,pw.traits,drop=F],pool.sex=pool[,"sex",drop=F],sexbiases=pathways$s[pathways[[when]][,pw]==1])))  
-                        x[index.learners,pw.traits] =newtraits
+                        newtraits=t(sapply(pools,function(pool)drawFromPool(pool.traits=pool[,pw.trait.names,drop=F],pool.sex=pool[,"sex",drop=F],sexbiases=pathways$s[pw.id])))  
+                        noresocial=(pathways$tr[pw.id]==0)
+                        if(any(noresocial)){
+                            newtraits[,noresocial]=x[index.learners,pw.trait.names[noresocial]]
+                        }
+                        probaresocial=(pathways$tr[pw.id]>0 & pathways$tr[pw.id] < 1 )
+                        if(any(probaresocial)){
+                            p_tr=pathways$tr[probaresocial]
+                            transmit=sapply(p_tr,rbinom,n=length(index.learners),size=1)
+                            newtraits[,probaresocial]=ifelse(transmit,newtraits[,probaresocial],x[index.learners,pw.trait.names[probaresocial]])
+                        }
+
+                        x[index.learners,pw.trait.names] =newtraits
                     }
                 }
             }
