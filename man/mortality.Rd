@@ -6,6 +6,12 @@
 \title{mortality rate by ages}
 \format{
 \subsection{\code{mortality}}{
+
+A vector for probability of death for different age catgory
+6 values
+\describe{
+\item{6 categories of age}
+}
 }
 }
 \usage{

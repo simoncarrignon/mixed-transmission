@@ -17,6 +17,7 @@
 #' @param remarriage Logical flag to control if widower can remarry or not
 #' @param popcapsize Stop the population if it reach a certain size
 #' @param fracfiss fraction of individual leaving
+#' @param deathage use to compute age depedant variable
 #' 
 #' @return A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
 #'

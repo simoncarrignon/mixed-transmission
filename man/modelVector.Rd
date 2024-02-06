@@ -45,6 +45,8 @@ modelVector(
 
 \item{ki, km, K, m, b, r, rho, d, maturity, endrepro, a, tp, age.threshold, population, comus, tstep, ma, traitsid}{Specific parameters used in the population model. Set marriage, communities etc...}
 
+\item{deathage}{use to compute age depedant variable}
+
 \item{logging}{Controls the level of logging. implemented so far: "time" ,"demo" ,"pairing" ,"migrantscount" ,"fission" ,"visu" ,"done"}
 
 \item{getfinalpop}{Logical flag to determine if the final population should be returned.}
