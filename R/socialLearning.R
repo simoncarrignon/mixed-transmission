@@ -84,7 +84,7 @@ initAdaptiveTraits <- function(km,ki,aval=c("i"=0,"m"=1),n=3){
 #'
 #' This function creates a matrix representing various traits for a population. 
 #' Each row in the matrix represents an individual, and each column represents a different trait. 
-#' The traits are initialized either to a sample from c(0,1) or to NA, depending on whether 'nastart' is NULL or not.
+#' The value of traits are initialized using initval 
 #'
 #' @param N An integer representing the number of individuals in the population.
 #' @param z An optional integer representing the number of traits per individual, defaulting to 9.
@@ -99,7 +99,7 @@ initAdaptiveTraits <- function(km,ki,aval=c("i"=0,"m"=1),n=3){
 #' traits_matrix <- generateTraitsMatrix(100, z=5)
 #'
 #' @export
-generateTraitsMatrix <- function(N,z=9,traitnames="t",nastart=NULL,initval=c(0,1)){
+generateTraitsMatrix <- function(N,z=9,traitnames="t",initval=c(0,1)){
     if(length(initval)==1)
         traits= t(replicate(N,rep(initval,z,replace=T)))
     else
