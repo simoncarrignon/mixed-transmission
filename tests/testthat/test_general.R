@@ -187,6 +187,7 @@ testthat::test_that("model everything, everything random: social learning,adapti
                                       neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
                                       neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
                                       neutraltraitsParam$s=rbinom(z,1,.5)
+                                      neutraltraitsParam$tr=rbinom(z,1,.5)
                                       traitsid=paste0("t",1:z)
                                       percomu=sample(1:100,1)
                                       K=sample(2:8,1)
