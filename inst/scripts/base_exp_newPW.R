@@ -9,7 +9,7 @@ K=km+ki
 pos=random2Dgrid(K=K,Gx=G)
 percomu=50
 a=initAdaptiveTraits(ki=ki,km=km,n=3)
-initcomus=initialiseCommunities(ki=ki,km=km,traits=a,coordinates=pos,G=G,plot=T,sizes=percomu)
+initcomus=initialiseCommunities(ki=ki,km=km,traits=a,coordinates=pos,G=G,plot=F,sizes=percomu)
 initcomus$occupation[,]=1
 communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
 agescat=c(0,5,18,40,65,85)
@@ -19,7 +19,6 @@ getagdis=sapply(agdis,function(i)sample(agescat[i]:agescat[i+1],1))
 population=cbind(newpop(length(getagdis),age=getagdis,community = sample(1:K,size=length(getagdis),replace=T)),generateTraitsMatrix(length(getagdis),z))
 initrun=modelVector(K=K, m=1, b=0.42, r=0, rho=.5, d=c(0.15,0.01,0.01,0.02,0.05,1), maturity=18, endrepro=65, population=population, comus=initcomus, tstep=500, tp=generatePathways(z=z),age.threshold=20, out=c("popsize","finalpop","repros","finalcomus"),logging=c("done","","time"),ma=1,traitsid=paste0("t",1:z),F_Th = 75,popcapsize=20*70,fracfiss=.25)
 population=resetIds(initrun$population)
-population=paperpopulation
 initcomus=initialiseCommunities(ki=ki,km=km,traits=a,coordinates=pos,G=G,plot=T,sizes=unname(table(population[,"community"])))
 
 

@@ -172,6 +172,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 
 		## Post-Marital Horizontal and Oblique Transmission
 		population  <- social.learning(population,when='post',pathways=tp,threshold=age.threshold)
+        if(testdebug)stopifnot(min(population[,traitsid])>=0 || max(population[,traitsid])<=1)
 
 		##repro
 		families=population[,"cid"]
