@@ -74,7 +74,7 @@ testthat::test_that("model don't change when no growth and no social learning",{
                         replicate(5,
                                   {
 
-                                      quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=sample(100,1), endrepro=sample(100,1), population=population, comus=initcomus, tstep=sample(4:150,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging="",ma=1,traitsid=)
+                                      quickV=modelVector(K=K, m=1, b=0, r=0, rho=1, d=0, maturity=sample(100,1), endrepro=sample(100,1), population=population, comus=initcomus, tstep=sample(4:150,1), tp=neutraltraitsParam,age.threshold=sample(100,1), out=c("finalpop"),logging="",ma=1,traitsid=traitsid)
 
                                       testthat::expect_true(all(apply(quickV$population[,traitsid],2,sum)== apply(population[,traitsid],2,sum) ))
                                       testthat::expect_true(nrow(population)== nrow(population))
@@ -186,8 +186,8 @@ testthat::test_that("model everything, everything random: social learning,adapti
                                       neutraltraitsParam$pre[,"o"]=rbinom(z,1,.5)
                                       neutraltraitsParam$pre[,"v"]=rbinom(z,1,.5)
                                       neutraltraitsParam$pre[,"h"]=rbinom(z,1,.5)
-                                      neutraltraitsParam$s=rbinom(z,1,.5)
-                                      neutraltraitsParam$tr=rbinom(z,1,.5)
+                                      neutraltraitsParam$s=round(runif(z),1)
+                                      neutraltraitsParam$tr=round(runif(z),1)
                                       traitsid=paste0("t",1:z)
                                       percomu=sample(1:100,1)
                                       K=sample(2:8,1)
@@ -201,6 +201,7 @@ testthat::test_that("model everything, everything random: social learning,adapti
                                       communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
                                       population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
                                       quickV=suppressWarnings(modelVector(K=K, m=1, b=0.07, r=0.005, rho=0, d=0.01, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=sample(50:60,1), tp=neutraltraitsParam,age.threshold=20, out=c("finalpop"),logging=c(""),ma=1,traitsid=paste0("t",1:z)))
-                                      testthat::expect_named(quickV)
+                                      testthat::expect_true(max(quickV$population[,traitsid])<=1)
+                                      testthat::expect_true(min(quickV$population[,traitsid])>=0)
                                   })
 })

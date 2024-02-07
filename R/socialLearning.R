@@ -257,8 +257,15 @@ social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
                                 else
                                     print(apply(transmit,2,function(i)sum(i==0)))
                             }
-                            newtraits[,probaresocial]=ifelse(transmit,newtraits[,probaresocial],x[index.learners,pw.id[probaresocial]])
+                            newtraits[,probaresocial]=ifelse(transmit,newtraits[,probaresocial],x[index.learners,pw.trait.names[probaresocial]])
+                        #print("length(pw.id),length(pw.trait.names),length(probaresocial),sum(probaresocial),ncol(newtraits),ncol(transmit)")
+                        #print(paste(length(pw.id),length(pw.trait.names),length(probaresocial),sum(probaresocial),ncol(newtraits),ncol(transmit)))
+                        #print(pw.id)
+                        #print(pw.trait.names)
+                        #print(pw.trait.names[probaresocial])
+                        #print(pw.id[probaresocial])
                         }
+                        #print.pathways(pathways)
 
                         x[index.learners,pw.trait.names] =newtraits
                         #print(colnames(x))
