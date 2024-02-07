@@ -110,25 +110,25 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 				population[c2,"partner"]=population[c1,"id"]
 
 				if( population[c1,"sex"] == 1){
-					fc=population[c1,"community"]
-					mc=population[c2,"community"]
+					oc=population[c1,"community"]
+					zc=population[c2,"community"]
                     if(testdebug) stopifnot(population[c2,"sex"]==0) #temp test
 				}
 				else{
-					fc=population[c2,"community"]
-					mc=population[c1,"community"]
+					oc=population[c2,"community"]
+					zc=population[c1,"community"]
 					if(testdebug) stopifnot(population[c1,"sex"]==0) #temp test
 
 				}
-				## choice of new community  // ugly ; could do a function(rho,fc,mc) return(lc,jc) & ifelse
+				## choice of new community  // ugly ; could do a function(rho,oc,zc) return(lc,jc) & ifelse
 
 				if(runif(1)<rho){
-					lc=fc #leaving the father's community
-					jc=mc #joining the mother's community
+					jc=oc #joining the community of individu of sex 1 (One:  oc)
+					lc=zc #leaving the community of individu of sex 0 (Zero: zc)
 				}
 				else{
-					jc=fc #joining the father's community
-					lc=mc #leaving the mother's community
+					lc=oc #leaving the community of individu of sex 1 (One:  oc)
+					jc=zc #joining the community of individu of sex 0 (Zero: zc)
 				}
 
 				comus$size[jc]=comus$size[jc]+1
