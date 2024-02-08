@@ -439,14 +439,15 @@ getalltraits= lapply(as.character(c(0.5,1)),function(rho){
                          lapply(as.character(c(0:3)),function(bonus){
                                     lapply(as.character(c(-10,0,0.1)),function(beta){
                                                print(paste("doing",rho,bonus,beta))
-                                               expname=paste0("TraitTraj_500t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
+                                               expname=paste0("NewPW_invertSex_TraitTraj_10t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
                                                allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
                                                allexp=lapply(allsingle.exp,function(expfname){
                                                                  one=readRDS(expfname)
                                                                  end=length(one$popsize)
-                                                                 sapply(1:end,function(t)apply(one$traitpercomu[[t]],2,sum)/one$popsize[[t]])
+                                                                 sapply(1:end,function(t)one$traitpercomu[[t]]/one$comusize[[t]])
+                                                                 )
 })
-                                               lapply(1:39,function(at) apply(sapply(allexp,function(exp)exp[at,]),1,quantile))
+                                               alltrais=lapply(1:45,function(at) apply(sapply(allexp,function(exp)exp[at,]),1,quantile,na.rm=T))
 })
                                  })
                 })
@@ -460,8 +461,9 @@ getallevents= lapply(as.character(rhos),function(rho){
                                     lapply(as.character(betas),function(beta){
                                                expname=paste0("TraitTraj_500t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
                                                allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
-                                               cl<-makeCluster(8,type="FORK",outfile="log.txt")
+                                               cl<-makeCluster(4,type="FORK",outfile="log.txt")
                                                allexp=parLapply(cl,allsingle.exp,function(expfname){
+                                               allexp=lapply(allsingle.exp,function(expfname){
                                                                     print(paste("doing",rho,bonus,beta,expfname))
                                                                     one=readRDS(expfname)
                                                                     ncom=max(sapply(one$traitpercomu,nrow))
@@ -573,8 +575,6 @@ colors <- palette(100)[rescale(allpopsizesonly["beta",], c(1, 100))]
 plot(allpopsizesonly["bonus",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="bonus for 1 traits",pch=21,bg=colors)
 plot(allpopsizesonly["beta",],allpopsizesonly["",],ylab="slope of log transfrom linear " )
 
-<<<<<<< HEAD
-
 onesime=readRDS("exploAp/singlesimu_s_107.RDS")
 highb=readRDS("exploAp/singlesimu_s_117.RDS")
 lowb=readRDS("exploAp/singlesimu_s_31.RDS")
@@ -601,4 +601,93 @@ dev.off()
 png(file="SlopeWRTbonus.png",height=850,width=850,pointsize=22)
 plot(allpopsizesonly["bonus",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="bonus for 1 traits",pch=20,cex=2,col=adjustcolor("blue",.6))
 dev.off()
+plot(allpopsizesonly["beta",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="bonus for 1 traits",pch=20,cex=2,col=adjustcolor("blue",.6))
+
+allpopsizesonly=readRDS("NewAges_ExploringBonusOnGrowth_1000_500ts.RDS")
+allpopsizesonly=do.call("cbind",allpopsizesonly[lengths(allpopsizesonly)==4])
+plot(expl["slope.x",],expl["effect",])
+
+png(file="SlopeVsEffect.png",height=850,width=850,pointsize=22)
+plot(allpopsizesonly["effect",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear fit" ,xlab="")
+mtext(expression(frac(N[t+1]-N[t],N[t])),1,4,)
+dev.off()
+
+png(file="SlopeWRTbonus.png",height=850,width=850,pointsize=22)
+plot(allpopsizesonly["bonus",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="bonus for 1 traits",pch=20,cex=2,col=adjustcolor(col_vector,.6))
+dev.off()
+
+cut(allpopsizesonly["bonus",],breaks=3)
+
+
+# Assuming you have a vector of "bonus" values
+
+
+# Define a custom color palette
+par(mfrow=c(2,2))
+bgpe=5
+custom_colors <- rev(colorRampPalette(c("red", "white", "blue"))(bgpe))
+
+allpopsizesonly=readRDS("NewAges_ExploringBonusOnGrowth_1000_500ts.RDS")
+allpopsizesonly=do.call("cbind",allpopsizesonly[lengths(allpopsizesonly)==4])
+plot(allpopsizesonly["bonus",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="beta for 1 traits",pch=21,cex=2,bg=adjustcolor(custom_colors[cut(allpopsizesonly["beta",],breaks=bgpe)],.6),main="age 18-45",ylim=c(-0.0025,0.012))
+
+mydata=data.frame(beta=cut(allpopsizesonly["beta",],breaks=bgpe),bonus=cut(allpopsizesonly["bonus",],breaks=3),slope=allpopsizesonly["slope.x",])
+aa=boxplot(mydata$slope ~ mydata$beta * mydata$bonus,col=custom_colors ,ylim=c(-0.0025,0.012))
+allpopsizesonly=readRDS("../../ExploringBonusOnGrowth_1000replicate_big2.RDS")
+plot(allpopsizesonly["bonus",],allpopsizesonly["slope.x",],ylab="slope of log transfrom linear " ,xlab="beta for 1 traits",pch=21,cex=2,bg=adjustcolor(custom_colors[cut(allpopsizesonly["beta",],breaks=bgpe)],.6),main="age 18-65",ylim=c(-0.0025,0.012))
+
+mydata=data.frame(beta=cut(allpopsizesonly["beta",],breaks=bgpe),bonus=cut(allpopsizesonly["bonus",],breaks=3),slope=allpopsizesonly["slope.x",])
+aa=boxplot(mydata$slope ~ mydata$beta * mydata$bonus,col=custom_colors ,ylim=c(-0.0025,0.012))
+legend("topleft",fill=custom_colors,title="beta",legend=levels(cut(allpopsizesonly["beta",],breaks=bgpe)))
+
+
+cols=1:3
+names(cols)=c(0,.5,1)
+ltys=rep(unlist(lapply(c(1,2,3),rep,5)),3)
+allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
+traitsextinct=sapply(allsingle.exp,function(expfname){
+           one=readRDS(allsingle.exp[1])
+           alltypes=getCommuType(one)
+           freqpercomu=lapply(1:length(one$comusize),function(t)one$traitpercomu[[t]]/one$comusize[[t]])
+           par(mfrow=c(1,4))
+           lapply(0:3,function(ct){
+                      ctype=which(alltypes==ct)
+                      alltraitmeanCtype=sapply(freqpercomu,function(freqpct)apply(freqpct[ctype,],2,mean,na.rm=T))
+                      plot(0,1,type="n",ylim=c(0,1),xlim=c(0,500),main=paste(expname,"full hunter farmer"))
+                      for(i in 1:45) lines(alltraitmeanCtype[i,], col=cols[as.character(fullpathways$s[i])],lty=ltys[i],lwd=4)
+})
+
+           aa=legend("topright",legend=names(cols),lwd=2,col=cols,title="sex",bty="n")
+           legend(aa$rect$left,aa$rect$top-aa$rect$h,legend=c("v","h","o"),lwd=2,lty=1:3,col=1,title="pre-marital",bty="n")
+           rep(cols,9)
+           one$traitsextinct.ada
+           apply(one$traitsumary/one$popsize,2,function(trait)suppressWarnings(min(which(trait==0))))
+})
+
+
+for(beta in c(-10,0)){
+for(bonus in c(0,3)){
+    dev.new()
+par(mfrow=c(3,3),oma=c(2,3,4,0),mar=c(0,0,0,0))
+
+expname=paste0("NewPW_invertSex_TraitTraj_10t_RHO_0_G10_bonus_",bonus,"_beta_",beta)
+allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
+totes=sample(seq_along(allsingle.exp),9)
+for( i in totes){
+    one=readRDS(allsingle.exp[i])
+    alltypes=getCommuType(one)
+    tyepTtime=sapply(1:500,function(t){
+                         sizes_t=one$comusize[[t]]
+                         table(factor(alltypes[1:length(sizes_t)],level=0:3))/length(sizes_t)
+})
+
+    cols=colorRampPalette(c("#006400","#FFD700"))(4)
+    barplot(tyepTtime,border=NA,space=0,xlab="time",ylab="% communities",col=cols)#,main=paste0("One Simulation wiht param:\n",expname))
+    par(new=T)
+    #plot(lengths(one$comusize),axes=F,ann=F,type="l")
+    axis(1)
+}
+    mtext(paste("rho","0","beta",beta,"bonus", bonus),3,1,outer=T,cex=3)
+}
+}
 
