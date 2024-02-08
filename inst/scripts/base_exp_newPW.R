@@ -49,19 +49,29 @@ for(sb in c(0,.5,1)){
 traitsid=paste0("t",1:z)
 alltraits=generateTraitsMatrix(nrow(population),z)
 population=cbind(population[,-c(10,11)],alltraits)
-for(rho in c(1)){
-    for(beta in c(.1)){
-        for(bonus in 0:2){
-            expname=paste0("NewPW_TraitTraj_10t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
+electedpop=sample(nrow(initcomus$adaptivetraits),2)
+electedpop=1:2
+initcomus$adaptivetraits[,]=0
+population[,traitsid]=0
+population[population[,"community"]==electedpop[1],traitsid]=1
+population[population[,"community"]==electedpop[2],traitsid]=1
+initcomus$adaptivetraits[,]=0
+initcomus$adaptivetraits[electedpop,]=1
+for(rho in c(0,.5)){
+    for(beta in c(-10,0,.2)){
+        for(bonus in c(0,1,3)){
+            expname=paste0("NewPW_invertSex_TraitTraj_10t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
             dir.create(expname)
             initcomus$adaptivetraits[c(1,2),]=1
-            cl<-makeCluster(10,type="FORK",outfile=file.path(expname,"log.txt"))
-            allpopsizesonly=parSapply(cl,1:10,function(b){
+            cl<-makeCluster(50,type="FORK",outfile=file.path(expname,"log.txt"))
+            allpopsizesonly=parSapply(cl,1:20,function(b){
                                           set.seed(as.numeric(Sys.time())+b)
                                           tryCatch({
-                                              singlesimu=modelVector(K=K, m=1, b=0.216, r=0.005*bonus, rho=rho, d=mortality, maturity=18, endrepro=65, population=population, comus=initcomus, tstep=10, tp=fullpathways,age.threshold=20, out=c("popsize","finalpop","finalcomus","traitsumary","comusize","traitpercomu"),logging=c("done"),ma=1,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5,beta=beta)
+                                              singlesimu=modelVector(K=K, m=1, b=0.216, r=0.005*bonus, rho=rho, d=mortality, maturity=18, endrepro=45, population=population, comus=initcomus, tstep=500, tp=fullpathways,age.threshold=20, out=c("popsize","finalpop","finalcomus","traitsumary","comusize","traitpercomu"),logging=c("done"),ma=.67,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5,beta=beta)
                                               singlesimu$popsize
-                                              saveRDS(file=file.path(expname,paste0("singlesimu_s_",b,".RDS")),singlesimu)
+                                              id=b
+                                              while(file.exists(file.path(expname, paste0("singlesimu_s_", id, ".RDS")))) id <- id + 1
+                                              saveRDS(file=file.path(expname,paste0("singlesimu_s_",id,".RDS")),singlesimu)
 
                                           },error=function(e){ print("problem ======");print(e)})
 })
