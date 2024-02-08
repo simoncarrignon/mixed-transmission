@@ -234,7 +234,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
         if("births"%in%out) births=c(births,nchilds)
 
 
-		## For all community where migrants here
+		## For all community where migrants arrive
 		for(pcs in which(apply(migrantscount,1,sum)>0)){
 			#Here we assum comus$size has been updated after migration
 			comus$adaptivetraits[pcs,]=updateTraits(k=pcs,k.size=comus$size[pcs],alltraits=comus$adaptivetraits,migrantscount=migrantscount[pcs,],beta=beta)
