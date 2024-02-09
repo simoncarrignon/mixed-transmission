@@ -665,7 +665,7 @@ traitsextinct=sapply(allsingle.exp,function(expfname){
 })
 
 
-for(beta in c(-10,0)){
+for(beta in c(-10,0,0.1)){
 for(bonus in c(0,3)){
     dev.new()
 par(mfrow=c(3,3),oma=c(2,3,4,0),mar=c(0,0,0,0))

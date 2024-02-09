@@ -22,10 +22,13 @@ for(sb in c(0,.5,1)){
     }
 }
 for(rho in c(1)){
+for(rho in c(0,0.5)){
 pdf(file=paste0("rho_",rho,".pdf"),width=27,height=18)
-par(mfrow=c(2,2))
-for(beta in c(-10,0)){
-for(bonus in c(0,3)){
+par(mfrow=c(3,3))
+for(beta in c(-10,0,0.1)){
+for(bonus in c(0,1,3)){
+    try(
+        {
     expname=paste0("NewPW_invertSex_TraitTraj_10t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
     allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
     traitsfreq=sapply(allsingle.exp,function(expfname){
@@ -41,7 +44,7 @@ for(bonus in c(0,3)){
     cols=1:3
     names(cols)=c(0,.5,1)
     par(xpd=F)
-    boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1),main=paste0("rho:",rho,", br:0.216 bonus:",0.005*bonus,", beta:",beta))
+    boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1),main=paste0("rho:",rho,", br:0.216 bonus:",0.005*bonus,", beta:",beta),las=3)
     bns=as.numeric(sub(".*_","",expname))
     bns=ifelse(is.na(bns),bns,1)
     #mtext(side=1,line=3,text=paste0("freq. at end rho=1, br=0.216 maxbonus=",0.005*bonus,", beta ",beta),cex=1.5)
@@ -51,9 +54,10 @@ for(bonus in c(0,3)){
     text(0,max(traitfreq),"pre-marital\n social learning",pos=2)
     text(0,-.1,"post-marital\n social learning",pos=2)
     legend("topright",fill=1:3,legend=c(0,.5,1),title="sex bias")
+        }
+    )
 }
 }
-dev.off()
 }
 #popsize:
 
