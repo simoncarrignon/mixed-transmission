@@ -35,7 +35,8 @@ modelVector(
   testdebug = FALSE,
   remarriage = FALSE,
   popcapsize = NULL,
-  fracfiss = 0.5
+  fracfiss = 0.5,
+  up = 2
 )
 }
 \arguments{
@@ -66,6 +67,8 @@ modelVector(
 \item{popcapsize}{Stop the population if it reach a certain size}
 
 \item{fracfiss}{fraction of individual leaving}
+
+\item{up}{time after witch community can learn socially (default 2, avoid first big marriage movements)}
 }
 \value{
 A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.

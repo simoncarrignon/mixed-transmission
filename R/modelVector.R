@@ -18,6 +18,7 @@
 #' @param popcapsize Stop the population if it reach a certain size
 #' @param fracfiss fraction of individual leaving
 #' @param deathage use to compute age depedant variable
+#' @param up time after witch community can learn socially (default 2, avoid first big marriage movements)
 #' 
 #' @return A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
 #'
@@ -31,7 +32,7 @@
 #' @importFrom stats runif   
 #' @export
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,85),rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE,popcapsize=NULL,fracfiss=.5){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,85),rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE,popcapsize=NULL,fracfiss=.5,up=2){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("deaths"%in%out) deaths=c()
 	if("births"%in%out) births=c()
@@ -237,7 +238,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 		## For all community where migrants arrive
 		for(pcs in which(apply(migrantscount,1,sum)>0)){
 			#Here we assum comus$size has been updated after migration
-			comus$adaptivetraits[pcs,]=updateTraits(k=pcs,k.size=comus$size[pcs],alltraits=comus$adaptivetraits,migrantscount=migrantscount[pcs,],beta=beta)
+			if(time>up)comus$adaptivetraits[pcs,]=updateTraits(k=pcs,k.size=comus$size[pcs],alltraits=comus$adaptivetraits,migrantscount=migrantscount[pcs,],beta=beta)
 		}
 
 		#handle deaths
