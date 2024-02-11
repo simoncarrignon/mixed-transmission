@@ -35,7 +35,7 @@ for(sb in c(0,.5,1)){
         pw=pw+1
         print(pw)
         fullpathways$s[pw]=sb
-        for(tr in c(.1,.9)){
+        for(tr in c(.9,1)){
             for(post in c("h","o")){
                 fullpathways$post[pw,post]=1
                 print(pw)
@@ -47,8 +47,8 @@ for(sb in c(0,.5,1)){
     }
 }
 traitsid=paste0("t",1:z)
-alltraits=generateTraitsMatrix(nrow(population),z)
-population=cbind(population[,-c(10,11)],alltraits)
+alltraits=generateTraitsMatrix(nrow(population),z,initval=0)
+population=cbind(population[,1:9],alltraits)
 electedpop=sample(nrow(initcomus$adaptivetraits),2)
 electedpop=1:2
 initcomus$adaptivetraits[,]=0
@@ -57,14 +57,13 @@ population[population[,"community"]==electedpop[1],traitsid]=1
 population[population[,"community"]==electedpop[2],traitsid]=1
 initcomus$adaptivetraits[,]=0
 initcomus$adaptivetraits[electedpop,]=1
-for(rho in c(0,.5)){
-    for(beta in c(-10,0,.2)){
+for(rho in c(0)){
+    for(beta in c(-10,0,.1)){
         for(bonus in c(0,1,3)){
-            expname=paste0("NewPW_invertSex_TraitTraj_10t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
+            expname=paste0("NewPW_invertSex_TraitTraj_StratTraj_10t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
             dir.create(expname)
-            initcomus$adaptivetraits[c(1,2),]=1
-            cl<-makeCluster(50,type="FORK",outfile=file.path(expname,"log.txt"))
-            allpopsizesonly=parSapply(cl,1:20,function(b){
+            cl<-makeCluster(30,type="FORK",outfile=file.path(expname,"log.txt"))
+            allpopsizesonly=parSapply(cl,1:90,function(b){
                                           set.seed(as.numeric(Sys.time())+b)
                                           tryCatch({
                                               singlesimu=modelVector(K=K, m=1, b=0.216, r=0.005*bonus, rho=rho, d=mortality, maturity=18, endrepro=45, population=population, comus=initcomus, tstep=500, tp=fullpathways,age.threshold=20, out=c("popsize","finalpop","finalcomus","traitsumary","comusize","traitpercomu"),logging=c("done"),ma=.67,traitsid=traitsid,F_Th=100,testdebug=F,fracfiss=.5,beta=beta)
