@@ -85,9 +85,11 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
     
     occupation=matrix(0,nrow=G,ncol=G)
     occupation[coordinates]=1
+	if(is.null(ki))ki=0
+	if(is.null(km))km=0
+    strat=c(rep(0,ki),rep(1,km))
 
-
-    comus=list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount,occupation=occupation)
+    comus=list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount,occupation=occupation,strat=strat)
     if(plot)plot.comu(comus)
     return(comus)
 }
@@ -308,6 +310,7 @@ fissionCommunity <- function(comus, ol) {
     # Return the updated community data frame
     return(comus)
 }
+
 
 plot.comu <- function(comus,color_gradient=NULL,vidfile=NULL)
 {
