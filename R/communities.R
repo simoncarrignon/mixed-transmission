@@ -49,7 +49,10 @@ random2Dgrid <- function(K,Gx,Gy=NULL){
 #' @importFrom grDevices png
 
 initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=NULL,traits=NULL,km=NULL,ki=NULL,K=NULL,migrantscount=NULL,sizes=NULL,plot=F){
-    if(!is.null(traits)) K=nrow(traits)
+    if(!is.null(traits)){
+		K=nrow(traits)
+		if(is.null(ki))ki=K
+	}
     if(is.null(K)){
         stopifnot(!is.null(ki),!is.null(km))
         K=ki+km
@@ -265,18 +268,44 @@ reassignFamiliesToNewCommunityNoFIDs <- function(comid, population, newsize, new
 }
 
 
-fissionCommunity <- function(comus,ol){
-    potential=which(comus$occupation==0,arr.ind=T)
-    if(nrow(potential)>0){
-        distprob=apply(potential,1,function(x1,x2)sqrt(sum((x1 - x2)^2)),x2=comus$coordinates[ol,])
-        newcoord=potential[sample(1:nrow(potential),1,prob=distprob),]
-        comus$coordinates=rbind(comus$coordinates,unlist(newcoord))
-        comus$occupation[newcoord[1],newcoord[2]]=1
-        comus$adaptivetraits=rbind(comus$adaptivetraits,comus$adaptivetraits[ol,])
-        comus$size=c(comus$size,0)
-        comus$migrantscount=cbind(comus$migrantscount,rep(0,nrow(comus$migrantscount)))
-        comus$migrantscount=rbind(comus$migrantscount,rep(0,ncol(comus$migrantscount)))
+#' Fission Community 
+#'
+#' This function fission  community by identifying an unoccupied location .
+#'
+#' @param comus A list representing the community, 
+#' @param ol The index of the community fissionning
+#'
+#' @return An updated list a new comunity 
+#' @export
+#'
+fissionCommunity <- function(comus, ol) {
+    # Identify unoccupied locations within the community
+    potential <- which(comus$occupation == 0, arr.ind = T)
+    
+    # Check if there are any unoccupied locations available
+    if (nrow(potential) > 0) {
+        # Calculate the distance probability from the selected individual to all unoccupied locations
+        distprob <- apply(potential, 1, function(x1, x2) sqrt(sum((x1 - x2)^2)), x2 = comus$coordinates[ol,])
+        
+        # Select a new location based on the distance probabilities
+        newcoord <- potential[sample(1:nrow(potential), 1, prob = distprob),]
+        
+        # Update the community's coordinates with the new location
+        comus$coordinates <- rbind(comus$coordinates, unlist(newcoord))
+        
+        comus$occupation[newcoord[1], newcoord[2]] <- 1
+        
+        comus$adaptivetraits <- rbind(comus$adaptivetraits, comus$adaptivetraits[ol,])
+        
+        comus$size <- c(comus$size, 0)
+        comus$strat <- c(comus$strat,comus$strat[ol])
+        
+        # Update the migrants count adding the new comunity
+        comus$migrantscount <- cbind(comus$migrantscount, rep(0, nrow(comus$migrantscount)))
+        comus$migrantscount <- rbind(comus$migrantscount, rep(0, ncol(comus$migrantscount)))
     }
+    
+    # Return the updated community data frame
     return(comus)
 }
 
