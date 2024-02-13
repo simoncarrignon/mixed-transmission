@@ -38,6 +38,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 	if("births"%in%out) births=c()
 	if("repros"%in%out) repros=c()
 	if("weddings"%in%out) weddings=0
+	if("popwhenfull"%in%out) popwhenfull=NULL
 	if("popsumary"%in%out){
 		popsum=list()
 		popsum[[1]]=rep(0,length(comus$popsize))
@@ -320,6 +321,10 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 		if("visu"%in% logging)plot.comu(comus,vidfile=stepfile)
 		if("visu"%in% logging)mtext(time,3,1)
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
+		if("popwhenfull"%in%out){
+            if(is.null(popwhenfull) && all(comus$occupation==1))
+                popwhenfull=population
+        }
 
 		if(testdebug){
             coms=table(factor(population[,"community"],levels=1:nrow(comus$coordinates)))
@@ -344,6 +349,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
     if("comufull"%in%out)finalres[["comufull"]]=comufull
     if("comusize"%in%out)finalres[["comusize"]]=comusize
     if("popfull"%in%out)finalres[["popfull"]]=popfull
+    if("popwhenfull"%in%out)finalres[["popwhenfull"]]=popwhenfull
 	if("done"%in%logging)print("done")
 	return(finalres)
 }
