@@ -1,32 +1,11 @@
-z=45
-fullpathways=generatePathways(z = z)
-
-pw=1
-for(sb in c(0,.5,1)){
-    print(pw)
-    for(pre in c("v","h","o")){
-        fullpathways$pre[pw:(pw+3),pre]=1
-        fullpathways$s[pw:(pw+3)]=sb
-        pw=pw+1
-        print(pw)
-        fullpathways$s[pw]=sb
-        for(tr in c(.1,.9)){
-            for(post in c("h","o")){
-                fullpathways$post[pw,post]=1
-                print(pw)
-                fullpathways$s[pw]=sb
-                fullpathways$tr[pw]=tr
-                pw=pw+1
-            }
-        }
-    }
-}
+fullpathways=readRDS("inst/scripts/fullpatways.RDS")
 
 
 pathwaysnames=c(
            "c1","c2_{p_{trans}=0.9}","c2","c3_{p_{trans}=0.9}","c3",
            "c4","c5_{p_{trans}=0.9}","c5","c6_{p_{trans}=0.9}","c6",
            "c7","c8_{p_{trans}=0.9}","c8","c9_{p_{trans}=0.9}","c9")
+
 pathwaysnames=c(
            "c_1","c_{2,pt=0.9}","c_2","c_{3,pt=0.9}","c_3",
            "c_4","c_{5,pt=0.9}","c_5","c_{6,pt=0.9}","c_6",
@@ -143,9 +122,8 @@ text(par("usr")[1],y=meanfreq,labels="median\n f=0",cex=.8,pos=2)
 ##### SUPPL =====================
 
 
-wholeset=c()
 for(rho in c(0,0.5)){
-pdf(paste0("boxplot_poplevel_full_rho_",rho,".pdf"))
+pdf(paste0("boxplot_poplevel_full_rho_",rho,".pdf"),height=12,width=8)
 par(mfrow=c(3,2))
     for(bonus in c(0,1,3)){
 for(beta in c(-10,0)){
@@ -177,42 +155,13 @@ for(beta in c(-10,0)){
         traitfreq=t(traitsfreq)
         colnames(traitfreq)=rep(pathwaysnames,3)
 
-        boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1),main=paste0("rho:",rho,", br:0.216 bonus:",0.005*bonus,", beta:",beta),las=3)
+        boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1),main=paste0("rho:",rho,", br:0.216 bonus:",0.005*bonus,", beta:",beta),las=3,lwd=.5)
 
     }
 }
-
-# Calculate positions with a gap after every 6 boxes
-positions <- c()
-gap_size <- 2  # Define the size of the gap
-for (i in 1:ncol(wholeset)) {
- if (i %% 15 == 1 && i != 1){
-    positions <- c(positions, positions[length(positions)] + gap_size + 1) # Add a gap before starting the next set
-  } else {
-    positions <- c(positions, ifelse(i == 1, i, positions[length(positions)] + 1))
-  }
+dev.off()
 }
 
-par(xpd=F)
-plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",axes=F,ann=F)
-abline(v=positions,lwd=.3,col="grey",lty=2)
-colnames(wholeset)=rep(pathwaysnames[1:5],12)
-boxplot(at=positions,wholeset,col=sexcols[as.character(pathways$s[traitsel])],outline=F,type="n",las=2,lwd=.3,ylim=c(0,1),xaxt="n",add=T,boxwex=.80,staplewex=.3,lty=1,ylab="")
-legend("topright",legend=names(sexcols),fill=sexcols,title="sex bias",bty="n",bg="white")
-abline(h=meanfreq,lwd=2,lty=3)
-par(xpd=NA)
-betaspos=sapply(seq_along(betas)-1,function(ie)positions[c((30*ie)+1,(30*ie)+30)])
-bay=0.85
-text(apply(betaspos,2,sum)/2,bay,label=betas,pos=3)
-text(x=positions[1],bay,label=expression(beta~":"),pos=3)
-arrows(x0=betaspos[1,],y0=rep(bay,9),x1=betaspos[2,],y1=rep(bay,9),lwd=1,angle=90,code=3,length=.01)
-boy=0.75
-bonuspos=sapply(0:3,function(ie)positions[ie*15+c(1,15)])
-text(label=rep(c(0,0.005,0.015),2),y=boy,x=apply(bonuspos,2,sum)/2,pos=3)
-text(x=positions[1],boy,label="f:",pos=3)
-arrows(x0=bonuspos[1,],y0=rep(boy,nrow(bonuspos)),x1=bonuspos[2,],y1=rep(boy,nrow(bonuspos)),lwd=1,angle=90,code=3,length=.01)
-text(positions,y=par("usr")[3]-0.01,labels=TeX(lapply(colnames(wholeset),function(i)paste("$",i,"$"))),srt=45,cex=.9,adj=1)
-text(par("usr")[1],y=meanfreq,labels="median\n f=0",cex=.8,pos=2)
 
 
 #### LEGACY BOXPLOT
