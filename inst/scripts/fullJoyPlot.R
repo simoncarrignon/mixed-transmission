@@ -63,9 +63,9 @@ alldensities_noF=lapply(allresults_noF,function(beta)lapply(beta,function(bonus)
 joyplot(alldensities_noF,pathways,main="No Female (after 500 ts)",angle=10,yadj=2)
 joyplot(alldensities,pathways,main="When grid full (both sex)",angle=50,yadj=4)
 pathwaysnames=c(
-           "c1","c2_(90%)","c2_(100%)","c3_(90%)","c3_(100%)",
-           "c4","c5_(90%)","c5_(100%)","c6_(90%)","c6_(100%)",
-           "c7","c8_(90%)","c8_(100%)","c9_(90%)","c9_(100%)")
+           "c1","c2_{p_{trans}=0.9}","c2_{p_{trans}=1}","c3_{p_{trans}=0.9}","c3_{p_{trans}=1}",
+           "c4","c5_{p_{trans}=0.9}","c5_{p_{trans}=1}","c6_{p_{trans}=0.9}","c6_{p_{trans}=1}",
+           "c7","c8_{p_{trans}=0.9}","c8_{p_{trans}=1}","c9_{p_{trans}=0.9}","c9_{p_{trans}=1}")
 
 joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,yadj=2,sep_ba=c(0,.4),alpha=0.8,baselines=F,miniaxes=F){
 
@@ -74,14 +74,19 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
     sexcols=c('#EE5A45', '#D4D6B9','#1E8F89')
     names(sexcols)=c(0,.5,1)
     allcols=unlist(lapply(sexcols,rep,tot_traits/length(sexcols)))
-    par(mar=c(0,0,0,0),oma=c(3,3,3,0),xpd=NA)
+    par(mar=c(0,0,0,0),oma=c(1,5,2,1),xpd=NA)
     
 
     xadj=ifelse(angle==0,0,1/angle)
-    ylims=c(0,tot_traits/yadj+5/yadj)
-    xlims=c(0,10+(1+tot_traits)*xadj)
+    ylims=c(0,(tot_traits+1)/yadj)
+    xlims=c(0,.7+sum(sep_ba)+(1+tot_traits)*xadj+5*(1.3+xadj))
     plot(1,1,type="n",xlim=xlims,ylim=ylims,axes=F,ann=F)
-    if(baselines) abline(h=(1:tot_traits)/yadj,lwd=.4,lty=2)
+	par(xpd=F)
+    if(baselines){
+# abline(h=(1:tot_traits)/yadj,lwd=.4,lty=2)
+    segments(x0=rep(0,tot_traits)+1:tot_traits*xadj,y0=(1:tot_traits)/yadj,y1=(1:tot_traits)/yadj,x1=(1+0.7+xadj)*5+max(sep_ba)+(xadj*(1:tot_traits)-0.4),lwd=.4,lty=2)
+}
+	par(xpd=NA)
     xs=c()
     xs=c(xs,.7+xadj+listdensities[[1]][[1]][[1]][1,1])
     for(tr in length(listdensities[[1]][[1]]):1){
@@ -90,7 +95,7 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
             na=range(.7+tr*xadj+listdensities[[1]][[1]][[tr]][,1])
             arrows(x0=na[1],y0=tr/yadj,x1=(na[1]+na[2])/2,y1=tr/yadj,lwd=.5,angle=90,code=3,length=.02)
             arrows(x0=(na[1]+na[2])/2,y0=tr/yadj,x1=na[2],y1=tr/yadj,lwd=.5,angle=90,code=3,length=.02)
-            text(c(0,0.5,1),x=c(na[1],(na[2]+na[1])/2,na[2]),y=tr/yadj+c(0,0,0)+0.2,cex=.4,pos=1)
+            text(c(0,0.5,1),x=c(na[1],(na[2]+na[1])/2,na[2]),y=tr/yadj+c(0,0,0)+0.1,cex=.4,pos=1)
         }
     }
     for(ba in 1:length(listdensities)){
@@ -101,11 +106,11 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
             }
         }
     }
-    text(x=rep(0,tot_traits)+1:tot_traits*xadj,y=(1:tot_traits)/yadj+.1,label=rep(pathwaysnames,3),las=2,cex=.7)
-    text(y=0,x=xs+.5,label=c(0,0.005,0.015,0.005,0.015))
-    text(y=0,x=0,label="bonus:")
-    text(y=max(ylims)-2/yadj,x=tot_traits*xadj,label=expression(beta))
-    text(y=max(ylims)-2/yadj,x=tot_traits*xadj+xs[c(2,4)]+1.2,label=c(-10,0))
+    text(x=rep(0,tot_traits)+1:tot_traits*xadj,y=(1:tot_traits)/yadj,label=TeX(lapply(rep(pathwaysnames,3),function(i)paste("$",i,"$"))),las=2,pos=2,cex=.8)
+    text(y=0,x=xs+.5,label=c("0",0.005,0.015,0.005,0.015))
+    text(y=0,x=xs[1],label="f:")
+    text(y=max(ylims)+1/yadj,x=tot_traits*xadj+xs[1]+.5,label=expression(beta~":"))
+    text(y=max(ylims)+1/yadj,x=tot_traits*xadj+xs[c(2,4)]+1,label=c(-10,0))
     mtext(main,3,-1,outer=T)
 
 }

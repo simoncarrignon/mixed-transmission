@@ -13,7 +13,23 @@ getCommuType <- function(exp){
 
 #using a the result of a simulation
 #return the type of comu (0,1,2,3) 
-getCountBySexAndCommu <- function(population,pathways){
+getCountBySex <- function(population,pathways,type=NULL){
+    traitsid=paste0("t",seq_along(pathways$s))
+    freqcom=c()
+    for(s in c(0,1)){
+        single.bias=traitsid[pathways$s == s]
+        singlesex=population[population[,"sex"]==s,]
+        applysinglesex[,single.bias] 
+~ singlesex.comus
+    }       
+    single.bias=traitsid[pathways$s == 0.5]
+    freqcom=cbind(freqcom,xtabs(population[,single.bias] ~ population[,"community"])/as.numeric(table(population[,"community"])))
+    freqcom[,traitsid]
+}
+
+#using a the result of a simulation
+#return the type of comu (0,1,2,3) 
+getCountBySexAndCommu <- function(population,pathways,type=NULL){
     traitsid=paste0("t",seq_along(pathways$s))
     freqcom=c()
     wholecomus=sort(unique(population[,"community"])) 
@@ -28,7 +44,7 @@ getCountBySexAndCommu <- function(population,pathways){
     freqcom[,traitsid]
 }
 
-extractResults <- function(expname,pathways=pathways,traitsel=NULL){
+extractResults <- function(expname,pathways=pathways,traitsel=NULL,type=NULL){
     allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
     alltraitComu=lapply(allsingle.exp,function(expfname){
                             print(expfname)
@@ -38,7 +54,7 @@ extractResults <- function(expname,pathways=pathways,traitsel=NULL){
                                 population=one$population
                             else
                                 population=one$popwhenfull
-                            getCountBySexAndCommu(population,pathways)
+                            getCountBySexAndCommu(population,pathways,type=NULL)
     })
     lapply(traitsel,function(ti) unlist(lapply(alltraitComu,function(singex)singex[,ti])))
 }
@@ -51,3 +67,11 @@ getDensities <- function(traits,bw=0.05){
     x=c(0,traits.dens$x,1)
     return(cbind(x,y/max(y)))
 }
+
+getSimFull <- function(simres){
+    if(any(lengths(simres$comusize)==100))
+        min(which(lengths(simres$comusize)==100))
+    else
+        length(simres$popsize)
+}
+
