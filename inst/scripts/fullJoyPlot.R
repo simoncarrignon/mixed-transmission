@@ -5,7 +5,7 @@ for(beta in c(-10,0)){
     allresults[[as.character(beta)]]=list()
 for(bonus in c(0,1,3)){
 
-    expname=paste0("NewPW_invertSex_TraitTraj_10t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
+    Figure3expname=paste0("NewPW_invertSex_TraitTraj_10t_RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
     allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
     alltraitComu=lapply(allsingle.exp,function(expfname){
                             one=readRDS(expfname)
@@ -50,12 +50,12 @@ for(beta in c(-10,0)){
 
 alldensities_noF=lapply(allresults_noF,function(beta)lapply(beta,function(bonus)lapply(bonus,function(traits){
                                                                                  y=density(traits,na.rm=T)$y
-                                                                                 x=c(0,density(traits,na.rm=T,from=0,to=1,bw=0.1)$x,1)
-                                                                                 return(cbind(x,c(0,y/max(y),0)))
-})))
+                                                                                x=c(0,density(traits,na.rm=T,from=0,to=1,bw=0.1)$x,1)
+                                                                                return(cbind(x,c(0,y/max(y),0)))
+}))
 
-#saveRDS(file="allresults_noF.RDS",allresults_noF)
-#saveRDS(file="alldensities_noF.RDS",alldensities_noF)
+aveRDS(file="allresults_noF.RDS",allresults_noF)
+aveRDS(file="alldensities_noF.RDS",alldensities_noF)
 
 
 
@@ -66,6 +66,7 @@ pathwaysnames=c(
            "c1","c2_{p_{trans}=0.9}","c2_{p_{trans}=1}","c3_{p_{trans}=0.9}","c3_{p_{trans}=1}",
            "c4","c5_{p_{trans}=0.9}","c5_{p_{trans}=1}","c6_{p_{trans}=0.9}","c6_{p_{trans}=1}",
            "c7","c8_{p_{trans}=0.9}","c8_{p_{trans}=1}","c9_{p_{trans}=0.9}","c9_{p_{trans}=1}")
+pathwaysnames=paste0("c",1:15)
 
 joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,yadj=2,sep_ba=c(0,.4),alpha=0.8,baselines=F,miniaxes=F){
 
@@ -74,7 +75,7 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
     sexcols=c('#EE5A45', '#D4D6B9','#1E8F89')
     names(sexcols)=c(0,.5,1)
     allcols=unlist(lapply(sexcols,rep,tot_traits/length(sexcols)))
-    par(mar=c(0,0,0,0),oma=c(1,5,2,1),xpd=NA)
+    par(mar=c(0,0,0,0),oma=c(1,0,2,1),xpd=NA)
     
 
     xadj=ifelse(angle==0,0,1/angle)
