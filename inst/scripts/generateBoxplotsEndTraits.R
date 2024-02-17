@@ -26,11 +26,7 @@ expname=paste0(exprefix,"RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
 allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
 traitsfreq=sapply(allsingle.exp,function(expfname){
                       one=readRDS(expfname)
-                      population=NULL
-                      if(is.null(one$popwhenfull))
-                          population=one$population
-                      else
-                          population=one$popwhenfull
+                      end=getSimFull(one)
                       traitsid=paste0("t",seq_along(pathways$s))
                       tcount=c()
                       for(s in c(0,1)){
@@ -56,10 +52,7 @@ for(beta in c(-10,0)){
         traitsfreq=sapply(allsingle.exp,function(expfname){
                           one=readRDS(expfname)
                           population=NULL
-                          if(is.null(one$popwhenfull))
-                              population=one$population
-                          else
-                              population=one$popwhenfull
+                          end=getSimFull(one)
                           traitsid=paste0("t",seq_along(pathways$s))
                           tcounts=apply(population[,traitsid],2,sum)
                           scounts=table(population[,"sex"])
@@ -92,18 +85,23 @@ gap_size <- 2  # Define the size of the gap
 for (i in 1:ncol(limited)) {
  if (i %% 15 == 1 && i != 1){
     positions <- c(positions, positions[length(positions)] + gap_size + 1) # Add a gap before starting the next set
+  } 
+ else if (i %% 5 == 1 && i != 1){
+    positions <- c(positions, positions[length(positions)] + .5 + 1) # Add a gap before starting the next set
   } else {
     positions <- c(positions, ifelse(i == 1, i, positions[length(positions)] + 1))
   }
 }
 
-png("Figure2.png",width=1600,height=1200,type="cairo",pointsize=22)
+png("Figure2.png",width=1200,height=600,type="cairo",pointsize=16)
 mardef=par()$mar
+mardef[1]=1.1
 mardef[2]=mardef[2]+0.4
 mardef[c(3,4)]=1.1
 par(xpd=F,mar=mardef)
-plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab="proportions",xlab="")
-abline(v=positions,lwd=3,col=adjustcolor("grey",.5),lty=5)
+plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab="proportion",xlab="")
+#abline(v=positions,lwd=3,col=adjustcolor("grey",.3),lty=5)
+segments(x0=positions,x1=positions,y0=-1,y1=0.75,lwd=3,col=adjustcolor("grey",.3),lty=5)
 colnames(limited)=rep(pathwaysnames[1:5],12)
 boxplot(at=positions,limited,col=sexcols[as.character(pathways$s[traitsel])],outline=F,ann=F,lwd=.6,ylim=c(0,1),xaxt="n",add=T,boxwex=.80,staplewex=.4,lty=1)
 legend("topright",legend=names(sexcols),fill=sexcols,title="sex bias",bty="n",bg="white")
