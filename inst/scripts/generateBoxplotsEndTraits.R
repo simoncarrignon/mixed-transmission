@@ -156,9 +156,10 @@ for(rho in c(0,0.5)){
                                   tcount[traitsid]
     })
             traitfreq=t(traitsfreq)
-            colnames(traitfreq)=rep(pathwaysnames,3)
+            colnames(traitfreq)=TeX(lapply(colnames(traitfreq),function(i)paste("$",i,"$")))
 
-            boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1),main=paste0("rho:",rho,", br:0.216 bonus:",0.005*bonus,", beta:",beta),las=3,lwd=.5)
+            boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1),main=bquote(rho*":"*.(rho)*", br:0.322 f:"*.(0.005*bonus)*", "*beta*":"*.(beta)),las=3,lwd=.5)
+            text(1:ncol(traitfreq),y=par("usr")[3]-0.02,labels=TeX(lapply(colnames(traitfreq),function(i)paste("$",i,"$"))),srt=0,cex=.8)
 
         }
     }
