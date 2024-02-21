@@ -44,19 +44,33 @@ getCountBySexAndCommu <- function(population,pathways,type=NULL){
     freqcom[,traitsid]
 }
 
-extractResults <- function(expname,pathways=pathways,traitsel=NULL,type=NULL){
+extractResults <- function(expname,pathways=pathways,traitsel=NULL,type=F){
     allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
     alltraitComu=lapply(allsingle.exp,function(expfname){
                             print(expfname)
                             one=readRDS(expfname)
                             population=NULL
+							end=getSimFull(one)
                             if(is.null(one$popwhenfull))
                                 population=one$population
                             else
                                 population=one$popwhenfull
-                            getCountBySexAndCommu(population,pathways,type=NULL)
+							if(type){
+								ctypes=apply(one$traitpercomu[[end]][,paste0("a",1:3)]/one$comusize[[end]],1,sum)
+								ctypes=ctypes[!is.nan(ctypes)]
+								ctypes[ctypes %in% c(1,2)]=-1
+								ctypes[ctypes==0]=1
+								ctypes[ctypes==3]=2
+								ctypes[ctypes==-1]=3
+								ctypes=factor(ctypes,levels=c(1,2,3))
+								counts=getCountBySexAndCommu(population,pathways)
+								lapply(levels(ctypes),function(ct)counts[ctypes==ct,,drop=F])
+							}
+							else
+								getCountBySexAndCommu(population,pathways)
     })
-    lapply(traitsel,function(ti) unlist(lapply(alltraitComu,function(singex)singex[,ti])))
+    if(type)lapply(1:3,function(ctype)lapply(traitsel,function(ti)unlist(lapply(alltraitComu,function(singex)if(nrow(singex[[ctype]])>0)singex[[ctype]][,ti]))))
+    else lapply(traitsel,function(ti) unlist(lapply(alltraitComu,function(singex)singex[,ti])))
 }
 
 
