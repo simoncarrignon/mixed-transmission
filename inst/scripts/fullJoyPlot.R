@@ -91,7 +91,7 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
     xs=c()
     xs=c(xs,.7+xadj+listdensities[[1]][[1]][[1]][1,1])
     for(tr in length(listdensities[[1]][[1]]):1){
-        polygon(.7+tr*xadj+listdensities[[1]][[1]][[tr]][,1],tr/yadj+listdensities[[1]][[1]][[tr]][,2],col=adjustcolor(allcols[tr],alpha=alpha),lwd=.6)
+        polygon(.7+tr*xadj+listdensities[[1]][[1]][[tr]][,1],tr/yadj+listdensities[[1]][[1]][[tr]][,2],col=adjustcolor(allcols[tr],alpha=alpha),lwd=.3)
         if(miniaxes){
             na=range(.7+tr*xadj+listdensities[[1]][[1]][[tr]][,1])
             arrows(x0=na[1],y0=tr/yadj,x1=(na[1]+na[2])/2,y1=tr/yadj,lwd=.5,angle=90,code=3,length=.02)
@@ -103,7 +103,7 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
         for(bo in 2:length(listdensities[[ba]])){
             xs=c(xs,1.5+(ba-1)*2*1.5+sep_ba[ba]+(bo-1)*1.6+tr*xadj+listdensities[[ba]][[bo]][[1]][1,1])
             for(tr in length(listdensities[[ba]][[bo]]):1){
-                polygon(1.5+(ba-1)*2*1.5+sep_ba[ba]+(bo-1)*1.5+tr*xadj+listdensities[[ba]][[bo]][[tr]][,1],tr/yadj+listdensities[[ba]][[bo]][[tr]][,2],col=adjustcolor(allcols[tr],alpha=alpha),lwd=.6)
+                polygon(1.5+(ba-1)*2*1.5+sep_ba[ba]+(bo-1)*1.5+tr*xadj+listdensities[[ba]][[bo]][[tr]][,1],tr/yadj+listdensities[[ba]][[bo]][[tr]][,2],col=adjustcolor(allcols[tr],alpha=alpha),lwd=.3)
             }
         }
     }

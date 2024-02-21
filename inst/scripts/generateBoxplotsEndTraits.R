@@ -104,7 +104,7 @@ plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab="proportion",x
 segments(x0=positions,x1=positions,y0=-1,y1=0.75,lwd=3,col=adjustcolor("grey",.3),lty=5)
 colnames(limited)=rep(pathwaysnames[1:5],12)
 boxplot(at=positions,limited,col=sexcols[as.character(pathways$s[traitsel])],outline=F,ann=F,lwd=.6,ylim=c(0,1),xaxt="n",add=T,boxwex=.80,staplewex=.4,lty=1)
-legend("topright",legend=names(sexcols),fill=sexcols,title="sex bias",bty="n",bg="white")
+legend("topright",legend=rev(names(sexcols)),fill=rev(sexcols),title="sex bias",bty="n",bg="white")
 abline(h=meanfreq,lwd=2,lty=5,col=adjustcolor(1,.5))
 par(xpd=NA)
 betaspos=sapply(0:1,function(ie)positions[c((30*ie)+1,(30*ie)+30)])
@@ -126,7 +126,7 @@ dev.off()
 
 
 for(rho in c(0,0.5)){
-    pdf(paste0("boxplot_poplevel_full_rho_",rho,".pdf"),height=12,width=8)
+    pdf(paste0("boxplot_poplevel_full_rho_",rho,".pdf"),height=12,width=10)
     par(mfrow=c(3,2))
     for(bonus in c(0,1,3)){
         for(beta in c(-10,0)){
@@ -156,10 +156,13 @@ for(rho in c(0,0.5)){
                                   tcount[traitsid]
     })
             traitfreq=t(traitsfreq)
-            colnames(traitfreq)=TeX(lapply(colnames(traitfreq),function(i)paste("$",i,"$")))
+            colnames(traitfreq)=unlist(rep(pathwaysnames,3))
+            #colnames(traitfreq)=lapply(colnames(traitfreq),function(i)paste("$",i,"$"))
 
             boxplot(traitfreq,col=cols[as.character(fullpathways$s)],ylab="% of population",ylim=c(0,1),main=bquote(rho*":"*.(rho)*", br:0.322 f:"*.(0.005*bonus)*", "*beta*":"*.(beta)),las=3,lwd=.5)
-            text(1:ncol(traitfreq),y=par("usr")[3]-0.02,labels=TeX(lapply(colnames(traitfreq),function(i)paste("$",i,"$"))),srt=0,cex=.8)
+par(xpd=T)
+            #text(1:ncol(traitfreq),y=par("usr")[3]-0.02,labels=lapply(colnames(traitfreq),function(i)TeX(paste("$",i,"$"))),srt=0,cex=.8)
+            legend("topright",legend=rev(names(sexcols)),fill=rev(sexcols),title="sex bias",bty="n",bg="white")
 
         }
     }
@@ -170,7 +173,7 @@ for(rho in c(0,0.5)){
 
 #### LEGACY BOXPLOT
 for(rho in c(0.5)){
-pdf(file=paste0("rho_",rho,".pdf"),width=27,height=18)
+pdf(file=paste0("rho_",rho,".pdf"),width=30,height=18)
 par(mfrow=c(3,3))
 for(beta in c(-10,0)){
 for(bonus in c(0,1,3)){
