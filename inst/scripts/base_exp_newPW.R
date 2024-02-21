@@ -57,7 +57,7 @@ population[population[,"community"]==electedpop[1],traitsid]=1
 population[population[,"community"]==electedpop[2],traitsid]=1
 initcomus$adaptivetraits[,]=0
 initcomus$adaptivetraits[electedpop,]=1
-initcomus$strat[electedpop,]=1
+initcomus$strat[electedpop]=1
 for(rho in c(0)){
     for(beta in c(-10,0,.1)){
         for(bonus in c(0,1,3)){
