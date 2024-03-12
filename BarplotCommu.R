@@ -95,18 +95,18 @@ for(bonus in c(0,1,3)){
 #FIGURE 1
 
 prop=F
-singleEx=T
-theclass=T
-for(rep in 1:50){
-png(paste0("strat_and_type_",rep,".png"),width=1000,height=1000,pointsize=24)
+singleEx=F
+threclass=F
+#for(rep in 1:50){
+png(paste0("strat_and_type.png"),width=1500,height=1500,pointsize=23)
 par(mfrow=c(3,4),mar=c(0,0,1,0),oma=c(3,4,4,3),xpd=T)
 
 for(bonus in c(0,1,3)){
 
     if(!prop)ylim=c(0,100)
     else ylim=c(0,1)
-    if(threclass)stratclass=c(0,1,2,3)
-    else stratclass=c(0,1,3)
+    if(threclass)stratclass=c(0,1,3)
+    else stratclass=c(0,1,2,3)
     colstrat=colorRampPalette(c("#006400","#FFD700"))(length(stratclass))
     for(beta in c(-10,0)){
         expname=paste0("NewPW_TraitTraj_StratTraj_500ts_RHO_0_G10_bonus_",bonus,"_beta_",beta)
@@ -127,7 +127,7 @@ for(bonus in c(0,1,3)){
 
 })
                 allstrats=t(single)
-ylab="number of communities"
+                                     ylab="average number of communities"
             }
             else{
                 cl<-makeCluster(6,type="FORK",outfile="log.txt")
@@ -135,8 +135,8 @@ ylab="number of communities"
                                      one=readRDS(totes)
                                      end=getSimFull(one)
                                      print(end)
-                                     ylab="mean number of communities"
-                                     sapply(round(seq(1,end,length.out=50)),function(t){
+                                     ylab="average number of communities"
+                                     sapply(round(seq(1,end,length.out=100)),function(t){
                                                 sizes_t=one$comusize[[t]]
                                                 ada_time=one$traitpercomu[[t]][,c("a1","a2","a3")]
                                                 alltypes=apply(ada_time/sizes_t,1,sum)
@@ -152,9 +152,12 @@ ylab="number of communities"
             }
             #allmedian=sapply(allstrats,function(i)i[3,])
             twotypes=cbind(twotypes,allstrats)
-            barplot(t(allstrats),border=NA,space=0,xlab="time",ylab="mean number of community with each strats",col=colstrat,density=c(30,30,NA),ann=F,axes=F,ylim=ylim)#,main=paste0("One Simulation wiht param:\n",expname))
+            dst=NA
+            #if(type==1)dst=c(40,40,40,NA)
+            #else dst=c(NA,40,40,40)
+            barplot(t(allstrats),border=NA,space=0,xlab="time",ylab="average number of communitiies with each strats",col=colstrat,density=dst,ann=F,axes=F,ylim=ylim)#,main=paste0("One Simulation wiht param:\n",expname))
             if(beta==-10 && type==0){ axis(2,cex=.8) ; mtext(ylab,2,1.8,cex=.8)}
-            if(bonus==3) { axis(1,cex=.8) ; mtext("time",1,1.8,cex=.8)}
+            if(bonus==3) { axis(1,cex=.8,labels=F,at=c(0,100)) ; mtext("time to end of simulation",1,1.8,cex=.8)}
             if(bonus==0 && type ==0) { mtext(bquote(beta==.(beta)),3,2,at=ifelse(beta==-10,.25,.75),cex=.9,outer=T)}
             if(bonus==0 ) { mtext(paste("Type", as.roman(type+1)),3,1,cex=.8)}
             if(beta==0 && type==1) { mtext(bquote(f==.(bonus*0.005)),4,1,cex=.8)}
