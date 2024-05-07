@@ -59,6 +59,11 @@ Various script to be cleaned and group
 
 Various dataset that can be use to run test/vignettes...
 
-## `tests/`
+### `tests/`
 
 Test files to be sure everything stays in order (needs to be improved)
+
+
+## Fundings
+
+This work has been made possible by funding from European Research Council, under the ERC Starting Grant (ENCOUNTER; Project N. 801953).
