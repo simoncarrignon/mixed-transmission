@@ -1,3 +1,4 @@
+library(latex2exp)
 devtools::load_all()
 
 pathways=readRDS("inst/scripts/fullpatways.RDS")
@@ -40,7 +41,8 @@ traitsfreq=sapply(allsingle.exp,function(expfname){
 meanfreq=median(traitsfreq[1,])
 
 
-ctype=2
+allcounts=list()
+for(ctype in c(1,2)){
 limited=list()
 for(beta in c(-10,0)){
     for(bonus in c(1,3)){
@@ -55,7 +57,7 @@ for(beta in c(-10,0)){
                               population=one$popwhenfull
                           end=getSimFull(one)
                           ctypes=apply(one$traitpercomu[[end]][,paste0("a",1:3)]/one$comusize[[end]],1,sum)
-                          ctypes=ctypes[!is.nan(ctypes)]
+                          ctypes[is.nan(ctypes)]=NA
                           ctypes[ctypes %in% c(1,2,3)]=2
                           ctypes[ctypes == 0]=1
 
@@ -87,6 +89,7 @@ for(beta in c(-10,0)){
 limited=apply(limited,2,function(u)unlist(unname(u)))
 uuu=boxplot(limited,outline=F,ann=F,axes=F,plot=F)
 allcounts[[ctype]]=limited
+}
 
 # Calculate positions with a gap after every 6 boxes
 positions <- c()
@@ -165,7 +168,7 @@ for(rho in c(0,0.5)){
                                           population=one$popwhenfull
                                       end=getSimFull(one)
                                       ctypes=apply(one$traitpercomu[[end]][,paste0("a",1:3)]/one$comusize[[end]],1,sum)
-                                      ctypes=ctypes[!is.nan(ctypes)]
+                                      ctypes[is.nan(ctypes)]=NA
                                       ctypes[ctypes %in% c(1,2,3)]=2
                                       ctypes[ctypes == 0]=1
 
