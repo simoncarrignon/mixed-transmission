@@ -32,7 +32,7 @@
 #' @importFrom stats runif   
 #' @export
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,85),rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE,popcapsize=NULL,fracfiss=.5,up=2){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,85),rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE,popcapsize=NULL,fracfiss=.5,up=2,stopwhenfull=F){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("deaths"%in%out) deaths=c()
 	if("births"%in%out) births=c()
@@ -331,6 +331,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
             stopifnot(coms == comus$size[as.numeric(names(coms))])
         }
         if(nrow(population)==0){print("extinction");break}
+        if(stopwhenfull && all(comus$occupation==1)){print("full");break}
         if(!is.null(popcapsize))if(nrow(population)>popcapsize){print("pop cap reached");break}
 	}
 	finalres=list()
