@@ -99,9 +99,12 @@ quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrep
 
 population=quickV$population 
 
-table(population[,"community"])
-
-reassignFamiliesToNewCommunityNoFIDs(2,population,200,3)
+replicate(10,{
+counts=table(population[,"community"])
+split=sample(length(counts),1)
+new=replicate(100,table(reassignFamiliesToNewCommunityNoFIDs(split,population,counts[split]/2,length(counts)+1)[,"community"]))
+sum(new[split,]-new[length(counts)+1,]>0)
+})
 
 quickV=modelVector( K =K, m=m, b=b, r=r, rho=rho, d=d, maturity=maturity, endrepro=60, population=population, comus=initcomus, tstep=100, tp=neutraltraitsParam, logging=c("time"),ma=1,traitsid=paste0("t",1:z),getfinalpop=TRUE,F_Th=10800,out=c("finalpop","popsize","weddings"))
 ```

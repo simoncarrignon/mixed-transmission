@@ -312,6 +312,16 @@ fissionCommunity <- function(comus, ol) {
 }
 
 
+#' Plot Community
+#'
+#' This function plots a community with adaptive traits and size of each communities represented by different colors and sizes respectively.
+#'
+#' @param comus A data frame containing information about the community including coordinates, adaptive traits, and size of each species.
+#' @param color_gradient A vector of colors used to represent the adaptive traits of each species. If not provided, a default color gradient from deep green to golden yellow will be used.
+#' @param vidfile A string specifying the name of the video file to save the plot as. If not provided, the plot will not be saved as a video.
+#' @return A plot of the community with adaptive traits and size of each species represented by different colors and sizes.
+#' @export
+
 plot.comu <- function(comus,color_gradient=NULL,vidfile=NULL)
 {
     if(is.null(color_gradient))
@@ -326,10 +336,19 @@ plot.comu <- function(comus,color_gradient=NULL,vidfile=NULL)
     if(!is.null(vidfile)) dev.off()
 }
 
-countTraitsPerComu <- function(population,communities,traitsid){
-    neutrals=aggregate(population[,traitsid],by=list(factor(population[,"community"],levels=seq_along(communities$size))),FUN=sum,drop=F)
-    adap=communities$adaptivetraits*as.vector(communities$size)
-    return(cbind(neutrals[,-1],adap))
+#' Count Traits Per Community
+#'
+#' This function first aggregates the traits of individuals in the population data frame by community, using the community size as a factor. It then multiplies the number of adaptive traits in each community by the community size, and combines this with the number of neutral traits in each community. The result is a matrix with the number of neutral and adaptive traits per community.
+#'
+#' @param population A data frame containing information about individuals in a population, including their community and traits.
+#' @param communities A data frame containing information about the communities in the population, including their size and number of adaptive traits.
+#' @param traitsid A vector specifying the column indices of the traits in the population data frame.
+#' @return A matrix with the number of neutral and adaptive traits per community.
+#' @export
+countTraitsPerComu <- function(population, communities, traitsid) {
+  neutrals <- aggregate(population[, traitsid], by = list(factor(population[,"community"], levels = seq_along(communities$size))), FUN = sum, drop = FALSE)
+  adap <- communities$adaptivetraits * as.vector(communities$size)
+  return(cbind(neutrals[, -1], adap))
 }
 
 

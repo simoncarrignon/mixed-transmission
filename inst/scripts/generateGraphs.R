@@ -273,11 +273,11 @@ par(mfrow=c(1,2))
     pdf(file=paste0("posize_",expname,".pdf"),width=10)
     par(mfrow=c(1,2))
 
-    plot(1,1,type="n",ylim=range(popsizes[c(2,4),]),xlim=c(1,500),log="y",xlab="time",ylab="pop size",main= "population size for adaptive scenario")
-    lines(popsizes[3,],lwd=2)
-    lines(popsizes[2,],lwd=1)
-    lines(popsizes[4,],lwd=1)
-    legend("topleft",lwd=c(2,1),legend=c("median","75% HDR"))
+1,type="n",ylim=range(popsizes[c(2,4),]),xlim=c(1,500),log="y",xlab="time",ylab="pop size",main= "population size for adaptive scenario")
+opsizes[3,],lwd=2)
+opsizes[2,],lwd=1)
+opsizes[4,],lwd=1)
+"topleft",lwd=c(2,1),legend=c("median","75% HDR"))
 
     plot(1,1,type="n",ylim=range(adaptraits[c(2,4),]),xlim=c(1,500),log="y",xlab="time",ylab="%",main= "frequency of a_1 in the population")
     lines(adaptraits[3,],lwd=2)
@@ -663,31 +663,4 @@ traitsextinct=sapply(allsingle.exp,function(expfname){
            one$traitsextinct.ada
            apply(one$traitsumary/one$popsize,2,function(trait)suppressWarnings(min(which(trait==0))))
 })
-
-
-for(beta in c(-10,0,0.1)){
-for(bonus in c(0,3)){
-    dev.new()
-par(mfrow=c(3,3),oma=c(2,3,4,0),mar=c(0,0,0,0))
-
-expname=paste0("NewPW_invertSex_TraitTraj_10t_RHO_0_G10_bonus_",bonus,"_beta_",beta)
-allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
-totes=sample(seq_along(allsingle.exp),9)
-for( i in totes){
-    one=readRDS(allsingle.exp[i])
-    alltypes=getCommuType(one)
-    tyepTtime=sapply(1:500,function(t){
-                         sizes_t=one$comusize[[t]]
-                         table(factor(alltypes[1:length(sizes_t)],level=0:3))/length(sizes_t)
-})
-
-    cols=colorRampPalette(c("#006400","#FFD700"))(4)
-    barplot(tyepTtime,border=NA,space=0,xlab="time",ylab="% communities",col=cols)#,main=paste0("One Simulation wiht param:\n",expname))
-    par(new=T)
-    #plot(lengths(one$comusize),axes=F,ann=F,type="l")
-    axis(1)
-}
-    mtext(paste("rho","0","beta",beta,"bonus", bonus),3,1,outer=T,cex=3)
-}
-}
 
