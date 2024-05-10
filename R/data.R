@@ -73,3 +73,17 @@
 #' }
 
 "mortality"
+
+#'  All Paper Pathways
+#'
+#' a list describing all pathways used in the paper
+#' Report ...
+#'
+#' @format A list with 4 elements describing the 45 pathways studied in the paper
+#' \describe{
+#'   \item pre: which traits go through pre marital pathways
+#'   \item post: which traits go through post marital pathways
+#'   \item s are: the traits biased toward specific sex
+#'   \item tr: probability that the pathways is used
+#' }
+"fullpathways"
