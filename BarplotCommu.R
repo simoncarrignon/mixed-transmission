@@ -1,3 +1,13 @@
+library(latex2exp)
+library(parallel)
+devtools::load_all()
+setwd(file.path(here::here(),"simulations")) #move to the folder with all simulations' results
+
+data(fullpathways) #load fullpathways
+pathwaysnames=paste0("c_",1:15)
+
+renametypes=c("A","B")
+
 cols4=colorRampPalette(c("#006400","#FFD700"))(4)
 cols3=colorRampPalette(c("#006400","#FFD700"))(3)
 
@@ -275,3 +285,51 @@ for(bonus in c(0,1,3)){
         if(beta==0 ) { mtext(bquote(f==.(bonus*0.005)),4,1,cex=.8)}
     }
 }
+
+
+
+##Create a new version of the figure with strategies per ancestors types
+
+twotypes=list()
+stratclass=c(0,1,2,3)
+for(beta in c(-10,0)){
+    allbonus=c()
+    for(bonus in c(0,1,3)){
+        expname=paste0("NewPW_TraitTraj_StratTraj_500ts_RHO_0_G10_bonus_",bonus,"_beta_",beta)
+        allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
+        cl<-makeCluster(6,type="FORK",outfile="log.txt")
+        allrep=parLapply(cl,allsingle.exp,function(totes){
+                             one=readRDS(totes)
+                             alltypes=factor(getCommuType(one),level=stratclass)
+                             ancestors=one$finalcomus$strat
+                             res=tapply(alltypes,ancestors,table)
+                             names(res)=renametypes[seq_along(res)]
+                             do.call("cbind",res)
+
+})
+        stopCluster(cl)
+
+        allstrats=sapply(seq_along(stratclass),function(strat)apply(sapply(allrep,function(i)i[strat,]),1,mean))
+        allbonus=rbind(allbonus,allstrats)
+    }
+    twotypes[[as.character(beta)]]=allbonus
+}
+
+twotypes=lapply(twotypes,function(u){rownames(u)=gsub(pattern="and",replacement="&",x=paste("Type",rownames(u)));u})
+twotypes=lapply(twotypes,function(u){rownames(u)=gsub(pattern=" & C",replacement="",x=rownames(u));u})
+par(mfrow=c(1,2))
+
+pdf(paste0("Figure1_newversion.pdf"),width=16,height=8,pointsize=15)
+par(mfrow=c(1,2))
+par(oma=c(0,3,0,2),mar=c(5,2,2,0),xpd=NA)
+lapply(names(twotypes),function(exp){
+           a=barplot(unname(t(twotypes[[exp]])),space=c(0,0,1,0,1,0),border="black",xlab="",ylab="average number of communitiies",col=colstrat,main=bquote(beta==.(exp)))
+           mtext(1,2,text=paste0("",c(0,1,3)*0.005),at=sapply(seq(1,length(a)-1,2),function(i)sum(a[i:(i+1)])/2),cex=1)
+           text(x = a, y = par("usr")[3] - 1, labels =rownames(twotypes[[exp]]), srt = 30, adj = 1,cex=.8)
+           if(exp==-10){
+           mtext(1,0,text="Ancestors:",at=-1,cex=.8)
+           }
+           mtext(1,2,text="f:",at=0,cex=1)
+})
+
+dev.off()
