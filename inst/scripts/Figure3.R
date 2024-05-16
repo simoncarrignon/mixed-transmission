@@ -10,7 +10,7 @@ renametypes=c("A","B & C")
 sexcols=c('#EE5A45', '#D4D6B9','#1E8F89')
 names(sexcols)=c(0,.5,1)
 
-### First we retriev the results from all simualtion which have been ru  in separate folder depending on beta, bonus and rho (the marital rule) in the following folder:
+### First we retriev the results from all simualtion which have been run  in separate folder depending on beta, bonus and rho (the marital rule) in the following folder:
 exprefix="NewPW_TraitTraj_StratTraj_500ts_"
 
 bonuses=c(0,3) #bonus to retrieve
@@ -83,7 +83,7 @@ for (i in 1:ncol(limited)) {
 }
 
 
-pdf("Figure3_pertype_f0.pdf",width=14,height=8)
+cairo_pdf("Figure3_pertype_f0.pdf",width=14,height=8)
 
 ##keep orignal par() value and the adjust them for the Figure
 mardef=par()$mar
@@ -101,6 +101,7 @@ boxplot(at=positions,allcounts[[1]],col=sexcols[as.character(fullpathways$s[trai
 
 ##vertical grey explicit label
 text(labels=c("no resocialisation","horizontal transmission probability 0.9","horizontal transmission probability 1","oblique transmission probability 0.9","oblique transmission probability 1"),x=positions[1:5],y=.05,srt=90,cex=.7,adj=c(0,-.2),col=adjustcolor("black",.4),font=3)
+#text(labels=c(TeX("no resocialisation"),TeX("horizontal $p_{trans}=0.9$"),TeX("horizontal $p_{trans}=1$"),TeX("oblique $p_{trans}=1$"),TeX("oblique $p_{trans}=0.9$")),x=positions[1:5]-.1,y=.05,srt=90,cex=.8,adj=0,col=adjustcolor("grey",.9),font=3)
 
 ##horizontal arrow with label (beta,f)
 par(xpd=NA)
