@@ -319,17 +319,17 @@ twotypes=lapply(twotypes,function(u){rownames(u)=gsub(pattern="and",replacement=
 twotypes=lapply(twotypes,function(u){rownames(u)=gsub(pattern=" & C",replacement="",x=rownames(u));u})
 par(mfrow=c(1,2))
 
-pdf(paste0("Figure1_newversion.pdf"),width=16,height=8,pointsize=15)
+pdf(paste0("Figure2_growthbehaviour.pdf"),width=16,height=8,pointsize=15)
 par(mfrow=c(1,2))
 par(oma=c(0,3,0,2),mar=c(5,2,2,0),xpd=NA)
 lapply(names(twotypes),function(exp){
            a=barplot(unname(t(twotypes[[exp]])),space=c(0,0,1,0,1,0),border="black",xlab="",ylab="average number of communitiies",col=colstrat,main=bquote(beta==.(exp)))
            mtext(1,2,text=paste0("",c(0,1,3)*0.005),at=sapply(seq(1,length(a)-1,2),function(i)sum(a[i:(i+1)])/2),cex=1)
            text(x = a, y = par("usr")[3] - 1, labels =rownames(twotypes[[exp]]), srt = 30, adj = 1,cex=.8)
-           if(exp==-10){
-           mtext(1,0,text="Ancestors:",at=-1,cex=.8)
-           }
-           mtext(1,2,text="f:",at=0,cex=1)
+           #if(exp==-10){
+           #mtext(1,0,text="Ancestors:",at=-1,cex=.8)
+           #}
+           mtext(1,2,text="f:",at=-.5,cex=1)
 })
 
 dev.off()
