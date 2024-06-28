@@ -1,3 +1,8 @@
+### The script below are not very well comomentend as I (simon) never find the best tradeofff between re-usability of the script (ie to quickly plot the joyplot)  and the precision we needed on how to finely tune them for specific figures.
+
+
+
+
 joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,yadj=2,sep_ba=c(0,.4),alpha=0.8,baselines=F,miniaxes=F){
 
 
