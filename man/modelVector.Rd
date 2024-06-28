@@ -36,7 +36,8 @@ modelVector(
   remarriage = FALSE,
   popcapsize = NULL,
   fracfiss = 0.5,
-  up = 2
+  up = 2,
+  stopwhenfull = F
 )
 }
 \arguments{

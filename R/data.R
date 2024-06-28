@@ -87,3 +87,4 @@
 #'   \item tr: probability that the pathways is used
 #' }
 "fullpathways"
+
