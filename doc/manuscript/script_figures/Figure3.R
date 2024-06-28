@@ -10,7 +10,7 @@ renametypes=c("A","B & C")
 sexcols=c('#EE5A45', '#D4D6B9','#1E8F89')
 names(sexcols)=c(0,.5,1)
 
-### First we retriev the results from all simualtion which have been run  in separate folder depending on beta, bonus and rho (the marital rule) in the following folder:
+### First we retrieve the results from all simulation which have been run  in separate folders depending on beta, bonus and rho (the marital rule) in the following folder:
 exprefix="NewPW_TraitTraj_StratTraj_500ts_"
 
 bonuses=c(0,3) #bonus to retrieve
@@ -85,7 +85,7 @@ for (i in 1:ncol(limited)) {
 
 cairo_pdf("Figure3_pertype_f0.pdf",width=14,height=8)
 
-##keep orignal par() value and the adjust them for the Figure
+##keep original par() value and the adjust them for the Figure
 mardef=par()$mar
 mardef[1]=.2
 mardef[2]=mardef[2]+1
