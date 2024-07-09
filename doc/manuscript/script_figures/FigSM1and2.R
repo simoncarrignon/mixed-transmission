@@ -1,5 +1,28 @@
 ##ECPLORE BONUS AND BETAjj
 devtools::load_all()
+
+#Left Panel GROWTH RATE only (NO BONUS)
+expname=here::here("simulations",paste0("NewAges_ExploringBirthrateOnGrowth_5000_FS"))
+params=readRDS(paste0(expname,"_params.RDS"))
+birthrate=params[,1]
+allpopsizesonly=sapply(1:nrow(params),function(expr){
+expfname=paste0(expname,"/singlesimu_s_",expr,".RDS")
+if(file.exists(expfname)){
+    singlesimu=readRDS(expfname)
+    pop=singlesimu$popsize
+    end=getSimFull(singlesimu)
+    pop=pop[1:end]
+    slope=tryCatch(lm(y~x,data=cbind.data.frame(y=log(pop),x=seq_along(pop)))$coefficient[2],error=function(e)NA)
+    effect=mean((pop[-1]-pop[-end])/pop[-end])
+    c(slope=slope,effect=effect,br=birthrate[expr])
+}
+else{ c(NULL,NULL,NULL) }
+})
+
+##this 1000 are more simulatino, available on throughton, should be dl
+allpopsizesonly1000=readRDS(here::here("simulations","NewAges_ExploringBonusOnGrowth_1000_500ts.RDS"))
+allpopsizesonly1000=do.call("cbind",allpopsizesonly1000[lengths(allpopsizesonly1000)==4])
+allpopsizesonly=cbind(allpopsizesonly,allpopsizesonly1000)
 setwd(file.path(here::here(),"simulations"))
 prefixexp="BonusExploNewAges_5000_FS_poppaper2"
 params=readRDS(paste0(prefixexp,"_params.RDS"))
