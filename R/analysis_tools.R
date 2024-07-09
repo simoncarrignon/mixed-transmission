@@ -82,8 +82,8 @@ extractResults <- function(expname,pathways=pathways,traitsel=NULL,type=F,diffex
                                 counts=lapply(levels(ctypes),function(ct)counts[ctypes==ct,,drop=F])
                             }
                             ##still some few cases where communities have NA because there is only people from one sex or another, in which case we now remove them
-                            if(type)lapply(counts,function(nc)nc[!apply(nc,1,function(i)any(is.nan(i))),])
-                            else counts[!apply(counts,1,function(i)any(is.nan(i))),]
+                            if(type)lapply(counts,function(nc)nc[!apply(nc,1,function(i)any(is.nan(i))),,drop=F])
+                            else counts[!apply(counts,1,function(i)any(is.nan(i))),,drop=F]
 })
     if(type)return(lapply(1:ntype,function(ctype)lapply(traitsel,function(ti)unlist(lapply(alltraitComu,function(singex)if(nrow(singex[[ctype]])>0)singex[[ctype]][,ti])))))
     if(!is.null(params)) return(lapply(traitsel,function(ti)unlist(lapply(alltraitComu,function(singex)singex[,ti]))))
@@ -105,4 +105,13 @@ getSimFull <- function(simres){
     else
         length(simres$popsize)
 }
-
+extractComSiz <- function(expname,pathways=pathways,traitsel=NULL,type=F,diffexp=F,params=NULL,ntype=2,log=T){
+        allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
+    alltraitComu=lapply(allsingle.exp,function(expfname){
+                            if(log)print(expfname)
+                            if(!file.exists(expfname))return(NULL)
+                            one=readRDS(expfname)
+    one$finalcomus$size
+})
+    unlist(alltraitComu)
+}
