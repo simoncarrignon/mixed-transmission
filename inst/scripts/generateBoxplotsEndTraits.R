@@ -1,3 +1,5 @@
+setwd(here::here())
+library(latex2exp)
 fullpathways=readRDS("inst/scripts/fullpatways.RDS")
 
 
@@ -12,6 +14,7 @@ pathwaysnames=c(
            "c_7","c_{8},p_{transmit}=0.9","c_8","c_{9},p_{transmit}=0.9","c_9")
 
 
+exprefix="NewPW_TraitTraj_StratTraj_500ts_"
 
 
 sexcols=c('#EE5A45', '#D4D6B9','#1E8F89')
@@ -27,17 +30,22 @@ allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
 traitsfreq=sapply(allsingle.exp,function(expfname){
                       one=readRDS(expfname)
                       end=getSimFull(one)
-                      traitsid=paste0("t",seq_along(pathways$s))
+                      population=NULL
+                      if(is.null(one$popwhenfull))
+                          population=one$population
+                      else
+                          population=one$popwhenfull
+                      traitsid=paste0("t",seq_along(fullpathways$s))
                       tcount=c()
                       for(s in c(0,1)){
                           #traits biased toward one sex
-                          single.bias=traitsid[pathways$s == s]
+                          single.bias=traitsid[fullpathways$s == s]
                           #population of this given sex
                           singlesex=population[population[,"sex"]==s,]
                           #count frquencies of traits for these given sex
                           tcount=c(tcount,apply(singlesex[,single.bias],2,sum)/nrow(singlesex))
                       }       
-                      single.bias=traitsid[pathways$s == 0.5]
+                      single.bias=traitsid[fullpathways$s == 0.5]
                       tcount=c(tcount,apply(population[,single.bias],2,sum)/nrow(population))
                       tcount[traitsid]
            })
@@ -52,27 +60,31 @@ for(beta in c(-10,0)){
         traitsfreq=sapply(allsingle.exp,function(expfname){
                           one=readRDS(expfname)
                           population=NULL
+                          if(is.null(one$popwhenfull))
+                              population=one$population
+                          else
+                              population=one$popwhenfull
                           end=getSimFull(one)
-                          traitsid=paste0("t",seq_along(pathways$s))
+                          traitsid=paste0("t",seq_along(fullpathways$s))
                           tcounts=apply(population[,traitsid],2,sum)
                           scounts=table(population[,"sex"])
                           tcount=c()
                           for(s in c(0,1)){
                               #traits biased toward one sex
-                              single.bias=traitsid[pathways$s == s]
+                              single.bias=traitsid[fullpathways$s == s]
                               #population of this given sex
                               singlesex=population[population[,"sex"]==s,]
                               #count frquencies of traits for these given sex
                               tcount=c(tcount,apply(singlesex[,single.bias],2,sum)/nrow(singlesex))
                           }       
-                          single.bias=traitsid[pathways$s == 0.5]
+                          single.bias=traitsid[fullpathways$s == 0.5]
                           tcount=c(tcount,apply(population[,single.bias],2,sum)/nrow(population))
                           tcount[traitsid]
     })
         traitfreq=t(traitsfreq)
         colnames(traitfreq)=rep(pathwaysnames,3)
 
-        traitsel=c(1:5,16:20,31:35)
+        traitsel=c(1:5,16:20,31:35) #we only look at certain pathways
 
         limited=cbind(limited,traitfreq[,traitsel])
     }
@@ -103,7 +115,7 @@ plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab="proportion",x
 #abline(v=positions,lwd=3,col=adjustcolor("grey",.3),lty=5)
 segments(x0=positions,x1=positions,y0=-1,y1=0.75,lwd=3,col=adjustcolor("grey",.3),lty=5)
 colnames(limited)=rep(pathwaysnames[1:5],12)
-boxplot(at=positions,limited,col=sexcols[as.character(pathways$s[traitsel])],outline=F,ann=F,lwd=.6,ylim=c(0,1),xaxt="n",add=T,boxwex=.80,staplewex=.4,lty=1)
+boxplot(at=positions,limited,col=sexcols[as.character(fullpathways$s[traitsel])],outline=F,ann=F,lwd=.6,ylim=c(0,1),xaxt="n",add=T,boxwex=.80,staplewex=.4,lty=1)
 legend("topright",legend=rev(names(sexcols)),fill=rev(sexcols),title="sex bias",bty="n",bg="white")
 abline(h=meanfreq,lwd=2,lty=5,col=adjustcolor(1,.5))
 par(xpd=NA)
