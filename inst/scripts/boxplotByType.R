@@ -1,3 +1,6 @@
+## This script keep various function that have beeen use to test
+
+
 library(latex2exp)
 devtools::load_all()
 setwd(file.path(here::here(),"simulations")) #move to the folder with all simulations' results
@@ -47,12 +50,14 @@ meanfreq=median(traitsfreq[1,])
 
 #We will not go through all results again, splitting the analysis for both type of communities 
 
+bonuses=c(0,3)
 allcounts=list()
 for(ctype in c(1,2)){
 limited=list()
 for(beta in c(-10,0)){
-    for(bonus in c(1,3)){
+    for(bonus in bonuses){
         expname=paste0(exprefix,"RHO_",rho,"_G10_bonus_",bonus,"_beta_",beta)
+        print(expname)
         allsingle.exp <- list.files(expname,pattern = "si.*\\.RDS",full.names = TRUE)
         traitsfreq=sapply(allsingle.exp,function(expfname){
                           one=readRDS(expfname)
@@ -111,21 +116,21 @@ for (i in 1:ncol(limited)) {
   }
 }
 
-pdf("Figure2_pertype.pdf",width=14,height=8)
+pdf("Figure3_pertype_f0.pdf",width=14,height=8)
 mardef=par()$mar
 mardef[1]=.2
 mardef[2]=mardef[2]+1
 mardef[c(3,4)]=1.1
 par(xpd=F,mar=mardef,mfrow=c(2,1))
 ctype=1
-plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab=paste("proportion of neutral traits\nin communities of Type",renametypes[ctype]),xlab="") #as.roman(ctype)
+plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab=paste("average proportion of 1-variants neutral traits\nin communities of type",renametypes[ctype]),xlab="") #as.roman(ctype)
 #abline(v=positions,lwd=3,col=adjustcolor("grey",.3),lty=5)
 segments(x0=positions,x1=positions,y0=-1,y1=0.75,lwd=1,col=adjustcolor("grey",.3),lty=5)
 colnames(allcounts[[1]])=rep(pathwaysnames[1:5],12)
 boxplot(at=positions,allcounts[[1]],col=sexcols[as.character(fullpathways$s[traitsel])],outline=F,ann=F,lwd=.6,ylim=c(0,1),xaxt="n",add=T,boxwex=.80,staplewex=.4,lty=1)
 #abline(h=meanfreq,lwd=2,lty=5,col=adjustcolor(1,.5))
 
-text(labels=c("no resocialisation","horizontal, 10% fail","horizontal","oblique,10% fail","oblique"),x=positions[1:5],y=.05,srt=90,cex=.7,adj=c(0,-.2),col=adjustcolor("black",.4),font=3)
+text(labels=c("no resocialisation","horizontal transmission probability 0.9","horizontal transmission probability 1","oblique transmission probability 0.9","oblique transmission probability 1"),x=positions[1:5],y=.05,srt=90,cex=.7,adj=c(0,-.2),col=adjustcolor("black",.4),font=3)
 
 #text(labels=c("no resocialisation",TeX("horizontal,$p_{trans}=0.9$"),"horizontal","oblique",TeX("oblique,$p_{trans}=0.9$")),x=positions[1:5]-.1,y=.05,srt=90,cex=.8,adj=0,col=adjustcolor("grey",.9),font=3)
 
@@ -137,7 +142,7 @@ text(x=positions[1],bay,label=expression(beta~":"),pos=3)
 arrows(x0=betaspos[1,],y0=rep(bay,nrow(betaspos)),x1=betaspos[2,],y1=rep(bay,nrow(betaspos)),lwd=1,angle=90,code=3,length=.01)
 boy=0.75
 bonuspos=sapply(0:3,function(ie)positions[ie*15+c(1,15)])
-text(label=rep(c(0.005,0.015),2),y=boy,x=apply(bonuspos,2,sum)/2,pos=3)
+text(label=rep(bonuses*0.005,2),y=boy,x=apply(bonuspos,2,sum)/2,pos=3)
 text(x=positions[1],boy,label="f:",pos=3)
 arrows(x0=bonuspos[1,],y0=rep(boy,nrow(bonuspos)),x1=bonuspos[2,],y1=rep(boy,nrow(bonuspos)),lwd=1,angle=90,code=3,length=.01)
 
@@ -146,7 +151,7 @@ mardef[1]=2
 
 ctype=2
 par(mar=mardef,xpd=F)
-plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab=paste("average proportion of neutral traits\nin communities of Type",renametypes[ctype]),xlab="")
+plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab=paste("average proportion of 1-variants neutral traits\nin communities of type",renametypes[ctype]),xlab="")
 #abline(v=positions,lwd=3,col=adjustcolor("grey",.3),lty=5)
 segments(x0=positions,x1=positions,y0=-1,y1=2,lwd=1,col=adjustcolor("grey",.3),lty=5)
 colnames(allcounts[[2]])=rep(pathwaysnames[1:5],12)
