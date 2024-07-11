@@ -2,6 +2,7 @@ devtools::load_all()
 # This R script calculates the probability of adoption with respect to beta and number of migrants
 # in an incumbent community of size 100. The calculations are performed over a range of beta values
 # and different numbers of migrants.
+# Results are shown in Figure SM4
 migrants=seq(1,50,1)
 betas=seq(-10,1,length.out=20)
 
