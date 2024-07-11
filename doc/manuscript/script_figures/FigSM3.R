@@ -1,4 +1,5 @@
 ##This script run a simulation with similar paramaters that the simulations ran for the paper but log the number of migrants at each time steps.
+## This is used to generate the figure SM3, although the results will be slightly different as the seed hasn't been kept and due to the stochasticity of the model the output may differ.
 
 devtools::load_all()
 ki=10
