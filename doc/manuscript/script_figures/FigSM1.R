@@ -7,17 +7,17 @@ expname="NewAges_ExploringBirthrateOnGrowth_5000_FS"
 params=readRDS(paste0(expname,"_params.RDS"))
 birthrate=params[,1]
 allpopsizesonly=sapply(1:nrow(params),function(expr){
-expfname=paste0(expname,"/singlesimu_s_",expr,".RDS")
-if(file.exists(expfname)){
-    singlesimu=readRDS(expfname)
-    pop=singlesimu$popsize
-    end=getSimFull(singlesimu)
-    pop=pop[1:end]
-    slope=tryCatch(lm(y~x,data=cbind.data.frame(y=log(pop),x=seq_along(pop)))$coefficient[2],error=function(e)NA)
-    effect=mean((pop[-1]-pop[-end])/pop[-end])
-    c(slope=slope,effect=effect,br=birthrate[expr])
-}
-else{ c(NULL,NULL,NULL) }
+    expfname=paste0(expname,"/singlesimu_s_",expr,".RDS")
+    if(file.exists(expfname)){
+        singlesimu=readRDS(expfname)
+        pop=singlesimu$popsize
+        end=getSimFull(singlesimu)
+        pop=pop[1:end]
+        slope=tryCatch(lm(y~x,data=cbind.data.frame(y=log(pop),x=seq_along(pop)))$coefficient[2],error=function(e)NA)
+        effect=mean((pop[-1]-pop[-end])/pop[-end])
+        c(slope=slope,effect=effect,br=birthrate[expr])
+    }
+    else{ c(NULL,NULL,NULL) }
 })
 
 #Right Panel: Bonus (f) on measured grwoth rates 
@@ -25,17 +25,17 @@ prefixexp="BonusExploNewAges_5000_FS_poppaper2"
 params=readRDS(paste0(prefixexp,"_params.RDS"))
 expname=prefixexp
 bonusbeta=sapply(1:nrow(params),function(expr){
-                     expfname=paste0(expname,"/singlesimu_s_",expr,".RDS")
-                     if(file.exists(expfname)){
-                         singlesimu=readRDS(expfname)
-                         pop=singlesimu$popsize
-                         end=getSimFull(singlesimu)
-                         pop=pop[1:end]
-                         slope=lm(y~x,data=cbind.data.frame(y=log(pop),x=seq_along(pop)))$coefficient[2]
-                         effect=mean((pop[-1]-pop[-end])/pop[-end])
-                         c(slope=slope,effect=effect,params[expr,"beta"],params[expr,"bonus"])
-                     }
-                     else{ c(NULL,NULL,NULL,NULL) }
+    expfname=paste0(expname,"/singlesimu_s_",expr,".RDS")
+    if(file.exists(expfname)){
+        singlesimu=readRDS(expfname)
+        pop=singlesimu$popsize
+        end=getSimFull(singlesimu)
+        pop=pop[1:end]
+        slope=lm(y~x,data=cbind.data.frame(y=log(pop),x=seq_along(pop)))$coefficient[2]
+        effect=mean((pop[-1]-pop[-end])/pop[-end])
+        c(slope=slope,effect=effect,params[expr,"beta"],params[expr,"bonus"])
+    }
+    else{ c(NULL,NULL,NULL,NULL) }
 })
 bonusbeta=do.call(cbind,bonusbeta) # concat all 
 
