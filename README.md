@@ -1,19 +1,22 @@
-Repository for PNAS special issue paper on Cultural Hitchhiking and post marital residence rules
+# Repository for paper on Cultural Hitchhiking and post marital residence rules titled "Post-marital residence rules and transmission pathways in cultural hitchhiking"
 
-# Multimodal Transmission
+## Multimodal Transmission
 
-What happened when horizontal, vertical, oblique transmission interact with sexual biases, population growth and between population mating?
+What happens when horizontal, vertical, oblique transmission interact with sexual biases, population growth and between population mating?  This repository allow to run the model used in the paper and redo the graph used.
 
 This repository can be loaded as a package using `devtools::load_all()`.
 
-Quick note about the folders and files available:
+## General Structure of the Folder
 
-
-- `R/`
-- `inst/`
-- `tests/`
-- `inst/scripts/`
-- `inst/scripts/`
+- `R/`: Core R functions.
+- `doc/`: Scripts and files specific to the paper (i.e., scripts to regenerate the figures).
+- `inst/`: Installation files.
+  - `inst/scripts/`: Various scripts used throughout the development of the model and the paper.
+  - `inst/extdata/`: Data generated for model exploration.
+- `man/`: Documentation for R functions.
+- `simulations/`: Simulation outputs (need to be downloaded from Zenodo, see `simulations/README.md`).
+- `tests/`: Unit tests to ensure that functions generate the expected output.
+- `vignettes/`: A few vignettes that explore specific, simple aspects of the model.
 
 ## Details 
 
