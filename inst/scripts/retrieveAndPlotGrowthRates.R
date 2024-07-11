@@ -50,23 +50,6 @@ bonusbeta=do.call(cbind,bonusbeta) # concat all
 bgpe=5
 custom_colors <- rev(colorRampPalette(c("red", "white", "blue"))(bgpe))
 
-
-png(file="growth_rate_wrt_b_f.png",height=850,width=1450,pointsize=22,type="cairo")
-par(mfrow=c(1,2))
-par(mar=c(4,6,4,0))
-allpopsizesonlyadj=allpopsizesonly[,(allpopsizesonly["br",]/.67)>0.25]
-plot(allpopsizesonlyadj["br",]/0.67,allpopsizesonlyadj["effect",],ylim=c(-0.02,0.025),xlim=c(0.25,0.5),xlab="birth rate",ylab=expression(frac(N[t+1]-N[t],N[t])),main="")
-#,xlab="f",ylab=expression(abline(v=0.322,col="red")
-abline(v=0.3224,col="black",lwd=3)
-abline(v=0.3224,col="green",lwd=1.5)
-par(mar=c(4,3,4,1))
-plot(bonusbeta["bonus",],bonusbeta["effect",],ylab="" ,xlab="f",pch=21,main="",bg=adjustcolor(custom_colors[cut(bonusbeta["beta",],breaks=bgpe,dig.lab=2,ordered_result=T)],.6))
-abline(v=c(0,0.005,0.015),col="black",lwd=2.5)
-abline(v=c(0,0.005,0.015),col="green",lwd=1)
-legend("bottomright",fill=custom_colors,title="beta",legend=levels(cut(bonusbeta["beta",],breaks=bgpe)),bty="n",cex=.8)
-dev.off()
-
-
 ### We will now cut by beeta and bonus to see if beta can get an effect after some level 
 mydata=data.frame(beta=cut(bonusbeta["beta",],breaks=10),bonus=cut(bonusbeta["bonus",],breaks=10),slope=bonusbeta["slope.x",])
 aa=boxplot(mydata$slope ~ mydata$bonus * mydata$beta,col=custom_colors ,ylim=c(-0.0025,0.012))
