@@ -90,7 +90,7 @@ initialiseCommunities <- function(coordinates=NULL,initcoor="random",G=NULL,ks=N
     strat=c(rep(0,ki),rep(1,km))
 
     comus=list(coordinates=coordinates,adaptivetraits=traits,size=size,migrantscount=migrantscount,occupation=occupation,strat=strat)
-    if(plot)plot.comu(comus)
+    if(plot)plotcomu(comus)
     return(comus)
 }
 
@@ -322,7 +322,7 @@ fissionCommunity <- function(comus, ol) {
 #' @return A plot of the community with adaptive traits and size of each species represented by different colors and sizes.
 #' @export
 
-plot.comu <- function(comus,color_gradient=NULL,vidfile=NULL)
+plotcomu <- function(comus,color_gradient=NULL,vidfile=NULL)
 {
     if(is.null(color_gradient))
     {

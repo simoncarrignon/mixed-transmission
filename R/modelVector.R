@@ -77,7 +77,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 	}
 	if(is.null(vidfile)) stepfile=NULL
 	else stepfile=vidfile
-    if("visu"%in% logging)plot.comu(comus,vidfile=stepfile)
+    if("visu"%in% logging)plotcomu(comus,vidfile=stepfile)
 	for(time in 2:tstep){
 		if("time"%in%logging)print(paste("------",time,"------"))
 		population[,"age"]=population[,"age"]+1
@@ -320,7 +320,7 @@ modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,8
 
 		##
 		if(!is.null(vidfile))stepfile=sprintf(paste0(vidfile,"%05d"),time)
-		if("visu"%in% logging)plot.comu(comus,vidfile=stepfile)
+		if("visu"%in% logging)plotcomu(comus,vidfile=stepfile)
 		if("visu"%in% logging)mtext(time,3,1)
 		if("popsize"%in%out) popsize=c(popsize,nrow(population))
 		if("popwhenfull"%in%out){
