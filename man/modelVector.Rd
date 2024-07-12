@@ -37,7 +37,7 @@ modelVector(
   popcapsize = NULL,
   fracfiss = 0.5,
   up = 2,
-  stopwhenfull = F
+  stopwhenfull = FALSE
 )
 }
 \arguments{
@@ -70,6 +70,8 @@ modelVector(
 \item{fracfiss}{fraction of individual leaving}
 
 \item{up}{time after witch community can learn socially (default 2, avoid first big marriage movements)}
+
+\item{stopwhenfull}{stop the simulation when grid is full}
 }
 \value{
 A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.

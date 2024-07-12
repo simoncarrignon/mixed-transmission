@@ -82,13 +82,13 @@ extractResults <- function(expname,pathways=pathways,traitsel=NULL,type=F,diffex
 #'
 #' @param traits Numeric vector representing the traits to calculate the density of.
 #' @param bw Bandwidth parameter for the density calculation; controls the smoothness.
-#' @param na.rm Logical; if TRUE, missing values are removed before density calculation.
 #' @return A matrix with two columns. The first column contains the x-values, and the
 #' second column contains the normalized y-values of the density.
 #' @examples
 #' traits <- c(rnorm(100, 0.5, 0.1), rnorm(100, 0.7, 0.1))
 #' densResult <- getDensities(traits)
 #' plot(densResult[,1], densResult[,2], type = 'l')
+#' @importFrom stats  density 
 #' @export
 getDensities <- function(traits,bw=0.05){
     if(is.null(traits))return(NULL)

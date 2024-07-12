@@ -18,6 +18,7 @@
 #' @param popcapsize Stop the population if it reach a certain size
 #' @param fracfiss fraction of individual leaving
 #' @param deathage use to compute age depedant variable
+#' @param stopwhenfull stop the simulation when grid is full
 #' @param up time after witch community can learn socially (default 2, avoid first big marriage movements)
 #' 
 #' @return A list containing various elements depending on the 'out' parameter. Elements can include population size, population summary, final population, and others as specified in 'out'.
@@ -33,7 +34,7 @@
 #' @importFrom graphics mtext
 #' @export
 
-modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,85),rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE,popcapsize=NULL,fracfiss=.5,up=2,stopwhenfull=F){
+modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,85),rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE,popcapsize=NULL,fracfiss=.5,up=2,stopwhenfull=FALSE){
 	if("popsize"%in%out) popsize=nrow(population)
 	if("deaths"%in%out) deaths=c()
 	if("births"%in%out) births=c()

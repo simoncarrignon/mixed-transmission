@@ -81,10 +81,10 @@
 #'
 #' @format A list with 4 elements describing the 45 pathways studied in the paper
 #' \describe{
-#'   \item pre: which traits go through pre marital pathways
-#'   \item post: which traits go through post marital pathways
-#'   \item s are: the traits biased toward specific sex
-#'   \item tr: probability that the pathways is used
+#'   \item{pre}{ which traits go through pre marital pathways}
+#'   \item{post}{ which traits go through post marital pathways}
+#'   \item{s}{ the traits are biased toward specific sex}
+#'   \item{tr}{ probability that the pathways is used}
 #' }
 "fullpathways"
 

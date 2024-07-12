@@ -10,8 +10,6 @@ getDensities(traits, bw = 0.05)
 \item{traits}{Numeric vector representing the traits to calculate the density of.}
 
 \item{bw}{Bandwidth parameter for the density calculation; controls the smoothness.}
-
-\item{na.rm}{Logical; if TRUE, missing values are removed before density calculation.}
 }
 \value{
 A matrix with two columns. The first column contains the x-values, and the
