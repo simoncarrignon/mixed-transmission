@@ -1,3 +1,25 @@
+## This script has been used to run a series of experiments to explore f and beta
+## the size of (f,beta) is slightly different for each one and correspond to the parameters below:
+
+##1, for SM5 and 6, N=11550
+#expname=paste0("BonusExploNewAges_11550_FS_poppaperNewRanges_rho0")
+#bonus=round(seq(0,0.02,length.out =11),digits=3)
+#beta=round(seq(-3,1,length.out=21),digits=3)
+#params= do.call("rbind",lapply(1:50,function(i)expand.grid(bonus,beta)))
+
+##2a, for SM5 N=6050
+#expname=paste0("BonusExploNewAges_poppaperNewRangesLimited_rho02")
+#bonus=seq(0,0.02,length.out =11)
+#beta=seq(-2,1,length.out=11)
+#params= do.call("rbind",lapply(1:50,function(i)expand.grid(bonus,beta)))
+
+##2b, for SM5 N=1210
+#expname=paste0("BonusExploNewAges_poppaperNewRangesLimited_rho03")
+#bonus=seq(0,0.02,length.out =11)
+#beta=seq(-2,1,length.out=11)
+#params= do.call("rbind",lapply(1:10,function(i)expand.grid(bonus,beta)))
+
+ 
 devtools::load_all()
 library(parallel)
 population=readRDS("population.RDS")
