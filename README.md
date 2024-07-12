@@ -4,11 +4,14 @@
 
 What happens when horizontal, vertical, oblique transmission interact with sexual biases, population growth and between population mating?  This repository allow to run the model used in the paper and redo the graph used.
 
-This repository can be loaded as a package using `devtools::load_all()`.
+For quick exploration/coding, this repository can be loaded as a package using `devtools::load_all()`.
+
 
 ## General Structure of the Folder
 
 - `R/`: Core R functions.
+- `data/`: R data object used by the package
+- `data-raw/`: some script describing how the data have been generated
 - `manuscript/: Scripts and files specific for the paper (latex file, raw svg and scripts to recreate the figures).
   - `manuscript/script_figures/`: scripts to recreate the figures
 - `inst/`: Installation files.
@@ -38,6 +41,7 @@ This repository can be loaded as a package using `devtools::load_all()`.
 - `R/tools.R`: set of functions used throughout the package
 - `R/legacyFunction.R`: archives of functions not used anymore
 - `R/VecToList.R`: deprecated tools to transform list style model to arrays
+- `R/joyplot.R`: 
 
 ### `inst/scripts/`
 
@@ -51,8 +55,7 @@ Various script to be cleaned and group
 - `inst/scripts/fullJoyPlot.R`
 - `inst/scripts/generateBoxplotsEndTraits.R`
 - `inst/scripts/generateGraphs.R`
-- `inst/scripts/joyPlot.R`
-- `inst/scripts/joyPlotPerType.R`
+- `inst/scripts/joyplot.R`
 - `inst/scripts/neutralTranmission.R`
 - `inst/scripts/retrieveAndPlotGrowthRates.R`
 - `inst/scripts/testAdoption.R`
