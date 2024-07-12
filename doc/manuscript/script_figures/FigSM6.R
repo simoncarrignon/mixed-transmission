@@ -1,9 +1,13 @@
+#This script is use to extract the information need to generate the heatmap of the % of neutral traits in the final population for all combination of f and $\beta$.
+## getting back the data itself can be long and can be slighlty parallelized, we thus provide, aside  the folder 'BonusExploNewAges_11550_FS_poppaperNewRanges_rho0' with the raw data, a RDS file `allmatricsTrait.RDS` that store the results of the for loop
+
 library(parallel)
 sexcols=c('#EE5A45', '#D4D6B9','#1E8F89')
 names(sexcols)=c(0,.5,1)
 
 devtools::load_all()
 setwd(file.path(here::here(),"simulations"))
+## data extraction, can be skipped to dataviz below
 expname=paste0("BonusExploNewAges_11550_FS_poppaperNewRanges_rho0")
 bonus=round(seq(0,0.02,length.out =11),digits=3)
 beta=round(seq(-3,1,length.out=21),digits=3)
@@ -38,10 +42,11 @@ for(ne in names(allexpe)){
 }
 stopCluster(cl)
 
-save(file="allmatricsTrait.RDS",allallres)
+#save(file="allmatricsTrait.RDS",allallres)
 
 allres=readRDS(file="allmatricsTrait.RDS")
 
+#dataviz ================
 
 traitsel=c(1,7,13)  #which traits will be plotted
 sexcols=c('#EE5A45', '#D4D6B9','#1E8F89') #base color for each sex
