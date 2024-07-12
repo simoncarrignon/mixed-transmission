@@ -9,9 +9,10 @@ This repository can be loaded as a package using `devtools::load_all()`.
 ## General Structure of the Folder
 
 - `R/`: Core R functions.
-- `doc/`: Scripts and files specific to the paper (i.e., scripts to regenerate the figures).
+- `manuscript/: Scripts and files specific for the paper (latex file, raw svg and scripts to recreate the figures).
+  - `manuscript/script_figures/`: scripts to recreate the figures
 - `inst/`: Installation files.
-  - `inst/scripts/`: Various scripts used throughout the development of the model and the paper.
+  - `inst/scripts/`: Various scripts used throughout the development of the model and while writing the paper.
   - `inst/extdata/`: Data generated for model exploration.
 - `man/`: Documentation for R functions.
 - `simulations/`: Simulation outputs (need to be downloaded from Zenodo, see `simulations/README.md`).
