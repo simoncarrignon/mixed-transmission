@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+install.packages("devtools")
 devtools::load_all()
 ```
 
