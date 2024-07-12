@@ -16,12 +16,8 @@
 #' @param baselines Logical; if TRUE, baselines will be drawn for each distribution.
 #' @param miniaxes Logical; if TRUE, mini-axes are drawn.
 #' @return Produces a plot.
-#' @importFrom graphics plot polygon text par mtext arrows
+#' @importFrom graphics plot polygon text par mtext arrow segments
 #' @importFrom grDevices adjustcolor
-#' @examples
-#' # Example usage of the joyplot function
-#' # Assuming `listdensities` is a predefined list of densities and `pathwaysnames` is defined
-#' joyplot(listdensities, pathwaysnames)
 #' @export
 joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,yadj=2,sep_ba=c(0,.4),alpha=0.8,baselines=F,miniaxes=F){
 
@@ -141,12 +137,8 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
 #' @param baselines Logical; if TRUE, baselines will be drawn for each distribution.
 #' @param miniaxes Logical; if TRUE, mini-axes are drawn.
 #' @return Produces a plot.
-#' @importFrom graphics plot polygon text par mtext arrows
+#' @importFrom graphics plot polygon text par mtext arrows segments
 #' @importFrom grDevices adjustcolor
-#' @examples
-#' # Example usage of the joyplot function
-#' # Assuming `listdensities` is a predefined list of densities and `pathwaysnames` is defined
-#' joyplot(listdensities, pathwaysnames)
 #' @export
 
 joyplotA <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,yadj=2,sep_ba=c(0,.4),alpha=0.8,baselines=F,miniaxes=F){
