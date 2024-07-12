@@ -24,7 +24,7 @@ devtools::load_all()
 library(parallel)
 population=readRDS("population.RDS")
 initcomus=readRDS("initcomus.RDS")
-fullpathways=readRDS("fullpatways.RDS")
+data(fullpathways)
 z=45
 traitsid=paste0("t",1:z)
 
