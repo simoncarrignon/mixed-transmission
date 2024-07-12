@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(multimodalCT)
+devtools::load_all()
 ```
 
 
@@ -40,7 +40,7 @@ Communities are defined by thee aspect:
 3. size
 
 
-Thes three aspc can be initialised as follow:
+These three aspects can be initialised as follow:
 
 ### The traits:
 ```{r initparam,out.width="40%"}
