@@ -196,7 +196,7 @@ testthat::test_that("model everything, everything random: social learning,adapti
                                       N=K*percomu
                                       pos=random2Dgrid(K=K,Gx=100)
                                       a=initAdaptiveTraits(ki=ki,km=km,n=20 )
-                                      initcomus=initialiseCommunities(traits=a,coordinates=pos,G=100)
+                                      initcomus=initialiseCommunities(traits=a,coordinates=pos,G=100,ki=ki,km=km)
                                       initcomus$size=rep(percomu,K)
                                       communities=unlist(lapply(1:K,function(i)rep(i,initcomus$size[i])))
                                       population=cbind(newpop(N,age="random",community = communities),generateTraitsMatrix(N,z))
