@@ -1,12 +1,12 @@
 Package: multimodalCT
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Package to explore "Post-marital residence rules and transmission pathways in cultural hitchhiking"
+Version: 0.9.0
 Authors@R: 
     person("Simon", "Carrignon", , "sc2297@cam.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4416-1389"))
     person("Enrico Ryunosuke", "Crema", , "erc62@cam.ac.uk", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-6727-5138"))
-Description: What the package does (one paragraph).
+Description: Run simulation, extract and analyse data from results, generate graphs
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
