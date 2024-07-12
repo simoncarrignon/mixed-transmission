@@ -29,7 +29,8 @@
 #' #                     population = initial_population, comus = initial_comus, tstep = 10, 
 #' #                     ma = 1, traitsid = 1:5, getfinalpop = TRUE, out = c("popsize", "popsumary"))
 #' #mortality=c(0.15,0.01,0.01,0.02,0.05,1)'
-#' @importFrom stats runif   
+#' @importFrom stats runif
+#' @importFrom graphics mtext
 #' @export
 
 modelVector <- function(N, F_Th=NULL, ki,km,K,m, b, r, deathage=c(0,5,18,40,65,85),rho=.5, d, maturity, endrepro,a,tp,age.threshold=20,population,comus,logging="time",tstep,ma=1,traitsid,getfinalpop=FALSE,out=c("popsize","popsumary"),beta=0,vidfile=NULL,warn=FALSE,testdebug=FALSE,remarriage=FALSE,popcapsize=NULL,fracfiss=.5,up=2,stopwhenfull=F){

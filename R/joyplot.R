@@ -3,6 +3,26 @@
 
 
 
+#' Joyplot Function
+#'
+#' @description This function creates a joyplot (also known as a ridgeline plot) to visualize distributions or densities.
+#' @param listdensities A list containing density distributions.
+#' @param pathwaysnames A character vector representing names of pathways.
+#' @param main Main title for the plot.
+#' @param angle Angle of the peaks within each distribution.
+#' @param yadj Adjustment parameter for the vertical spacing of the distributions.
+#' @param sep_ba Separation between baseline plots.
+#' @param alpha Alpha level for color transparency.
+#' @param baselines Logical; if TRUE, baselines will be drawn for each distribution.
+#' @param miniaxes Logical; if TRUE, mini-axes are drawn.
+#' @return Produces a plot.
+#' @importFrom graphics plot polygon text par mtext arrows
+#' @importFrom grDevices adjustcolor
+#' @examples
+#' # Example usage of the joyplot function
+#' # Assuming `listdensities` is a predefined list of densities and `pathwaysnames` is defined
+#' joyplot(listdensities, pathwaysnames)
+#' @export
 joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,yadj=2,sep_ba=c(0,.4),alpha=0.8,baselines=F,miniaxes=F){
 
 
@@ -43,7 +63,7 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
             }
         }
     }
-    text(x=rep(0,tot_traits)+1:tot_traits*xadj,y=(1:tot_traits)/yadj,label=TeX(lapply(rep(pathwaysnames,3),function(i)paste("$",i,"$"))),las=2,pos=2,cex=.8)
+    text(x=rep(0,tot_traits)+1:tot_traits*xadj,y=(1:tot_traits)/yadj,label=latex2exp::TeX(lapply(rep(pathwaysnames,3),function(i)paste("$",i,"$"))),las=2,pos=2,cex=.8)
     text(y=0,x=xs+.5,label=c("0",0.005,0.015,0.005,0.015))
     text(y=0,x=xs[1],label="f:")
     text(y=max(ylims)+1/yadj,x=tot_traits*xadj+xs[1]+.5,label=expression(beta~":"))
@@ -108,6 +128,26 @@ joyplot <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,y
 #
 #}
 
+#' A modified version of joyplot Function
+#'
+#' @description This function creates a joyplot (also known as a ridgeline plot) to visualize distributions or densities.
+#' @param listdensities A list containing density distributions.
+#' @param pathwaysnames A character vector representing names of pathways.
+#' @param main Main title for the plot.
+#' @param angle Angle of the peaks within each distribution.
+#' @param yadj Adjustment parameter for the vertical spacing of the distributions.
+#' @param sep_ba Separation between baseline plots.
+#' @param alpha Alpha level for color transparency.
+#' @param baselines Logical; if TRUE, baselines will be drawn for each distribution.
+#' @param miniaxes Logical; if TRUE, mini-axes are drawn.
+#' @return Produces a plot.
+#' @importFrom graphics plot polygon text par mtext arrows
+#' @importFrom grDevices adjustcolor
+#' @examples
+#' # Example usage of the joyplot function
+#' # Assuming `listdensities` is a predefined list of densities and `pathwaysnames` is defined
+#' joyplot(listdensities, pathwaysnames)
+#' @export
 
 joyplotA <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,yadj=2,sep_ba=c(0,.4),alpha=0.8,baselines=F,miniaxes=F){
 
@@ -149,7 +189,7 @@ joyplotA <- function(listdensities,pathwaysnames=pathwaysnames,main="",angle=25,
             }
         }
     }
-    text(x=rep(0,tot_traits)+1:tot_traits*xadj,y=(1:tot_traits)/yadj,label=TeX(lapply(rep(pathwaysnames,3),function(i)paste("$",i,"$"))),las=2,pos=2,cex=.8)
+    text(x=rep(0,tot_traits)+1:tot_traits*xadj,y=(1:tot_traits)/yadj,label=latex2exp::TeX(lapply(rep(pathwaysnames,3),function(i)paste("$",i,"$"))),las=2,pos=2,cex=.8)
     text(y=0,x=xs+.5,label=c("f: 0 ",0,0.015,0,0.015))
     text(y=-.2,x=xs[1]+.5,label=c("(two types, beta=-10)"),cex=.7)
     #text(y=0,x=xs[1],label="f:")

@@ -13,22 +13,6 @@ getCommuType <- function(exp){
 
 #using a the result of a simulation
 #return the type of comu (0,1,2,3) 
-getCountBySex <- function(population,pathways,type=NULL){
-    traitsid=paste0("t",seq_along(pathways$s))
-    freqcom=c()
-    for(s in c(0,1)){
-        single.bias=traitsid[pathways$s == s]
-        singlesex=population[population[,"sex"]==s,]
-        applysinglesex[,single.bias] 
-~ singlesex.comus
-    }       
-    single.bias=traitsid[pathways$s == 0.5]
-    freqcom=cbind(freqcom,xtabs(population[,single.bias] ~ population[,"community"])/as.numeric(table(population[,"community"])))
-    freqcom[,traitsid]
-}
-
-#using a the result of a simulation
-#return the type of comu (0,1,2,3) 
 getCountBySexAndCommu <- function(population,pathways,type=NULL){
     traitsid=paste0("t",seq_along(pathways$s))
     freqcom=c()
@@ -37,10 +21,10 @@ getCountBySexAndCommu <- function(population,pathways,type=NULL){
         single.bias=traitsid[pathways$s == s]
         singlesex=population[population[,"sex"]==s,]
         singlesex.comus=factor(singlesex[,"community"],levels=wholecomus)
-        freqcom=cbind(freqcom,xtabs(singlesex[,single.bias] ~ singlesex.comus)/as.numeric(table(singlesex.comus)))
+        freqcom=cbind(freqcom,stats::xtabs(singlesex[,single.bias] ~ singlesex.comus)/as.numeric(table(singlesex.comus)))
     }       
     single.bias=traitsid[pathways$s == 0.5]
-    freqcom=cbind(freqcom,xtabs(population[,single.bias] ~ population[,"community"])/as.numeric(table(population[,"community"])))
+    freqcom=cbind(freqcom,stats::xtabs(population[,single.bias] ~ population[,"community"])/as.numeric(table(population[,"community"])))
     freqcom[,traitsid]
 }
 
@@ -91,6 +75,21 @@ extractResults <- function(expname,pathways=pathways,traitsel=NULL,type=F,diffex
 }
 
 
+#' Calculate Density with Adjusted Bounds and Normalize
+#'
+#' This function calculates the density of given traits, adjusts the bounds of
+#' the density calculation, and normalizes the density values.
+#'
+#' @param traits Numeric vector representing the traits to calculate the density of.
+#' @param bw Bandwidth parameter for the density calculation; controls the smoothness.
+#' @param na.rm Logical; if TRUE, missing values are removed before density calculation.
+#' @return A matrix with two columns. The first column contains the x-values, and the
+#' second column contains the normalized y-values of the density.
+#' @examples
+#' traits <- c(rnorm(100, 0.5, 0.1), rnorm(100, 0.7, 0.1))
+#' densResult <- getDensities(traits)
+#' plot(densResult[,1], densResult[,2], type = 'l')
+#' @export
 getDensities <- function(traits,bw=0.05){
     if(is.null(traits))return(NULL)
     traits.dens=density(traits,na.rm=T,from=0,to=1,bw=bw)

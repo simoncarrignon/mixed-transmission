@@ -179,6 +179,7 @@ drawFromPool <- function(pool.traits, pool.sex, sexbiases) {
 #' @param traitsid a vector with the name/index of the traits of the traits 
 #'
 #' @return An updated matrix of the population of agents
+#' @importFrom stats rbinom
 #' @export
 
 social.learning <- function(x=NULL,when='pre',pathways,threshold,traitsid=NULL)
