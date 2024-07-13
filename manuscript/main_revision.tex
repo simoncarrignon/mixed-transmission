@@ -1,0 +1,510 @@
+\documentclass[9pt,twocolumn,twoside,lineno]{pnas-new}
+% Use the lineno option to display guide line numbers if required.
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{bbm}
+\templatetype{pnasresearcharticle} % Choose template 
+% {pnasresearcharticle} = Template for a two-column research article
+% {pnasmathematics} %= Template for a one-column mathematics article
+% {pnasinvited} %= Template for a PNAS invited submission
+
+\title{Post-marital residence rules and transmission pathways in cultural hitchhiking}
+
+% Use letters for affiliations, numbers to show equal authorship (if applicable) and to indicate the corresponding author
+\author[a]{Simon Carrignon}
+\author[a,b]{Enrico R. Crema}
+\author[c]{Anne Kandler}
+\author[d]{Stephen Shennan}
+
+\affil[a]{McDonald Institute for Archaeological Research, University of Cambridge, Cambridge CB2 3ER, UK}
+\affil[b]{Department of Archaeology, University of Cambridge, Cambridge CB2 3DZ, UK}
+\affil[c]{Department of Human Behavior, Ecology and Culture, Max Planck Institute for Evolutionary Anthropology, 04103 Leipzig, Germany}
+\affil[d]{Institute of Archaeology, UCL, London WC1H 0PY, UK}
+
+% Please give the surname of the lead author for the running footer
+\leadauthor{Carrignon} 
+
+% Please add a significance statement to explain the relevance of your work
+\significancestatement{Population dispersal and admixture can promote the spread of adaptive cultural traits, such as agriculture, in a geographic region. 
+In some circumstances, this process can lead to the spread of selectively neutral traits that are transmitted together with adaptive ones, leading to what some refer to as \textit{cultural hitchhiking}. 
+Here, through an individual-based simulation, we demonstrate that factors such as post-marital residence rules, probability of post-marital social learning, sex-biased transmission, and transmission pathways can all impact the degree of hitchhiking and inter-group cultural diversity. 
+Our results demonstrate how intergroup exogamy is a complex phenomenon that can theoretically lead to a substantially wide range of expected patterns. }
+
+% Please include corresponding author, author contribution and author declaration information
+\authorcontributions{S.C., E.C., A.K., S.S designed research; S.C., E.C., A.K. performed research; S.C. contributed new reagents/analytic tools; S.C.analyzed data; E.C., A.K., S.S supervised research; and S.C., E.C., A.K., S.S wrote the paper.}
+
+\authordeclaration{None of the authors declare a conflict of interest.}
+\correspondingauthor{Stephen Shennan}
+
+% At least three keywords are required at submission. Please provide three to five keywords, separated by the pipe symbol.
+\keywords{Cultural hitchhiking | Transition to farming | Pathways of transmission | Post-marital residence rules | Individual-based modelling} 
+
+\begin{abstract}
+Cultural evolutionary processes can often lead to a statistical association between neutral and adaptive traits during episodes of population dispersal and the introduction of a beneficial technology in a geographic region. 
+Here, we examine such cultural hitchhiking processes using an individual-based model that portrays the cultural interaction between a migrant and an incumbent population. 
+Our model is loosely based on the interaction between farming and foraging populations during the initial stages of the adoption and diffusion of agricultural practices.
+The two populations are characterised by different variants for their neutral and adaptive cultural traits, with the latter set providing a reproductive advantage for the migrant communities over the incumbent ones. 
+We explore how the neutral traits of the migrant population spread and how this process is conditioned by the following factors: 1) the possibility of transmission of the adaptive traits; 2) the extent of the increased reproductive advantage provided by the adaptive variants of the migrant population; 3) post-marital residence rules; and 4) how and when neutral traits are transmitted. 
+Our results reveal a diverse range of outputs, highlighting the relevance of factors such as the nature of post-martial resocialisation and the specific combination of post-marital residence rules and sex-biased transmission. 
+\end{abstract}
+
+\dates{This manuscript was compiled on \today}
+\doi{\url{www.pnas.org/cgi/doi/10.1073/pnas.XXXXXXXXXX}}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{firststyle}
+\ifthenelse{\boolean{shortarticle}}{\ifthenelse{\boolean{singlecolumn}}{\abscontentformatted}{\abscontent}}{}
+
+\dropcap{I}n archaeology, migration and diffusion have been proposed as generic explanations for cultural change for well over a century, but the terms were usually used informally without any detailed specification of mechanisms or their effects. 
+As such, while these processes have often been invoked to provide post-hoc explanations of observed patterns in the archaeological record, formal descriptions of \emph{what we should expect to observe} when specific mechanisms are in play were rarely developed. 
+% In fact, most archaeologists of the 1960s and 70s dismissed migration and diffusion out of hand as tautologous non-explanations. 
+The foundations for going beyond the traditional view were only established in the 1980s. 
+As part of their formulation of a quantitative approach to cultural transmission, Cavalli-Sforza and Feldman~\citep[][pp. 157-176]{cavalli1981cultural} outlined a mathematical framework for examining how physical migration between two groups, or any sort of communication between them, could lead to changes in cultural trait frequencies in the groups through horizontal (between members of the same generation) or oblique (from members of the older to the younger generation) transmission, not least the introduction of innovations from one group to another.
+
+Since the development of these theories and the emergence of the field of cultural evolution~\citep{cavalli1981cultural,boyd_culture_1985}, a large number of detailed ethnographic and ethnoarchaeological studies have revealed the complexity and specificity of cultural transmission in different domains \citep{david_kramer_2001,roux_ethnoarchaeology_2007,stark_cultural_2008,mills_intermarriage_2018}.
+% For example, novel pottery decoration patterns may be adopted based on relatively superficial contacts between individuals, while pottery-forming methods may involve a long apprenticeship in childhood and be relatively impervious to outside influence~\citep[see e.g.][]{gosselain_materializing_2000}.
+These differences become central when we investigate the social and biological processes that can lead to the spread of particular cultural variants.
+
+In this paper, we focus on the processes involved in the spread of farming and the resulting interactions between migrant agricultural groups and incumbent foraging populations that have occurred in many parts of the world at different times. 
+These key transitions have been the subject of a long-standing debate between those who have seen it as demographic dispersal resulting from higher reproductive success associated with the new subsistence economy possessed by the migrants and those who see it as a result of the adoption of farming as an innovation by local indigenous groups. 
+These contrasting, but not mutually exclusive, views have very different implications for the transmission of other cultural traits associated with the different groups~\citep{ammerman_neolithic_1984,fort_synthesis_2012}. 
+Their dynamics on the spread of farming can be generalised to a wider range of processes involving the interaction between two populations with different adaptive trait variants.
+Thus, given two communities in the same spatial region, a particular cultural variant held by one community might spread through this region purely because of differences in the growth rates between the two communities. 
+Under such a scenario, the spread of a cultural variant does not involve genetic admixture or inter-group cultural transmission and is referred to as \emph{demic diffusion}, or population dispersal.
+In contrast, the two communities may experience some form of inter-group cultural transmission via brief social interactions or through the movement of objects traded and exchanged, followed by emulative learning and reverse engineering~\citep{crema_how_2023}. 
+Under such a scenario, the spread of a cultural variant does not involve genetic admixture or population growth and is referred to as (pure) \emph{cultural diffusion}.
+However, the spread of a cultural variant is rarely governed by pure demic or cultural diffusion and often entails some mixture of the two processes as well as genetic admixture.
+Indeed, cultural diffusion frequently entails repeated episodes of social interactions between individuals, often following episodes of migration where individuals permanently switch their community of residence.  
+% This process, which entails genetic admixture and inter-group transmission, would fall under the label of \emph{demic-cultural diffusion}.
+%While at its core, demic-cultural diffusion is effectively the result
+While the movement of individuals across cultural groups can be the result of a wide range of processes, in relatively small-scale societies, such as those associated with the transition to farming, the most common form is inter-group exogamy, i.e. the social practice of marrying outside one's local group.
+These episodes of post-marital movement offer the most prominent pathway for cultural transmission across communities.
+However, inter-group exogamy can take different forms and have different (population-level) consequences. 
+They commonly entail different post-marital residence rules and different opportunities for migrants to engage in cultural transmission.
+%These forms include but are not limited to, different post-marital residence rules, the presence of opportunities for cultural exchanges after marriage and relocation, and the pathways how traits are transmitted.
+%
+For example, female Luo potters in Kenya experience resocialisation, learning their craft after marriage and change in residence from their mothers-in-law or senior co-wives within a patrilocal society~\citep{herbich_long_2008}. 
+This would lead to different patterns when contrasted to other forms of post-migration learning, for example, learning from both males and females in the community. %Another relevant factor is the degree of homophily, preference for others like oneself that can encourage interaction between migrants from similar backgrounds and adoption of one another's cultural traits as a result ~\citep{mesoudi_migration_2018}. 
+The relevance of intermarriage and post-marital residence as a key vector of the spread of cultural variants has been, and continues to be, suggested in the archaeological literature since it is well-documented in the ethnographic literature and provides a basis for the multi-year close-quarters interaction behind the transmission of many socially-learned variants~\citep{kohler_how_2013,sanger_post-marital_2020,mills_intermarriage_2018,lycett_spatially_2020, roux_ethnoarchaeology_2007}. 
+However, theoretical expectations of what we should observe when specific assumptions and conditions are met remain a comparatively less researched area of investigation. Here we aim to address this issue, focusing in particular on the interplay between post-marital residence rules and resocialisation involving two populations with initially distinct adaptive variants. 
+Our goal is to explicitly explore how these processes may lead to cultural hitchhiking and influence the spread of adaptive and non-adaptive cultural trait variants, therefore providing new insights into the diffusion of agriculture. 
+
+\subsection*{Cultural Hitchhiking and diffusion of beneficial traits}
+
+Human groups are often characterised by differences in adaptive traits that may result in different population growth rates. 
+As noted above, different population growth rates alone can contribute to the success of a particular cultural variant in a region promoted by the higher growth rate of one particular group. However, in most cases, groups are not isolated from each other, and we often observe some degree of genetic admixture and cultural interaction. 
+The spread of agriculture, which forms the focus of this paper, is perhaps the most emblematic example of this phenomenon, where migrant and expanding communities of farmers have interacted with incumbent groups of foragers.
+A large number of empirical and theoretical studies have examined the spread of agriculture, focusing, for instance, on the extent to which the diffusion of the new subsistence economy was dictated by differences in growth rates (demic diffusion) or inter-group cultural transmission (cultural diffusion)~\citep{ammerman_neolithic_1984,fort_synthesis_2012,fort2022prehistoric,fort_prehistoric_2022}. 
+
+The spread of agriculture was also characterised by the transmission of neutral cultural traits, such as pottery decoration styles, that were transmitted along with selectively advantageous traits leading to a statistical association between neutral and adaptive traits. 
+This process is often referred to as \emph{cultural hitchhiking} (\textit{sensu} \citep{ackland_cultural_2007}), and 
+quantitative models of such a phenomenon, or more broadly cultural linkage, have been examined in the past~\citep{ackland_cultural_2007,premo_hitchhikers_2012,yeh_cultural_2019,pardo-gordo_cultural_2021}. 
+For example, Ackland et al.~\citep{ackland_cultural_2007} argue that in the presence of a heterogeneous landscape, we should expect to observe a diffusion boundary where the wave of demographic advance is temporarily halted and adaptive trait variants are transmitted to incumbent communities without the hitchhiking cultural variants, leading to the emergence of a permanent `cultural boundary'. 
+While processes leading to an association between different cultural traits can vary, from simple functional or cognitive associations to the consequences of certain types of transmission bias (e.g. prestige-biased cultural transmission leading to the adoption of multiple independent traits possessed by the same prestigious individual), the extent by which neutral and adaptive traits can be statistically associated as a consequence of inter-group exogamy remains virtually unexplored.  
+
+Here, via an individual-based simulation, we examine how the link between variants of adaptive and neutral traits is maintained or lost due to different post-marital residence rules and transmission pathways within a two-population model. 
+Our objective is to provide potential insights into the baseline conditions that can promote or hinder cultural hitchhiking during the spread of beneficial traits between initially distinct human groups.
+The analyses we undertake extend from previous models of cultural hitchhiking. For example, Ackland et al.~\citep{ackland_cultural_2007} assume that inter-group transmission occurs only for adaptive traits, while here, we allow both neutral and adaptive traits to be transmitted. 
+Our simulation exercise also differs from other demic-cultural diffusion models~\citep[e.g.][]{fort_synthesis_2012}, where neither the interplay between post-marital residence rules and transmission pathways nor the statistical association between neutral and adaptive traits are explored.
+Our model does present some similarities to cultural evolutionary models on ethnic markers (e.g.~\citep{boyd_evolution-ethincethnic-markers_1987,mcelreath_share-norm_2003}). 
+However, we note that in our study, neutral traits are entirely non-functional, have no signalling value, and dynamics are not driven by cooperation/coordination games. 
+In particular, as noted in the model description below, we assume that the association between the adaptive and neutral traits is not the result of the latter promoting indirectly cooperative/coordinating tasks (i.e. acting as a marker trait) but purely the consequences of different patterns of post-marital migration rules and transmission rules.  
+
+
+\section*{The model}
+
+We consider a population of individuals distributed across several communities, $j$, located at positions $(x_j,y_j)$ in a two-dimensional $10\times10$ grid. 
+Each community consists of individuals with the following state variables: \textit{sex}, \textit{age}, and the adopted variants of $z$ neutral traits, $c_1,c_2,\ldots,c_z$ as well as the variants of three adaptive traits, $a_1,a_2,a_3$.
+Fig.~\ref{fig:diagram} shows a generalised schematic of the model highlighting its core processes, involving post-marital movement (step 2) and up to two episodes of cultural transmission, namely vertical transmission in the community of origin (step 4) and resocialisation after post-marital migration (step 3).   
+
+\subsection*{Cultural traits}
+
+We consider $z$ cultural traits, $c_1,c_2,\ldots,c_z$, which do not affect the survival or reproductive capacity of the individuals or the traits themselves, i.e. they are selectively neutral. 
+Each trait can assume two distinct variants, i.e. $c_i\in\{0,1\},\, i=1,\ldots,z$.
+As detailed in the section \textit{Cultural transmission of neutral traits}, traits differ in their transmission pathways.
+
+Further, we consider three adaptive traits, $a_1,a_2,a_3$. 
+Again, each trait can assume two variants, i.e. $a_i\in\{0,1\},$ $i=1,2,3$. 
+These variants model the absence or presence of three different components of a novel beneficial technology. 
+The presence of each component provides an individual with a fitness benefit, $f_1,f_2$ and $f_3$, respectively, resulting in an increased reproductive capacity (see section \textit{Ageing, death and reproduction}). 
+In contrast to the neutral traits, the adaptive traits $a_1,a_2$ and $a_3$ are defined at the community level, i.e. all individuals within a community have the same trait variant. 
+This is based on the assumption that the new technology cannot be adopted and performed by a single person but only by the community as a whole.
+
+\subsection*{Demographic processes}
+
+\subsubsection*{Ageing, death and reproduction} 
+At each time step, individuals age and can die with an age-dependent probability $p_\text{death}$.
+We assume sexual reproduction, i.e. only pairs of individuals (see Section \textit{Marriage and migration} for how they are formed) where both partners are within the age interval $[18,45]$ can produce one offspring per time step. Parents and all their offspring are considered a family.
+Reproduction occurs with a probability $b+f_1 \mathbbm{1}_{a_1=1}+f_2 \mathbbm{1}_{a_2=1}+f_3 \mathbbm{1}_{a_3=1}$ where $b$ describes the baseline reproductive rate and the sum $f_1 \mathbbm{1}_{a_1=1}+f_2 \mathbbm{1}_{a_2=1}+f_3 \mathbbm{1}_{a_3=1}$ captures the increase of this baseline rate due to the potential adoption of more beneficial technology. 
+The function $\mathbbm{1}_{a_i=1}$ describes the indicator function, which is 1 if the condition $a_i=1$ is fulfilled and 0 otherwise. 
+Offspring are assigned random sex and engage in cultural transmission to obtain the variants of their neutral cultural traits (see Section \textit{Cultural transmission of neutral traits}). 
+They have the same variants of the adaptive cultural traits as their community. 
+% Further, we keep track of the lineage of each individual. 
+
+\subsubsection*{Marriage and migration} 
+At each time step, all unmarried individuals older than 18 have an opportunity to marry someone from a different community. 
+This is achieved by adding all unmarried individuals to a common pool and subsequently creating random pairs of opposite sex and different communities of origin. 
+% With probability $p_\text{marriage}$ they are added to a \lq\lq marriage pool\rq\rq\, and paired with an individual of the opposite sex from this pool. 
+% To do so, we randomly choose an individual from the pool and choose a partner (of the opposite sex) again at random. 
+% This implies that all communities on our $10\times10$ grid have the same chance to interact. 
+% We note that we do not allow marriage within the same community. 
+% If, at the end of this process, individuals of the same sex or of the same community are left in the pool they stay unmarried. 
+If an individual is not paired, they return to their community and participate in the same routine in the subsequent time step.
+As both partners are chosen from different communities, pairs must decide where to reside together. 
+This decision is controlled by the parameter $p_\text{location}$, which describes the probability that the pair moves to the community of the female individual. 
+We examine two scenarios:
+\begin{itemize}
+\item Bilocality ($p_\text{location}=0.5$): The location of the pair is chosen at random --- on average, half of all pairs reside in the community of the female individual while the other half resides in the community of the male individual.
+\item Patrilocality ($p_\text{location}=0$): The pair always resides in the community of the male individual.
+\end{itemize}
+Matrilocality ($p_\text{location}=1$) is not considered as it provides in our model similar results to patrilocality but with opposite $p_\text{bias}$-values (see below).
+All pairs stay together until one individual dies, with no opportunities for remarriage 
+
+\subsubsection*{Community fission} As we allow for temporally changing population sizes, we assume that if community $j$ reaches size $n_\text{fission}$, it fissions into two communities. 
+To do so, we split the original community by assigning each family of $j$ to one of the two new communities at random; while trying to ensure that both new communities are of similar size.
+The larger community occupies the original location $(x_j,y_j)$ while the other fills a random empty location. 
+If all cells are occupied, the simulation stops. 
+
+
+\subsection*{Cultural transmission of neutral traits}
+
+We assume that cultural transmission can only happen at two points in time (see also Fig.~\ref{fig:diagram}) --- first at birth and second after migration to a new community. 
+At birth, transmission occurs vertically (\textit{v}).
+Transmission after post-martial migration occurs horizontally or obliquely with probability $p_\text{transmit}$.
+More formally, following~\citep{cavalli1981cultural}, vertical transmission is defined as transmission from the (genetic) parents; horizontal transmission is defined as transmission from peers, i.e, from individuals of the same generation, described here as all individuals with an absolute age difference below 20 years; and oblique transmission is defined as transmission from individuals who are at least 20 year older. 
+
+% \begin{table}[htp]
+% \centering
+% \caption{Transmission pathways for each of the nine cultural traits}
+% \begin{tabular}{p{0.1\linewidth} | p{0.2\linewidth} |  p{0.2\linewidth}}
+% Trait & At birth & After migration \\
+% \hline
+% $c_1$ & Vertical & -\\
+% $c_2$ & Vertical & Horizontal\\
+% $c_3$ & Vertical & Oblique\\
+% $c_4$ & Horizontal & -\\
+% $c_5$ & Horizontal & Horizontal\\
+% $c_6$ & Horizontal & Oblique\\
+% $c_7$ & Oblique & -\\
+% $c_{8}$ & Oblique & Horizontal\\
+% $c_{9}$ & Oblique & Oblique\\
+% \end{tabular}
+% \label{tab:transCombinations} 
+% \end{table}
+
+\begin{table}[htp]
+\centering
+\caption{Transmission pathways for each of the 5 cultural traits after post-marital migration}
+\begin{tabular}{p{0.1\linewidth} | p{0.2\linewidth} |  p{0.4\linewidth}}
+Trait & $p_\text{transmit}$ & Pathway \\
+\hline
+$c_1$ & 0 &  - \\
+$c_2$ & 0.9 & horizontal\\
+$c_3$ & 1 & horizontal\\
+$c_4$ & 0.9 & oblique\\
+$c_5$ & 1 & oblique\\
+\end{tabular}
+\label{tab:transCombinations} 
+\end{table}
+
+We assume each cultural trait considered has a different combination of transmission pathways before and after marriage (Table~\ref{tab:transCombinations}), with a total of five unique combinations. 
+Additionally, we consider the effects of a sex bias, modelled as the preference for learning from one sex, for all transmission pathways.
+More specifically, individuals will select with probability $p_\text{bias}$ a female role model.   
+Thus, when $p_\text{bias}=0.5$ we have no sex bias, i.e. individuals are equally likely to learn from male and female individuals.
+In contrast, when $p_\text{bias}=0$ or $p_\text{bias}=1$, males only learn from males (i.e. the cultural trait is patrilineal as only transmitted through the male line) and females learn only from females (i.e. the cultural trait is matrilineal as only transmitted through the female line), respectively.
+Put differently, for $p_{\text{bias}} = 0$ and $p_{\text{bias}} = 1$, the variants from individuals of the opposite sex are never transmitted, and we analyse only the variants carried by individuals of the sex towards which the bias is directed.
+We note that if the focal individual does not find an individual to learn from, it retains the cultural variant learned in its community of origin via vertical transmission. 
+%to simplify the analysis and visualization, the distribution will be considered by counting only the variants carried by individuals of the sex towards which the bias is directed.
+%It should be noted that when $p_\text{bias}=0$ and $p_\text{bias}=1$, traits are assumed to be possessed only by one sex.
+%Finally, while transmission at birth occurs all the time, we assume that horizontal or oblique transmission after migration happens with probability $p_\text{transmit}$ (except for traits $c_1$, $c_4$ and $c_7$ where we assume no post-marital social learning).  
+
+\subsection*{Adoption of adaptive traits}
+
+In contrast to neutral traits, adaptive traits are considered as community-level traits, i.e. all individuals in the community have the same variant. 
+Transmission of the adaptive traits, $a_1,a_2, a_3$ occurs independently and after migration events at each time step. As the traits $a_i$ are community-level traits we refer to their transmission as adoption in the following to avoid confusion with the transmission of neutral traits.  
+
+The probability $p_{a_i}$ of the community changing the variant of the trait $a_i$ is given by
+\begin{equation}\label{eq:adoption}
+p_{a_i} = \frac{k_i^{1-\beta}}{k_i^{1-\beta} + (n - k_i)^{1-\beta}}
+\end{equation}
+where $n$ is the size of the community (including the migrants), and $k_i$ is the number of migrants possessing the variant of $a_i$ that is different from the one currently adopted by the focal community. 
+The parameter $\beta$ controls the likelihood of a successful adoption of the novel variant carried by migrants. 
+When $\beta=0$, the probability of adopting the novel variant equals the proportion of migrants with such variant in the community. 
+However, negative values of $\beta$ decrease $p_{a_i}$.
+For large negative values, the probability of adoption becomes extremely low, almost irrespective of the number of migrants moving in with the novel variant.
+Conversely, positive values of $\beta$ will increase the probability of adopting the novel variant, even when the number of migrants bringing such a variant is comparatively small (see also Figs.~S3 and S4 in the supplementary material). 
+
+\begin{figure*}[htb]
+\includegraphics[width=17.0cm]{Figs/Figure1.png}
+\caption{Generalised schematic of the model with two communities (1). In (2), individuals of the same sex D, E, and J migrate and find a partner in their new communities. In (3), individual E engages into resocialisation via oblique cultural transmission. In the last step (4), the new pairs reproduce giving birth to individual L, M, and N who adopt the cultural variants of one of the parents via vertical transmission.} 
+\label{fig:diagram}       
+\end{figure*}
+
+
+\section*{Experiment Design}
+
+We initialise each simulation with eight ``incumbent" and two ``migrant" communities of size 70.
+The former possess the trait variants $a_i=0$, $i=1,2,3$ and $c_i=0$, $i=1,\ldots,z$, whereas the latter possess new variants, i.e. $a_i=1$, $i=1,2,3$ and $c_i=1$, $i=1,\ldots,z$.
+For simplicity, we will refer to communities with the adaptive variants of the incumbent population (i.e. with $a_1=a_2=a_3=0$) as type A communities.
+%the original incumbent communities and their descendants via fission that kept the original adaptive variants (i.e. with $a_1=a_2=a_3=0$) as type A communities. 
+Conversely, we will refer to communities with the adaptive variants of the migrant population (i.e. with $a_1=a_2=a_3=1$) as type B.
+% iigrant communities and their descendants with their original adaptive variants (i.e. with $a_1=a_2=a_3=1$) as type B communities. 
+The remaining communities, i.e., those partially adopting the adaptive technology, will be referred to as type C communities. 
+%These communities are broadly comparable to incumbent foraging populations (type A), migrant farming populations (type B), and communities with partial adoption of farming practices (type C).
+
+At initialisation, sex and age of all individuals are chosen at random. 
+We then ran 500 time steps to allow all communities to reach a stable age structure.
+During this burn-in phase, we did not allow any form of cultural transmission, adoption or post-marital migration, whilst newly created communities following fission events were removed from the system to maintain the initial number of type A and type B communities.
+
+%To generate a stable age, community, and family structure, we generated a series of simulations with random initial sex and age values. During this burn-in phase, we did not allow any form of cultural transmission, adoption or post-marital migration, whilst newly created communities following fission events were removed from the system to maintain the initial number of type A and type B communities. From this initial set, we then selected a single run with a stable population structure, with an average community size of 70 individuals and no communities with less than 50 individuals. This population was then used as the initial population of all experiments in order to reduce the impact of demographic stochasticity.  
+
+We conducted our simulation experiment using fixed values for $p_\text{death}$ = 0.15 (0-5 years old), 0.01 (6-40 years old), 0.02 (41-65 years old), 0.05 (66-85 years old), 1 (>85 years old) (loosely based on ethnographically observed figures for hunter-gatherer societies~\citep{burger_human_2012}); $b=0.3224$ (resulting in stable populations with effective growth rates as shown in Fig.~S1 and S2 in the supplementary material), and $n_\text{fission}=100$.
+Multiple values were used for the remaining parameters (see Table~\ref{tab:sweepParameters}) to explore a wide range of experimental scenarios. 
+For each parameter combination, we run 125 repetitions, which are stopped once the $10\times10$ grid is filled. 
+
+\begin{table}%[tbhp]
+\centering
+\caption{Sweeping parameter ranges for the simulation experiments}
+\begin{tabular}{p{0.15\linewidth} | p{0.3\linewidth} |  p{0.2\linewidth}}
+Parameter & Description & Range \\
+\midrule
+$\beta$ & Learning bias for adopting novel variants from migrants. & -10, 0 \\
+$f_1$, $f_2$, $f_3$ & Reproductive bonus of adaptive trait variants. & 0, 0.005, 0.015 \\
+$p_\text{transmit}$ & Probability of post-marital social learning. &0, 0.9, 1 \\
+$p_\text{bias}$  &Sexual bias in social learning (i.e. probability of learning from a female individual) & 0, 0.5, 1 \\
+$p_\text{location}$ & Probability of post-marital residence at female partner & 0 (patrilocality), 0.5 (bilocality)
+\end{tabular}
+\label{tab:sweepParameters} 
+\end{table}
+
+Our experiment design is set to explore the specific conditions under which the association between adaptive and neutral variants observed initially in the type B communities persist over time. 
+More specifically, we explore how potential differences in growth rates between populations (i.e. different values for $f_1$, $f_2$, and $f_3$) and the degree by which adaptive traits can be adopted (i.e. different values of $\beta$) condition the joint spread (or lack thereof) of the variants of the neutral and adaptive traits of the migrant population ($a_i=1$, $i=1,\ldots,3$ and $c_i=1$, $i=1,\ldots,z$). 
+For that, we consider three values for the growth benefits $f_i$ characterising situations of no growth advantage ($f_i=0$, i.e. no difference in the growth rate between both community types), small growth advantage ($f_i=0.005$, i.e. the effective growth rate of type B communities is slightly higher than of type A communities and high growth advantage ($f_i=0.015$, i.e. the effective growth rate of type B communities has almost doubled --- it increased to roughly 0.015 compared to roughly 0.008 for type A communities  (see Fig.~S1, left panel, in the supplementary material)). For the strength of adoption of the adaptive traits $a_i$ we consider two values. While $\beta=-10$ describes the situation of no adoption --- \eqref{eq:adoption} equals almost 0 for all values of numbers of migrants and community sizes ---, $\beta=0$ describes the situation of relatively strong adoption. Fig.~S4 in the supplementary material shows that even for one migrants the adoption probability (per time step) has a value of roughly 0.01.   
+Further, we explore  how different transmission pathways (Table~\ref{tab:transCombinations}), biases (controlled by $p_\text{bias}$) and post-marital residence rules (controlled by $p_\text{location}$) interact with the joint spread process.
+
+To do so, we quantify the strength of the association between variants of the adaptive and neutral trait by measuring how the spread of the adaptive variant is mirrored by the spread of the neutral variant. More precisely, we calculate %the proportion of the individuals in type A communities that possess $c_i=1$, and 
+the proportion of the individuals in type B and C communities, i.e. in communities that have adopted the new technology to some degree, that possess $c_i=1$. 
+
+\section*{Results}
+
+Given the past focus on demic and cultural diffusion as contrasting, but not mutually exclusive, explanations for phenomena like the spread of farming, we structured our analysis as follows. First, we consider a scenario that effectively, from the standpoint of cultural traits, resembles a pure demic diffusion. More specifically, we assume different growth benefits, $f_i,\ i=1,2,3$ derived from the trait variants $a_i=1,\ i=1,2,3$ but do not allow for the adoption of those variants between communities, i.e. we set $\beta=-10$. Further, we do not allow for individual-level cultural or demographic processes apart from vertical transmission of variant values at birth. In particular, we do not allow for ``culturally relevant" migration between communities, i.e. migration that can introduce locally novel trait variants, which may subsequently be transmitted between individuals of this community, and different forms of resocialisation after migration. We analyse the effects of different growth benefits, $f_i$ on: (i) the spread of the adaptive trait variants $a_i=1$, (ii) the strength of the association between the neutral and adaptive traits, i.e. the signature of hitchhiking, and (iii) the level of cultural diversity of neutral traits in the population. We then generalise the very restrictive assumptions of demic diffusion by exploring the effects of the interplay between different forms of culturally relevant migration (caused by inter-group exogamy), of resocialisation, and different values of $f_i$ on (i), (ii), and (iii). 
+
+Second, we consider a scenario resembling pure cultural diffusion. Again, here, we only consider the implications from the standpoint of the cultural traits and do not consider genetic admixture. We assume that the community-level trait variants $a_i=1,\ i=1,2,3$ do not confer a growth advantage to the adopting community, i.e. $f_i=0$, but allow for the adoption of these traits between communities, i.e. $\beta=0$. As above, we assume the absence of any individual-level cultural or demographic processes apart from the vertical transmission of cultural variants at birth. We analyse the effect of different adoption strengths $\beta$ on (i), (ii), and (iii). Again, we generalise in the next step the very restrictive assumptions of cultural diffusion by exploring the effects of the interplay between different forms of culturally relevant migration, of resocialisation, and different values of $\beta$ on (i), (ii) and (iii).
+
+Third, we analyse the combined effects of demic and cultural diffusion. We assume that the community-level trait variants $a_i=1,\ i=1,2,3$ confer a growth advantage $f_i>0$, $i=1,2,3$ to the adopting community and allow for the adoption of these traits between communities, i.e. $\beta=0$ and analyse their effects on (i), (ii), and (iii) conditioned on different assumptions about culturally relevant migration and resocialisation. 
+
+We focus our discussion on the results under patrilocality, given that key features were observed across both post-marital residence rules. Section \textit{Bilocality} briefly summarises unique differences observed in the simulation output when both male and female individuals relocate after marriage.
+
+
+\subsection*{Influence of growth benefits $f_i$ without the adoption of $a_i$ traits ($f_i>0$, $\beta=-10$)}
+
+We start by analysing the spread behaviour of the novel technology, i.e. of the community-level adaptive traits $a_i$, $i=1,2,3$. 
+Fig.~\ref{fig:growthbehaviour_rho0} shows the average number of communities of type A, B and C at the end of the simulation, conditioned on whether they descended from the initial eight type A and two type B communities, respectively, (for different values of $f_i$ and $\beta$). The left panel for $\beta=-10$ shows that --- as expected --- higher growth benefits $f_i$ derived from $a_i=1$ result in higher average numbers of type B communities. We note that due to the absence of the adoption of adaptive traits $a_i$ no community of type C emerges. 
+Put differently, when $f_i>0$, individuals of type B communities reproduce more frequently, leading to a higher fission rate, which ultimately results in a higher proportion of the adaptive trait variants $a_i=1$ in the population. Because reproductive rates are dependent on $f_i$-values, higher values of $f_i$ lead to a higher proportion of the novel technology in the population. 
+
+\subsubsection*{``Pure" demic diffusion ($f_i>0$, $\beta=-10$, $p_\text{bias}=0$)}
+
+When $p_\text{bias}=0$, the focal trait is only transmitted between males; as a result, effectively, there is no cultural exchange between different communities given our patrilocal settings. In other words, migration is not culturally relevant. While we are still in the presence of genetic admixture between populations, the lack of cultural exchange between communities makes this, \textit{de facto}, an entirely demic diffusion process. 
+
+To explore the association between neutral and adaptive trait variants, we record in Fig.~\ref{fig:meanProportion_rho0} the proportion of neutral trait variants $c_i=1$, $i=1,\ldots,5$ in type A (upper row) and type B/C (bottom row) communities (for different values of $p_\text{bias}$, $f_i$ and $\beta$). As mentioned in section~\textit{Cultural transmission of neutral traits.}, when $p_\text{bias}=0$ (and similarly when $p_\text{bias}=1$), cultural variants are exclusively transmitted between male or female individuals, respectively. Hence, in Fig.~\ref{fig:meanProportion_rho0}, we show only the proportions of the cultural variants among one sex under these settings. 
+To explore the level of cultural diversity of neutral traits, Fig.~\ref{fig:distributionsCommunityComposition_rho0} shows the distribution of the proportion of individuals carrying $c_i = 1,\ i = 1,\ldots,5$ in type A (left) and type B/C (right) communities at the end of the simulation accumulated over 125 simulations (for different values of $p_\text{bias}$, $f_i$ and $\beta$).
+
+Fig.~\ref{fig:meanProportion_rho0} (colour red, $\beta=-10$, $f_i=0;0.015$, four sets of five boxes and whiskers) show the results for the 5 transmission pathways $c_1,\ldots,c_5$ (see Table~\ref{tab:transCombinations}). 
+Unsurprisingly, all transmission pathways result in similar proportions, as effectively, no cultural exchange between communities occurs despite the genetic admixture. 
+As expected, all type A communities retain the 0-variant of the neutral traits and all type B communities the 1-variant of the neutral traits, regardless of the value of $f_i$. 
+Consequently, all communities are culturally homogeneous (see Fig.~\ref{fig:distributionsCommunityComposition_rho0}, first two columns on each panel, red distributions). As a result, we observe the strongest possible signature of hitchhiking, where the adaptive variants $a_i=1$, $i=1,2,3$ are always associated with all neutral variants $c_i=1$, $i=1,\ldots,5$.  
+
+%$p_\text{transmit}=0$ (no resocialisation), $p_\text{transmit}=0.9;1$ (strong resocialisation)and horizontal post-marital transmission, and $p_\text{transmit}=0.9;1$ and oblique post-marital transmission, respectively.
+
+In the following, we examine more closely the interactions between different values of $f_i$, transmission pathways $c_1,\ldots,c_5$ and values of the sex bias, $p_\text{bias}$ and their consequences on the signature of hitchhiking and the level of cultural diversity in the population. We note that the spread behaviour of the community-level adaptive traits $a_i$ is unaffected by different transmission pathways and sex biases. 
+
+\subsubsection*{Culturally relevant migration and no resocialisation ($f_i>0$, $\beta=-10$, $p_\text{bias}>0$, $c_1$)}
+
+When $p_\text{bias}=1$, the transmission of cultural traits occurs only between female individuals. Furthermore, for the trait $c_1$, this transmission process occurs only within the community where individuals are born as --- given our patrilocal setting --- we assume no post-marital resocialisation, $p_text{transmit}=0$.
+
+Fig.~\ref{fig:distributionsCommunityComposition_rho0} (second column of each panel, blue distributions for $c_1$) shows that frequent migration has the same effect on cultural diversity between communities as it has on genetic diversity. We observe that cultural diversity with respect to $c_1$ is homogenised across all communities --- the median proportions of 1-variants for type A and B communities are equal and relatively low (see Fig.~\ref{fig:meanProportion_rho0}, colour blue, first box and whisker, $\beta=-10$, $f_i=0;0.015$) implying that we observe a disruption of the hitchhiking signature.
+Further, the median proportions of individuals carrying $c_1=1$ in type B communities are only weakly influenced by different $f_i$-values. Due to the initial condition of our simulation, where eight communities are of type A and two of type B, we observe a frequent migration of individuals of type A communities into type B communities at the beginning, consequently many $c_1 = 0$ variants benefit from the higher growth rates of the type B communities, and as a result, homogenisation occurs relatively fast.  
+
+The low association between the adaptive and neutral traits in the absence of resocialisation is observed even when $p_\text{bias}=0.5$, i.e. when the transmission of the neutral traits is not conditioned by the sex of the individuals. 
+%However, we note that the proportions of type-1 variants is slightly higher in all communities when $p_\text{transmit}=0$. 
+Furthermore, in the absence of resocialisation and without a sex-biased transmission, higher fitness in the adaptive traits seems to lead to a marginal increase in the proportions of type-1 variants across all populations. 
+%These differences are the result of different dynamics in the vertical transmission to the offspring generation. When p_\text{bias}=1, the new generation learns the variant of the migrant mothers, while when p_\text{bias}=0.5 there is a 50\% that they learn from their fathers. As a result, with $ p_\text{bias}=0.5$, local variants persist for longer, and consequently, more time is required to reach homogenisation. 
+
+%allowing the cultural impact of the higher growth rate of type B/C communities to experience a higher growth compared to $p_\text{bias}=1$ before homogenisation is reached. 
+
+
+\subsubsection*{Culturally relevant migration and resocialisation ($f_i>0$, $\beta=-10$, $p_\text{bias}>0$, $c_2,\ldots,c_5$)}
+
+Again, migration and transmission happen only among female individuals, but, in contrast to the above settings, migrants have an opportunity to resocialise, either via horizontal transmission with $p_\text{transmit}=0.9;1$ ($c_2$, $c_3$) or oblique transmission with $p_\text{transmit}=0.9;1$ ($c_4$, $c_5$).
+
+{\bf Oblique transmission.} Transmission can only occur from individuals who are at least 20 years older than the focal migrant. Given that all female individuals migrate after they reach maturity, the pool from which they can learn after relocating effectively consists of other female individuals who have not recently migrated to the community. 
+
+We examine first the results when $p_\text{bias}=1$. In Fig.~\ref{fig:distributionsCommunityComposition_rho0} (second column in both panels, blue distributions for $c_4$,$c_5$), we observe that oblique transmission counteracts the effect of migration. When $p_\text{transmit}=1$, we observe strong cultural homogeneity; every migrant learns the variant of $c_5$ from the older generations in the new community, leading to culturally homogeneous communities where type A communities are characterised by $c_5=0$ and type B communities by $c_5=1$. This is in stark contrast to the pattern observed for  $c_1$, i.e. without resocialisation, and therefore closely resembles a pure demic diffusion discussed above (see also Fig.~\ref{fig:meanProportion_rho0}, colour blue, fourth and fifth box and whisker, $\beta=-10$, $f_i=0.015$), resulting in a strong signature of hitchhiking. 
+We note that the proportions shown in Fig.~\ref{fig:meanProportion_rho0} are not precisely at 0 and 1, respectively. This is caused by the fact that in our simulations, there are rare circumstances where there are no older female individuals to learn from. In this case, the migrant 
+keeps its original variant and does not engage in resocialisation. 
+Cultural homogeneity is slightly reduced when the frequency of resocialisation is decreased to $p_\text{transmit=0.9}$ ($c_4$), but the generally high levels of hitchhiking are still observed.
+
+Fig.~S7 in the supplementary material also shows that the influence of different values of $f_i$ on the effects of oblique transmission is relatively low, with slightly higher proportions of 1-variants for higher values of $f_i$. 
+
+When $p_\text{bias}=0.5$ we observe similar median proportions of individuals with $c_i=1$, $i=4,5$ in type A and type B communities as irrespective of whether migrants learn from an older male or female individual, they, theoretically, carry the local trait variant. The distribution of 1-variant across the two types of communities is broadly similar to those observed under $p_\text{bias}=1$, although with higher levels of skewness, especially for $c_4$, indicating a comparatively larger number of communities where the proportions differ from 0 or 1 due to the rare circumstances where there are no older individuals to learn from.
+
+{\bf Horizontal transmission.} Transmission can only occur from individuals who are in the same generation as the migrant. 
+Importantly, this means that migrants could learn from other migrants, who are, by definition, from the same generation. Consequently, horizontal transmission --- in this form --- does not lead to the same levels of cultural homogeneity within communities as oblique transmission, in fact it does the opposite, especially for type B communities. 
+Fig.~\ref{fig:distributionsCommunityComposition_rho0} (second columns on both panels, blue distributions for $c_2$,$c_3$) shows that the distributions cover the entire interval $[0,1]$ whereby type B communities are more likely to possess higher proportions of individuals with 1-variants compared to type A communities (see also Fig.~\ref{fig:meanProportion_rho0}, colour blue, second and third box and whisker, $\beta=-10$, $f_i=0.015$).  
+%but we see a homogenisation of the level of cultural diversity in both community types. 
+%In particular, when $p_\text{transmit}=1$, type B communities show a wide range of proportions of 1-variants, losing the typical skewed shape observed in other settings.
+
+Further, $c_2$ and $c_3$ traits have considerably lower median proportions of 1-variants amongst type B communities, which is indicative of a weaker signature of hitchhiking compared to oblique transmission ($c_4$ and $c_5$). Again, the influence of different values of $f_i$ on the effects of horizontal transmission is relatively low, with slightly higher proportions of 1-variants with higher values of $f_i$ (see Fig.~S7 in the supplementary material).
+
+For $p_\text{bias} = 0.5$, the median proportion of individuals with $c_i=1$ is lower for type A communities and higher for type B communities for horizontal transmission, i.e. $c_2$ and $c_3$, (see Fig.~\ref{fig:meanProportion_rho0}, colour grey, second and third box and wisker, $\beta=-10$, $f_i=0;0.015$) due to the fact that now, in the assumed patrilocal setting, at least half of the time, migrants copy the local variant from male individuals.
+
+Summarising, in the absence of the adoption of the technological traits $a_i$, a novel variant can only spread within the population if it provides a (high) growth advantage to its adopters. 
+In accordance with previous results~\citep[cf.][]{ackland_cultural_2007} we observe a strong signature of hitchhiking under pure demic diffusion. However, this signature is eradicated if we allow e.g. for culturally relevant migration of individuals caused by inter-group exogamy (i.e. situation with $f_i>0$, $\beta=-10$, $p_\text{bias}>0$, and  $c_1$), irrespective of the value of $f_i$. Resocialisation in the form of oblique transmission preserves the signature of hitchhiking, even in the face of (culturally relevant) migration. 
+
+\subsection*{Influence of the adoption of $a_i$ traits without growth benefits ($f_i=0$, $\beta=0$)}
+
+Keeping the last section's structure, we first analyse how the novel technology gets adopted.
+Fig.~\ref{fig:growthbehaviour_rho0} (columns for $f_i=0$) shows that --- as expected --- the number of communities descended from the initial type A and B communities, respectively, keep a similar 80:20 ratio over time but, due to the possibility of transmitting traits $a_i,\ i=1,2,3$, the descendants can be of any type. In particular, we observe the emergence of type C communities, i.e communities characterised by the partial adoption of the novel technology. Interestingly, this means that when the adoption of traits $a_i$ is possible, most communities adopt parts of the novel technology, even if it does not provide a growth advantage. It holds that the higher the strength of cultural transmission, i.e. the larger the $\beta$-value, the more pronounced this pattern is. 
+
+\subsubsection*{``Pure" cultural diffusion ($f_i=0$, $\beta=0$, $p_\text{bias}=0$)}
+
+For $p_\text{bias}=0$, Fig.~\ref{fig:meanProportion_rho0} (colour red, $\beta=0$, $f_i=0$, four sets of five boxes and whiskers) shows the results for the five transmission pathways $c_1,\ldots,c_5$ for male individuals. 
+As in the section above, all transmission pathways result in similar proportions, as effectively, no cultural exchange between communities occurs. However, we see a drastic reduction in the proportion of individuals with type 1-variants in type B/C communities compared to when $\beta=-10$. This is caused by the fact that most type C communities descend from the initial type A communities, which are characterised by $c_i = 0$. 
+Fig.~\ref{fig:distributionsCommunityComposition_rho0} (third column on both panels, red distributions) shows that all communities are culturally homogeneous, i.e. all individuals within a community possess either $c_i=0$ or $c_i=1$ now there are communities of type A that possess $c_i=1$ and communities of type B $c_i=0$.
+Adoption of the traits $a_i$ of strength $\beta=0$ (see Fig.~S4 in the supplementary material for an exploration of the probability with which communities change their $a_i$-variants for different $\beta$-values) leads to a disruption of the signature of hitchhiking. It holds, the more likely the adoption of the traits $a_i$, the weaker the signature. 
+
+As above, we examine now more closely the interactions between the adoption of traits $a_i$, transmission pathways $c_1,\ldots,c_5$ and values of the sex bias, $p_\text{bias}$ and their consequences on the signature of hitchhiking and the level of cultural diversity in the population. We note again that the spread behaviour of the community-level adaptive traits $a_i$ is unaffected by different transmission pathways and sex biases.
+
+\subsubsection*{Culturally relevant migration and no resocialisation ($f_i=0$, $\beta=0$, $p_\text{bias}=1$, $c_1$)}
+
+Fig.~\ref{fig:distributionsCommunityComposition_rho0} (third column on both panels, blue distributions for $c_1$) shows that cultural diversity with respect to $c_1$ is homogenised across all communities leading to low equal median proportions of 1-variants for type A and B/C communities (see Fig.~\ref{fig:meanProportion_rho0}, colour blue, first box and whisker, $\beta=0$, $f_i=0$). Consequently, the hitchhiking signature is disrupted. Comparing the proportion of individuals carrying $c_1=1$ in type A and type B/C communities in Fig.~\ref{fig:meanProportion_rho0} for $beta=-10$ and $\beta=0$ we see that the adoption of traits $a_i$ has almost no influence on the median proportion due to the fast homogenisation process. With  $p_\text{bias}=0.5$, we observe a very similar behaviour.  
+
+\subsubsection*{Culturally relevant migration and resocialisation ($f_i=0$, $\beta=0$, $p_\text{bias}=1$, $c_2,\ldots,c_5$)}
+
+Oblique and horizontal transmission follow the exact same dynamics as described in the relevant subsection above, but still, we see drastic differences in Fig.~\ref{fig:meanProportion_rho0} between the median proportions of individuals carrying $c_i=1,\ i=2,\ldots,5$ in type A and type B/C communities for $f_i=0$ and $\beta=-10;0$.   
+The changes in median proportions for $p_\text{bias}=0$ under adoption of traits $a_i$ provide us a useful frame of reference in this case.
+When $p_\text{bias}=0$, we observe the highest cultural differences between communities --- the whole community has either adopted $c_i=0$ or $c_i=1$ (see Fig.~\ref{fig:distributionsCommunityComposition_rho0} (third column on both panels, red distributions)) leading to the highest proportion of individuals with $c_1=1$ in type B/C communities. Culturally relevant migration and resocialisation have the potential to alter this pattern.
+%
+While perfect oblique transmission, i.e. $c_5$, generates very similar results compared to $p_\text{bias}=0$; horizontal transmission and no resocialisation, i.e. $p_\text{transmit}=0$, leads to more culturally heterogeneous communities. As a result, the median proportions of individuals with  $c_i=1,\ i=2,\ldots,5$ in type A and type B/C communities changes, however, due to the already low median proportion for $p_\text{bias}=0$, especially for type B/C communities this change is much smaller compared to the setting with $f_i>0$ and $\beta=-10$ (see Fig.~\ref{fig:meanProportion_rho0}). 
+%
+This greatly reduces the effect of the different transmission pathways on the hitchhiking signature --- we observe a weak signature of hitchhiking for all considered transmission pathways. Furthermore, the higher the strength $\beta$ of the adoption of traits $a_i$, the weaker is the signature of hitchhiking for all transmission pathways considered (cf. also Fig.~S6 in the supplementary material). 
+
+With $p_\text{bias}=0.5$ we observe a very similar behaviour.
+
+Summarising, in the absence of a growth benefit derived from adopting the community-level trait variants $a_i=1$, the adoption of traits $a_i$ leads to the spread of parts of the novel technology through the population but not to the spread of the neutral trait variant $c_i=1$ associated with the new technology in the initial type B communities. 
+
+\subsection*{Influence of the adoption of $a_i$ traits with growth benefits ($f_i>0$, $\beta=0$)}
+
+%Influence of growth benefits $f_i$ with adoption of $a_i$
+Lastly, we analyse the situation where the novel technology is adaptive, i.e. the trait variants $a_i=1$ convey a growth benefits $f_i>0$ to their adopters, and can be transmitted between communities, i.e. $\beta=0$. 
+
+Fig.~\ref{fig:growthbehaviour_rho0} (columns for $f_i>0$, $\beta=0$) shows that while the $f_i$-values influence the number of communities descendent from the initial type A and B communities --- the higher the $f_i$-values, the more type B descendants --- the $\beta$-values influence the type of the descendants.
+With higher values of $\beta$, more communities of type C exist. Similar to the situation with $f_i=0$ and $\beta=0$, we see that most communities adopt parts of the novel technology and an increase in the $f_i$-values results in a slight increase of type B communities. 
+
+When $p_\text{bias}=0$, Fig.~\ref{fig:meanProportion_rho0} (colour red, $\beta=0$, $f_i=0,0.015$, four sets of five boxes and whiskers) shows the contrasting effects of increasing growth benefits $f_i$ and increasing adoption strength $\beta$.
+While the median proportions of individuals carrying $c_i=1,\ i=2,\ldots,5$, in type B/C communities are decreasing for higher values of $\beta$, positive values of $f_i$ counteract this effect --- the higher number of type C communities descended from the initial two type B communities (see Fig.~\ref{fig:growthbehaviour_rho0}, columns for $f_i>0$, $\beta=0$) --- and therefore strengthen the signature of hitchhiking. 
+%However, the signature is much lower than in cases where the adaptive traits cannot be transmitted ($\beta=-10$), as community descending from the original 8 incumbent type A communities with $c_i=0$-variants quickly adopt $a_i=1$-variants while keeping their original neutral trait variant and outgrowth the descendant of the B-Community with $c_i=0$-variant. 
+
+When $p_\text{bias}=1$ and $c_1$, Fig.~\ref{fig:meanProportion_rho0} (colour blue, first box and wisker, $\beta=0$, $f_i=0.015$) shows again the same median proportions of individuals carrying $c_1=1$ in type A and type B/C communities. Compared to the situation with $\beta=0$ and $f_i=0$ those proportions are slightly increased. 
+
+For $p_\text{bias}=1$ and $c_i,\ i = 2,\dots,5$, the impact of different pathways of resocialisation is slightly more pronounced for higher $f_i$-values (see Fig.~\ref{fig:meanProportion_rho0} (colour blue, second to fourth box and whisker, $\beta=0$, $f_i=0.015$)), compared to the increased median proportions for $p_\text{bias} = 0$.
+
+Summarising, the growth benefits, $f_i$ of the adaptive trait variants $a_i=1$ and the strength $\beta$ of the adoption of these adaptive traits $a_i$ have opposing effects on the strength of the hitchhiking signature. While increasing the values of $\beta$ results in weaker signatures, increasing the values of $f_i$ results in stronger signatures. Fig.~S6 further reflects this point on the general diffusion of the 1-variant at the population level, showing the negative correlation between $\beta$- and $f_i$-values.
+%3. Reveals the antithetical effects of increasing growth benefits.
+
+
+\subsection*{Bilocality}
+
+Under bilocality (Figs.~S8 and ~S9 in the supplementary material), our model settings lead to outcomes similar to patrilocality, with the highest level of hitchhiking observed in the presence of resocialisation with oblique transmission. We note, however, that given both male and female individuals relocate after marriage, we no longer have a scenario resembling a ``pure'' demic diffusion (i.e. $f_i>0$, $\beta=-10$, $p_\text{bias}=0$). Thus, in the absence of cultural adoption, we no longer observe instances where type A community retains 0-variants, and type B community retains 1-variants. Instead, we observe a similar impact of the different transmission pathways across all settings of $p_\text{bias}$. 
+
+Furthermore, we observe that when the adoption of the $a_i$ variants is possible (i.e. $\beta=0$), we observe lower retention of type-1 variants in the B/C type community under $p_\text{bias}=0$, indicating a lower level of hitchhiking promoted by the movement of both sexes.
+
+
+\begin{figure*}[htb]
+\begin{center}
+\includegraphics[width=14.0cm]{Figs/Figure2.pdf}
+\end{center}
+\caption{Average growth behaviour at the end of the simulation of the number of communities of type A (dark green), B (yellow) and types C (green and light green) conditioned on whether they descend from the initial eight type A or two type B communities for $f=f_1=f_2=f_3=0,0.005;0.015$ and $\beta=-10;0$. } 
+\label{fig:growthbehaviour_rho0}       
+\end{figure*}
+
+\begin{figure*}
+\includegraphics[width=17.0cm]{Figs/Figure3.pdf}
+\caption{Proportion of individuals in type A communities that possess $c_i=1$, $i=1,\ldots,5$ (top row), proportion of individuals in type B and C communities that possess $c_i=1$, $i=1,\ldots,5$ (bottom row) at the end of each simulation for $f=f_1=f_2=f_3=0.005;0.015$, $\beta=-10;0$, different transmission pathway labelled by $c_1,\ldots,c_5$ (see Table~\ref{tab:transCombinations}) and $p_\text{bias}=0$ (colour red), $p_\text{bias}=0.5$ (colour grey), $p_\text{bias}=1$ (colour blue).} \label{fig:meanProportion_rho0}       
+\end{figure*}
+
+\begin{figure*}
+\includegraphics[width=17.0cm]{Figs/Figure4.pdf}
+\caption{Distributions of the proportion of individuals carrying $c_i=1$ in type A (left panel) and type B/C (right panel) communities at the end of the simulation accumulated over 125 repetitions for $\beta=-10$ and $f_i=0;0.015$, $i=1,2,3$ (first and second columns), $\beta=0$ and $f_i=0;0.015$, $i=1,2,3$ (third and fourth columns), labelled by different transmission pathways (see Table~\ref{tab:transCombinations}) and $p_\text{bias}=0$ (colour red), $p_\text{bias}=0.5$ (colour grey), $p_\text{bias}=1$ (colour blue).} \label{fig:distributionsCommunityComposition_rho0}       
+\end{figure*}
+
+
+
+\section*{Discussion}
+
+%TO BE INCLUDED: should we say again: and at population level, the difference in proportion of $c_i==1$ is only driven by the different growth rate of the population (f_i)'
+
+
+%% here is a first attempt, not sure about the final punchline.... 
+The extent to which cultural traits are found in association is a key question in cultural evolution~\citep{boyd_are_1997,shennan_isolation-by-distance_2015,yeh_cultural_2019}. 
+Mechanisms underlying such patterns can potentially vary, including cognitive associations, functional constraints, and shared transmission pathways, all leading to a systematic statistical association between two or more cultural traits. 
+However, in some cases, such associations may specifically emerge between adaptive and neutral traits due to demic diffusion and inter-group migration.
+
+Previous models have investigated such `cultural hitchhiking'~\citep{ackland_cultural_2007}, under the premise that the association between adaptive and neutral traits is maintained exclusively through demic diffusion.
+In other words, at the individual level, traits are jointly transmitted within communities; at the population level, communities grow in size and fission, spreading both adaptive and neutral traits in a given region.
+Under this model's assumption, the community-level association between the two types of traits can be broken only if adaptive traits are transmitted between distinct populations.
+While the model by Ackland et al.~\citep{ackland_cultural_2007} provides potential insights into how cultural boundaries of neutral traits can emerge during the wave of advance of a beneficial technology, the assumption that only demic diffusion can maintain the association between variants of adaptive and neutral traits is very restrictive. 
+Here, we analysed the extent to which other processes, such as individual migration via inter-group exogamy, can lead to cultural hitchhiking. 
+%has remained, so far, unexplored. 
+
+Our simulation explored the implications of the interaction between members of an incumbent and an immigrant population associated with novel, more beneficial variants of adaptive traits conveying reproductive advantage. 
+We specifically considered the adoption of potentially adaptive technology and the transmission of neutral traits that require repeated interactions, achieved through the migration of individuals via inter-group exogamy. 
+In our model, migrants may or may not acquire cultural traits via resocialisation and become part of the learning pool for new individuals in the community. 
+Our objective was to establish the specific conditions under which the statistical association between adaptive and neutral variants observed initially in the migrant communities persist over time.
+We analysed the effect of different cultural and demographic processes, including a range of settings concerning the adoption of adaptive traits, the reproductive advantage gained by such traits, post-marital residence rules and cultural transmission.
+
+The results of our simulations suggest that cultural hitchhiking can be sustained via inter-group exogamy but only under a limited set of circumstances conditioned by post-marital residence rules and the nature of post-marital resocialisation. 
+Firstly, we observe that hitchhiking can persist only under matrilocality or patrilocality but less so under bilocality.
+Under a sex-biased transmission regime, the non-random assortment of the sampling pool, i.e. the exclusive learning from one sex, has major implications on cultural hitchhiking. 
+For example, traits associated exclusively with male individuals cannot be transmitted outside a community under patrilocality.
+That means an increase in the frequency of a particular cultural variant depends solely on whether communities with such variants have a competitive advantage in their growth rate (provided by the presence of a more beneficial adaptive trait).
+However, if traits are only transmitted from female individuals, the implications of a patrilocal post-marital residence rule change and depend on whether any resocialisation occurs after post-marital migration.
+
+Our results show for example, that if adaptive traits are not transmitted, high probability of resocialisation can indeed sustain cultural hitchhiking. Our simulation suggests that while oblique transmission can sustain cultural hitchhiking, horizontal transmission can deteriorate its signal over time. This is due to the fact that traits can be transmitted between migrants, leading to dynamics not dissimilar to other studies exploring the interaction between migration and homophily ~\citep{mesoudi_migration_2018}. 
+
+Post-marital transmission pathway also has implications in terms of within-community vs between-group cultural diversity. Under horizontal transmission, we observe the co-existence of both cultural variants within the same group, while oblique transmission keeps the between-community cultural diversity high and within-group cultural diversity to nil. 
+
+The simulation output provides an interpretative frame on possible mechanisms behind the spread of farming. Our results indicate that in order to sustain high levels of cultural hitchhiking, one of more of the following conditions should be met: 1) low probability of the adoption of the novel technology; 2) higher population growth rate offered by such novel cultural variant; and 3) high levels of cultural resocialisation after post-marital migration of the exogamous sex. In the case of the spread of farming into Europe at least, we can presume that conditions (1) and (2) are likely to be present~\citep{shennan2018first}. There is also some limited archaeological evidence pointing to post-marital resocialisation, Condition (3), in addition to ethnographic insights. Thus, individuals with very recent hunter-gatherer ancestry found in early farmer cemeteries in Central Europe are usually buried following the farmer burial rite with farmer material culture ~\citep{nikitin2019interactions,gelabert2023social}. More generally, our model highlights the relevance of the role of migrants in the diffusion of novel cultural traits and how differences in cultural transmission practices after their relocation impact such a process. 
+
+Despite its complexity, our model is far from an exhaustive exploration of the interaction between incumbent and immigrating communities and their effects on the distribution of adaptive and neutral traits. 
+For example, our model has assumed that adaptive traits are effectively transmitted without any bias, making the probability of incumbent communities adopting the more beneficial variant from the migrant communities the same as that of the migrant communities switching to the less beneficial variant of the incumbent groups. 
+A less conservative scenario for example, one involving a payoff-biased transmission for the adaptive traits where the probability of adopting a more beneficial variant is higher, would have most likely led to a stronger hitchhiking signature. 
+It is worth noting that several assumptions and model settings relevant specifically to the spread of agriculture may not apply to other scenarios. 
+Our model assumes that migration between populations is the result of inter-group exogamy. We do not consider movements dictated by other factors that might be similarly sex-biased or entail migrations of entire families.
+%Similarly, our model envisages interactions occurring when migrant communities are not at carrying capacity. 
+One could envisage other contexts in which such an assumption, or the initial relative frequencies of the two populations, is different from the settings we explored.
+Further, we assumed that adaptive traits evolve at the group level to portray the nature of a beneficial trait that requires cooperative networks. 
+We modelled the transmission of such adaptive traits \textit{as if} communities were individuals, with a frequency-dependent probability of adoption. More complex models, for example inspired by threshold models of collective behaviour~\cite{granovetter_threshold_1978}, could potentially reveal further insights on the coevolution of adaptive and neutral traits. For simplicity, here we explored a simpler scenario that nonetheless captures some specific aspects of subsistence strategies such as farming. 
+We note that with our focus on understanding the spread of farming, the analysis of the first phase, i.e. before the population has reached its carrying capacity, is of particular interest. It is widely accepted that farmers usually migrate to new areas in small numbers and experience some sort of competitive growth advantage compared to the incumbent hunter-gatherer communities. If a hitchhiking signature has not been established in this first phase, it is  unlikely to happen in later phases. Naturally, a precise analysis of later phases of the spread dynamic may involve the inclusion of population regulation which is outside the scope of this paper. 
+
+
+Finally, we note that despite the presence of rich ethnoarchaeological studies on the nature and implications of post-marital resocialisation, there are virtually no formal theoretical, cultural evolutionary models building on that knowledge.  
+As a result, on the one hand, cultural evolutionary models portraying the spread of adaptive and neutral traits neglect a potentially important factor driving some of the observed patterns in the archaeological record. On the other hand, the ethnoarchaeological literature is currently missing the opportunity to engage with formal models that can explicitly account for and compute the aggregate consequences of some of the most relevant ethnographically observed behaviour on cultural transmission. 
+We believe that processes such as post-marital residence and resocialisation hold an important conceptual link for understanding the connection between individual-level cultural transmission and meta-population phenomena, providing a key bridge between cultural micro and macro-evolution.  
+
+\section*{Data, Materials, and Software Availability}
+All source code is available at https://anonymous.4open.science/r/mixed-transmission-121C/
+
+%\subsection*{Author Affiliations}
+
+%\acknow{}
+
+%showacknow{} % Display the acknowledgments section
+
+\subsection*{References}
+\bibliography{refs.bib}
+
+\end{document}
+
