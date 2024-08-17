@@ -41,21 +41,20 @@ For quick exploration/coding, this repository can be loaded as a package using `
 - `R/tools.R`: set of functions used throughout the package
 - `R/legacyFunction.R`: archives of functions not used anymore
 - `R/VecToList.R`: deprecated tools to transform list style model to arrays
-- `R/joyplot.R`: 
+- `R/joyplot.R`: functoion to semi automatise the generation of 'joyplot' density plots.
 
 ### `inst/scripts/`
 
 
 Various script to be cleaned and group 
-- `inst/scripts/base_exp_newPW.R`
-- `inst/scripts/countMigrants.R`
+- `inst/scripts/base_exp_newPW.R`: script to run basic experiment in paralel
+- `inst/scripts/paral.R`: last implementation of the script used to run basic experiment in paralel
 - `inst/scripts/explore2populations.R`
-- `inst/scripts/exploreGrowthRate.R`
-- `inst/scripts/extractCommunites.R`
-- `inst/scripts/fullJoyPlot.R`
-- `inst/scripts/generateBoxplotsEndTraits.R`
+- `inst/scripts/exploreGrowthRate.R` : draft of script that explore the impact of different parameters on the overall growth of the population
+- `inst/scripts/extractCommunites.R` : 
+- `inst/scripts/fullJoyPlot.R`: draft script to generate joyplot representing within pop distribution of $c_i$s (final implementations in R/joyplot)
+- `inst/scripts/generateBoxplotsEndTraits.R`: draft script to generate boxplot of % of $c_i$ 
 - `inst/scripts/generateGraphs.R`
-- `inst/scripts/joyplot.R`
 - `inst/scripts/neutralTranmission.R`
 - `inst/scripts/retrieveAndPlotGrowthRates.R`
 - `inst/scripts/testAdoption.R`
@@ -63,6 +62,14 @@ Various script to be cleaned and group
 - `inst/scripts/trajPerTypes.R`
  
 ### `inst/extdata/`
+Small dataset mainly used for unit testing
+ - `inst/extdata/commu_ex.RDS`:  4 communities of sizes (154,150,149,150) on a 2x2 grid
+ - `inst/extdata/pool.ex.Rbin`: fake pool of neutral traits with different sex to test social learning mechanism. 3 pools of 23, 23 and 18 indviduals.
+ - `inst/extdata/pop_ex.RDS`:populaiton of 602 individual with5 neutral traits population the commu_ex before
+ - `inst/extdata/pop_ex.csv`: csv version of the previous dataset
+ - `inst/extdata/pop_ex2.csv`: another exemple of a valide popution (N=612)
+ - `inst/extdata/pop_ex3.csv`: another exemple of a valide popution (N=607)
+
 
 Various dataset that can be use to run test/vignettes...
 
