@@ -11,10 +11,10 @@ For quick exploration/coding, this repository can be loaded as a package using `
 
 - `R/`: Core R functions.
 - `data/`: R data object used by the package
-- `data-raw/`: some script describing how the data have been generated
-- `manuscript/: Scripts and files specific for the paper (latex file, raw svg and scripts to recreate the figures).
+- `data-raw/`: scripts describing how the data have been generated
+- `manuscript/: scripts and files specific for the paper (latex file, raw svg and scripts to recreate the figures).
   - `manuscript/script_figures/`: scripts to recreate the figures
-- `inst/`: Installation files.
+- `inst/`: 
   - `inst/scripts/`: Various scripts used throughout the development of the model and while writing the paper.
   - `inst/extdata/`: Data generated for model exploration.
 - `man/`: Documentation for R functions.
@@ -46,7 +46,8 @@ For quick exploration/coding, this repository can be loaded as a package using `
 ### `inst/scripts/`
 
 
-Various script to be cleaned and group 
+Various scripts to be cleaned and grouped ; some should be made unit tests, others should be made vignettes
+
 - `inst/scripts/base_exp_newPW.R`: script to run basic experiment in paralel
 - `inst/scripts/paral.R`: last implementation of the script used to run basic experiment in paralel
 - `inst/scripts/explore2populations.R`
@@ -62,7 +63,9 @@ Various script to be cleaned and group
 - `inst/scripts/trajPerTypes.R`
  
 ### `inst/extdata/`
-Small dataset mainly used for unit testing
+
+Small datasets mainly used for unit testing and vignettes:
+
  - `inst/extdata/commu_ex.RDS`:  4 communities of sizes (154,150,149,150) on a 2x2 grid
  - `inst/extdata/pool.ex.Rbin`: fake pool of neutral traits with different sex to test social learning mechanism. 3 pools of 23, 23 and 18 indviduals.
  - `inst/extdata/pop_ex.RDS`:populaiton of 602 individual with5 neutral traits population the commu_ex before
@@ -70,8 +73,6 @@ Small dataset mainly used for unit testing
  - `inst/extdata/pop_ex2.csv`: another exemple of a valide popution (N=612)
  - `inst/extdata/pop_ex3.csv`: another exemple of a valide popution (N=607)
 
-
-Various dataset that can be use to run test/vignettes...
 
 ### `tests/`
 
