@@ -107,13 +107,13 @@ text(labels=c("no resocialisation","horizontal transmission probability 0.9","ho
 par(xpd=NA)
 betaspos=sapply(0:1,function(ie)positions[c((30*ie)+1,(30*ie)+30)])
 bay=0.85
-text(apply(betaspos,2,sum)/2,bay,label=c("-10","0"),pos=3)
-text(x=positions[1],bay,label=expression(beta~":"),pos=3)
+text(apply(betaspos,2,sum)/2,bay,label=c(expression("none ("*beta==-10*")"),expression("strong ("*beta==0*")")) ,pos=3,cex=.9)
+text(x=positions[1],bay,label=expression("learning bias ("*beta*"):"),pos=3,cex=.7)
 arrows(x0=betaspos[1,],y0=rep(bay,nrow(betaspos)),x1=betaspos[2,],y1=rep(bay,nrow(betaspos)),lwd=1,angle=90,code=3,length=.01)
 boy=0.75
 bonuspos=sapply(0:3,function(ie)positions[ie*15+c(1,15)])
-text(label=rep(bonuses*0.005,2),y=boy,x=apply(bonuspos,2,sum)/2,pos=3)
-text(x=positions[1],boy,label="f:",pos=3)
+text(label=paste0(c("none (f =","high (f ="),rep(bonuses*0.005,2),c(")",")")),y=boy,x=apply(bonuspos,2,sum)/2,pos=3,cex=.9)
+text(x=positions[1],boy,label="fitness benefit (f):",pos=3,cex=.7)
 arrows(x0=bonuspos[1,],y0=rep(boy,nrow(bonuspos)),x1=bonuspos[2,],y1=rep(boy,nrow(bonuspos)),lwd=1,angle=90,code=3,length=.01)
 
 mardef[3]=.2

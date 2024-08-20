@@ -36,13 +36,25 @@ for(beta in c(-10,0)){
 
 cairo_pdf(paste0("Figure2_growthbehaviour.pdf"),width=16,height=10,pointsize=20)
 par(mfrow=c(1,2))
-par(oma=c(0,3,0,2),mar=c(4,2,2,0),xpd=NA)
+par(oma=c(0,4,0,2),mar=c(6,2,4,0),xpd=NA)
+fitben=c("none","medium","high")
+lbi=c("no adoption","strong bias")
 lapply(names(twotypes),function(exp){
-           a=barplot(unname(t(twotypes[[exp]])),space=c(0,0,1,0,1,0),border="black",xlab="",ylab="average number of communitiies",col=colstrat,main=bquote(beta==.(exp)))
+           a=barplot(unname(t(twotypes[[exp]])),space=c(0,0,1,0,1,0),border="black",xlab="",ylab="average number of communitiies",col=colstrat,main="")
            if(exp =="-10")mtext(2,3,text="Number of communities")
-           mtext(1,2,text=paste0("",c(0,1,3)*0.005),at=sapply(seq(1,length(a)-1,2),function(i)sum(a[i:(i+1)])/2),cex=1)
+           mtext(1,5,text=paste0(fitben,"\n","[f=",c(0,1,3)*0.005,"]"),at=sapply(seq(1,length(a)-1,2),function(i)sum(a[i:(i+1)])/2),cex=1)
            text(x = a, y = par("usr")[3] - 3, labels =rownames(twotypes[[exp]]), srt = 30, adj = .5,cex=.8)
-           mtext(1,2,text="f:",at=-.5,cex=1)
+           
+           if(exp==-10)
+              {
+                  mtext(1,4,text="fitness benefit (f):",at=par("usr")[1]+.5,adj=1,cex=.9)
+                  #mtext(3,2.2,text=bquote("learning bias to adopt"),at=par("usr")[1]+.5,cex=.9,adj=1)
+                  mtext(3,2.2,text=bquote("learning bias ("*beta*"):"),at=par("usr")[1]+.5,cex=.9,adj=1)
+                  #mtext(3,1.8,text=bquote("learning bias to adopt migrants variants ("*beta*")"),at=1,cex=.9,adj=0)
+                  mtext(3,2.2,text=bquote("No bias "),cex=1)
+              }
+           if(exp==0) mtext(3,2.2,text=bquote("strong bias "),cex=1)
+           mtext(3,1.2,text=bquote("["*beta==.(exp)*"]"),cex=1)
 })
 
 dev.off()
