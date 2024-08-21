@@ -94,7 +94,7 @@ par(xpd=F,mar=mardef,mfrow=c(2,1))
  
 ## graph second line for Type B&C
 ctype=1
-plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab=paste("average proportion of 1-variants neutral traits\nin communities of type",renametypes[ctype]),xlab="") 
+plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab=bquote(atop("average proportion of 1-variants of neutral traits"~c[i],"in communities of type"~.(renametypes[ctype]))),xlab="",cex.lab=.9) 
 segments(x0=positions,x1=positions,y0=-1,y1=0.75,lwd=1,col=adjustcolor("grey",.3),lty=5)
 colnames(allcounts[[1]])=rep(pathwaysnames[1:5],12)
 boxplot(at=positions,allcounts[[1]],col=sexcols[as.character(fullpathways$s[traitsel])],outline=F,ann=F,lwd=.6,ylim=c(0,1),xaxt="n",add=T,boxwex=.80,staplewex=.4,lty=1)
@@ -108,12 +108,12 @@ par(xpd=NA)
 betaspos=sapply(0:1,function(ie)positions[c((30*ie)+1,(30*ie)+30)])
 bay=0.85
 text(apply(betaspos,2,sum)/2,bay,label=c(expression("none ("*beta==-10*")"),expression("strong ("*beta==0*")")) ,pos=3,cex=.9)
-text(x=positions[1],bay,label=expression("learning bias ("*beta*"):"),pos=3,cex=.7)
+text(x=positions[1],bay,label=expression("learning bias "*beta*":"),pos=3,cex=.7)
 arrows(x0=betaspos[1,],y0=rep(bay,nrow(betaspos)),x1=betaspos[2,],y1=rep(bay,nrow(betaspos)),lwd=1,angle=90,code=3,length=.01)
 boy=0.75
 bonuspos=sapply(0:3,function(ie)positions[ie*15+c(1,15)])
 text(label=paste0(c("none (f =","high (f ="),rep(bonuses*0.005,2),c(")",")")),y=boy,x=apply(bonuspos,2,sum)/2,pos=3,cex=.9)
-text(x=positions[1],boy,label="fitness benefit (f):",pos=3,cex=.7)
+text(x=positions[1],boy,label="fitness benefit f:",pos=3,cex=.7)
 arrows(x0=bonuspos[1,],y0=rep(boy,nrow(bonuspos)),x1=bonuspos[2,],y1=rep(boy,nrow(bonuspos)),lwd=1,angle=90,code=3,length=.01)
 
 mardef[3]=.2
@@ -122,7 +122,7 @@ mardef[1]=2
 ## graph second line for Type B&C
 ctype=2
 par(mar=mardef,xpd=F)
-plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab=paste("average proportion of 1-variants neutral traits\nin communities of type",renametypes[ctype]),xlab="")
+plot(1,1,xlim=range(positions),ylim=c(0,1),type="n",xaxt="n",ylab=bquote(atop("average proportion of 1-variants of neutral traits"~c[i],"in communities of type"~.(renametypes[ctype]))),xlab="",cex.lab=.9)
 segments(x0=positions,x1=positions,y0=-1,y1=2,lwd=1,col=adjustcolor("grey",.3),lty=5)
 colnames(allcounts[[2]])=rep(pathwaysnames[1:5],12)
 boxplot(at=positions,allcounts[[2]],col=sexcols[as.character(fullpathways$s[traitsel])],outline=F,ann=F,lwd=.6,ylim=c(0,1),xaxt="n",add=T,boxwex=.80,staplewex=.4,lty=1)
