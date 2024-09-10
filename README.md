@@ -1,8 +1,10 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12579204.svg)](https://doi.org/10.5281/zenodo.12579204)
+
 # Repository for paper on Cultural Hitchhiking and post marital residence rules titled "Post-marital residence rules and transmission pathways in cultural hitchhiking"
 
 ## Multimodal Transmission
 
-What happens when horizontal, vertical, oblique transmission interact with sexual biases, population growth and between population mating?  This repository allow to run the model used in the paper and redo the graph used.
+What happens when horizontal, vertical, oblique transmission interact with sexual biases, population growth and between population mating?  This repository allow to run the model used in the paper and redo the plot presented in the paper.
 
 For quick exploration/coding, this repository can be loaded as a package using `devtools::load_all()`.
 
@@ -18,7 +20,7 @@ For quick exploration/coding, this repository can be loaded as a package using `
   - `inst/scripts/`: Various scripts used throughout the development of the model and while writing the paper.
   - `inst/extdata/`: Data generated for model exploration.
 - `man/`: Documentation for R functions.
-- `simulations/`: Simulation outputs (need to be downloaded from Zenodo, see `simulations/README.md`).
+- `simulations/`: Simulation outputs (archves in this folder need to be downloaded from Zenodo, see `simulations/README.md`).
 - `tests/`: Unit tests to ensure that functions generate the expected output.
 - `vignettes/`: A few vignettes that explore specific, simple aspects of the model.
 
@@ -52,13 +54,11 @@ Various scripts to be cleaned and grouped ; some should be made unit tests, othe
 - `inst/scripts/paral.R`: last implementation of the script used to run basic experiment in paralel
 - `inst/scripts/explore2populations.R`
 - `inst/scripts/exploreGrowthRate.R` : draft of script that explore the impact of different parameters on the overall growth of the population
-- `inst/scripts/extractCommunites.R` : 
 - `inst/scripts/fullJoyPlot.R`: draft script to generate joyplot representing within pop distribution of $c_i$s (final implementations in R/joyplot)
 - `inst/scripts/generateBoxplotsEndTraits.R`: draft script to generate boxplot of % of $c_i$ 
 - `inst/scripts/generateGraphs.R`
 - `inst/scripts/neutralTranmission.R`
 - `inst/scripts/retrieveAndPlotGrowthRates.R`
-- `inst/scripts/testAdoption.R`
 - `inst/scripts/testModel.R`
 - `inst/scripts/trajPerTypes.R`
  
@@ -81,4 +81,4 @@ Test files to be sure everything stays in order (needs to be improved)
 
 ## Fundings
 
-This work has been made possible by funding from European Research Council, under the ERC Starting Grant (ENCOUNTER; Project N. 801953).
+This work has been made possible by funding from the Synergy project *COREX: From Correlations to Explanations: Towards a New European Prehistory* under the European Union’s Horizon 2020 research and innovation programme (Grant Agreement No. 95138) and the ERC Starting Grant *Demography, Cultural change, and the Diffusion of Rice and Millet during the Jomon-Yayoi transition in prehistoric Japan* (Grant Agreement No. 801953).
